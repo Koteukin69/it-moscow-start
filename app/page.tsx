@@ -9,6 +9,8 @@ export default function Home() {
         <OrbAnimation  />
       </div>
     </div>
-    <Nav/>
+    <div className={"flex items-center justify-center w-full max-w-sm"}>
+      <Nav/>
+    </div>
   </div>);
 }

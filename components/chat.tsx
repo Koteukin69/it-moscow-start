@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import Image from "next/image";
 
 export type ChatStep =
   | { type: "message"; text: string; sender: "client" | "server"; delay?: number }
@@ -202,8 +203,9 @@ const Chat: FC<ChatProps> = ({ steps, className }) => {
 
   return (
     <div className={`relative flex size-full flex-col overflow-hidden bg-background text-foreground ${className ?? ""}`}>
-      <div className="flex shrink-0 items-center gap-3 border-b border-border px-5 py-4 md:hidden">
+      <div className="flex justify-between shrink-0 items-center gap-3 border-b border-border px-5 py-4 md:hidden">
         <Button variant="link" asChild><Link href="/">Вернуться</Link></Button>
+        <Image className={"max-w-10 aspect-square"} alt={"logo square"} src={"logo-square.svg"} width={64} height={64}/>
       </div>
 
       <Messages bubbles={bubbles} />

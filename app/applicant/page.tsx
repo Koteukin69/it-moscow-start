@@ -3,7 +3,7 @@
 import Nav from "@/components/nav";
 import OrbAnimation from "@/components/orb";
 import Chat, {ChatStep} from "@/components/chat";
-import Action_buttons from "@/components/action_buttons";
+import ActionButtons from "@/components/action_buttons";
 
 const steps:ChatStep[] = [
   { type: "message", sender: "client", text: "Я — абитуриент" },
@@ -16,7 +16,7 @@ const steps:ChatStep[] = [
   { type: "condition", key: "phone", match: /^(\+7|8)9\d{9}$/,
     then: [{ type: "message", sender: "server", text: "Спасибо за то что поделился номером.", delay: 500 }] },
   { type: "message", sender: "server", text: "А теперь перейдём к возможностям.", delay: 500 },
-  { type: "component", render: Action_buttons },
+  { type: "component", render: ActionButtons },
 ];
 
 

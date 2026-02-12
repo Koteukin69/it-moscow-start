@@ -1,13 +1,14 @@
 import {Button} from "@/components/ui/button";
+import Link from "next/link";
 
 export default function ActionButtons() {
   return (<div className="flex flex-wrap gap-2 max-w-sm">
-    <Button className={"rounded-xl"} variant={"outline"}>Тест: Кто ты в IT?</Button>
-    <Button className={"rounded-xl"} variant={"outline"}>FAQ</Button>
-    <Button className={"rounded-xl"} variant={"outline"}>Гид по профессиям умного города</Button>
-    <Button className={"rounded-xl"} variant={"outline"}>Курсы IT.Москва School</Button>
+    <Button disabled className={"rounded-xl"} variant={"outline"}>Тест: Кто ты в IT?</Button>
+    <Button className={"rounded-xl"} variant={"outline"} asChild><Link href={"/faq"}>FAQ</Link></Button>
+    <Button disabled className={"rounded-xl"} variant={"outline"}>Гид по профессиям умного города</Button>
+    <Button disabled className={"rounded-xl"} variant={"outline"}>Курсы IT.Москва School</Button>
     <Button className={"rounded-xl"} variant={"secondary"}>Играть</Button>
-    <Button className={"rounded-xl"} variant={"outline"}>Наши мероприятия</Button>
-    <Button className={"rounded-xl"} variant={"outline"}>Мой профиль</Button>
+    <Button disabled className={"rounded-xl"} variant={"outline"}>Наши мероприятия</Button>
+    <Button className={"rounded-xl"} variant={"outline"} asChild><Link href={"/profile"}>Мой профиль</Link></Button>
   </div>);
 }

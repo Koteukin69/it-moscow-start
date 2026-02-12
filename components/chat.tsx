@@ -25,11 +25,14 @@ export type ChatStep =
 export interface ChatProps {
   steps: ChatStep[];
   className?: string;
+  onComplete?: (data: Record<string, string>) => void;
+  initialData?: Record<string, string>;
+  instant?: boolean;
 }
 
 type Bubble =
-  | { id: number; kind: "text"; sender: "client" | "server"; text: string }
-  | { id: number; kind: "node"; sender: "client" | "server"; node: ReactNode };
+  | { id: number; kind: "text"; sender: "client" | "server"; text: string; noAnim?: boolean }
+  | { id: number; kind: "node"; sender: "client" | "server"; node: ReactNode; noAnim?: boolean };
 
 const Messages: FC<{ bubbles: Bubble[] }> = ({ bubbles }) => {
   const endRef = useRef<HTMLDivElement>(null);
@@ -39,7 +42,7 @@ const Messages: FC<{ bubbles: Bubble[] }> = ({ bubbles }) => {
     <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-5 py-10">
       {bubbles.map((b) => (
         <div key={b.id}
-             className={`flex animate-[chatFadeIn_0.3s_ease_both] ${b.sender === "client" ? "justify-end" : "justify-start"}`}>
+             className={`flex ${b.noAnim ? "" : "animate-[chatFadeIn_0.3s_ease_both]"} ${b.sender === "client" ? "justify-end" : "justify-start"}`}>
           {b.kind === "text" ? (
             <div className={`max-w-[80%] break-words px-4 py-2.5 text-[15px] leading-normal ${
               b.sender === "client"
@@ -131,22 +134,23 @@ function flattenSteps(steps: ChatStep[], data: Record<string, string>): ChatStep
   return result;
 }
 
-const Chat: FC<ChatProps> = ({ steps, className }) => {
+const Chat: FC<ChatProps> = ({ steps, className, onComplete, initialData, instant }) => {
   const [bubbles, setBubbles] = useState<Bubble[]>([]);
   const [typing, setTyping] = useState(false);
   const [inputStep, setInputStep] = useState<Extract<ChatStep, { type: "input" }> | null>(null);
   const [inputError, setInputError] = useState<string>();
-  const data = useRef<Record<string, string>>({});
+  const data = useRef<Record<string, string>>(initialData ?? {});
   const idx = useRef(0);
   const running = useRef(false);
+  const initialized = useRef(false);
   const bid = useRef(0);
 
-  const addText = useCallback((sender: "client" | "server", text: string) => {
-    setBubbles((p) => [...p, { id: bid.current++, kind: "text", sender, text: tpl(text, data.current) }]);
+  const addText = useCallback((sender: "client" | "server", text: string, noAnim?: boolean) => {
+    setBubbles((p) => [...p, { id: bid.current++, kind: "text", sender, text: tpl(text, data.current), noAnim }]);
   }, []);
 
-  const addNode = useCallback((sender: "client" | "server", node: ReactNode) => {
-    setBubbles((p) => [...p, { id: bid.current++, kind: "node", sender, node }]);
+  const addNode = useCallback((sender: "client" | "server", node: ReactNode, noAnim?: boolean) => {
+    setBubbles((p) => [...p, { id: bid.current++, kind: "node", sender, node, noAnim }]);
   }, []);
 
   const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -161,31 +165,41 @@ const Chat: FC<ChatProps> = ({ steps, className }) => {
       const s = flat[i];
 
       if (s.type === "message") {
-        if (s.sender === "server") { setTyping(true); await sleep(s.delay ?? 600); setTyping(false); }
-        addText(s.sender, s.text);
+        if (!instant && s.sender === "server") { setTyping(true); await sleep(s.delay ?? 600); setTyping(false); }
+        addText(s.sender, s.text, instant);
       } else if (s.type === "sleep") {
-        await sleep(s.ms);
+        if (!instant) await sleep(s.ms);
       } else if (s.type === "input") {
+        if (instant && data.current[s.key]) {
+          addText("client", data.current[s.key], true);
+          continue;
+        }
         setInputStep(s);
         setInputError(undefined);
         running.current = false;
         return;
       } else if (s.type === "component") {
-        addNode(s.sender ?? "server", s.render(data.current));
+        addNode(s.sender ?? "server", s.render(data.current), instant);
       }
     }
+    onComplete?.(data.current);
     running.current = false;
-  }, [steps, addText, addNode]);
+  }, [steps, addText, addNode, instant, onComplete]);
 
-  useEffect(() => { runFrom(0); }, [runFrom]);
+  useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+    runFrom(0);
+  }, [runFrom]);
 
   const handleSend = (text: string): boolean | void => {
     if (!inputStep) return;
-    if (inputStep.regex && !inputStep.regex.test(text.replace(/[\s\-()]+/g, ""))) {
+    const cleaned = inputStep.regex ? text.replace(/[\s\-()]+/g, "") : text;
+    if (inputStep.regex && !inputStep.regex.test(cleaned)) {
       setInputError(inputStep.error ?? "Неверный формат");
       return false;
     }
-    data.current[inputStep.key] = text;
+    data.current[inputStep.key] = cleaned;
     addText("client", text);
     setInputStep(null);
     setInputError(undefined);

@@ -6,7 +6,7 @@ import {JWTPayload, Role} from "@/lib/types";
 
 export async function POST(req: NextRequest):Promise<NextResponse> {
   try {
-    const validated = await loginSchema.safeParseAsync(req.json);
+    const validated = await loginSchema.safeParseAsync(await req.json());
     if (!validated.success)
       return NextResponse.json(
         {error: `Ошибка валидации данных. ${validated.error.issues.map((i) => i.message).join(" ")}`},

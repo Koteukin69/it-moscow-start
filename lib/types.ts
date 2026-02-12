@@ -10,3 +10,9 @@ export enum Role {
   applicant,
   parent,
 }
+
+export interface QuizResult {
+  directions: Record<string, number>;
+  top: string[];
+  completedAt: string;
+}

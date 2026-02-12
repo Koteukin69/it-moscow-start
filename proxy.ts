@@ -7,7 +7,7 @@ export async function proxy(request: NextRequest) {
   const token: string | undefined = request.cookies.get('auth-token')?.value;
   const payload: JWTPayload | undefined = token ? await verifyToken(token) ?? undefined : undefined;
 
-  if (pathname.startsWith("/profile") && !payload) {
+  if ((pathname.startsWith("/profile") || pathname.startsWith("/quiz")) && !payload) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 

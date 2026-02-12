@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {Pencil} from "lucide-react"
-import { Role } from "@/lib/types";
+import { Role, type QuizResult } from "@/lib/types";
 import OrbAnimation from "@/components/orb";
 import Link from "next/link";
 
@@ -18,9 +18,10 @@ interface ProfileCardProps {
   phone?: string;
   role: Role;
   verified: boolean;
+  quizResult?: QuizResult;
 }
 
-export default function ProfileCard({ name, phone, role, verified }: ProfileCardProps) {
+export default function ProfileCard({ name, phone, role, verified, quizResult }: ProfileCardProps) {
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -63,6 +64,23 @@ export default function ProfileCard({ name, phone, role, verified }: ProfileCard
             <span className="text-sm text-muted-foreground">Статус</span>
             <span>{verified ? "Подтверждён" : "Не подтверждён"}</span>
           </div>
+        </CardContent>
+        <CardContent className="flex flex-col gap-2">
+          <span className="text-sm text-muted-foreground">Тест: Кто ты в IT?</span>
+          {quizResult ? (
+            <div className="flex flex-col gap-1">
+              {quizResult.top.map((dir, idx) => (
+                <span key={dir} className="text-sm">{idx + 1}. {dir}</span>
+              ))}
+              <Button variant="link" size="sm" className="w-fit p-0 h-auto text-muted-foreground" asChild>
+                <Link href="/quiz">Пройти заново</Link>
+              </Button>
+            </div>
+          ) : (
+            <Button variant="link" size="sm" className="w-fit p-0 h-auto" asChild>
+              <Link href="/quiz">Пройти тест</Link>
+            </Button>
+          )}
         </CardContent>
         <CardContent>
           <Button variant="destructive" className="mt-4 rounded-xl w-full" onClick={handleLogout}>

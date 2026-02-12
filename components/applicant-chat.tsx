@@ -1,30 +1,30 @@
 'use client';
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import Nav from "@/components/nav";
 import OrbAnimation from "@/components/orb";
 import Chat, {ChatStep} from "@/components/chat";
 import ActionButtons from "@/components/action_buttons";
 
-const steps: ChatStep[] = [
-  { type: "message", sender: "client", text: "Я — абитуриент" },
-  { type: "message", sender: "server", text: "Привет, давай познакомимся!", delay: 800 },
-  { type: "message", sender: "server", text: "Напиши своё имя.", delay: 500 },
-  { type: "input", key: "name", placeholder: "Ваше имя..." },
-  { type: "message", sender: "server", text: "Ещё раз приветствую, {name}.", delay: 500 },
-  { type: "message", sender: "server", text: "Ты можешь оставить номер — он нужен, чтобы не потерять прогресс.", delay: 1000 },
-  { type: "input", key: "phone", placeholder: "+7 900 123-45-67", regex: /^(\+7|8)9\d{9}$/, error: "Введите корректный номер: +7 9XX XXX-XX-XX", skip: "Пропустить" },
-  { type: "condition", key: "phone", match: /^(\+7|8)9\d{9}$/,
-    then: [{ type: "message", sender: "server", text: "Спасибо за то что поделился номером.", delay: 500 }] },
-  { type: "message", sender: "server", text: "А теперь перейдём к возможностям.", delay: 500 },
-  { type: "component", render: ActionButtons },
-];
-
 interface ApplicantChatProps {
   user: { name: string; phone?: string } | null;
+  userId?: string;
 }
 
-export default function ApplicantChat({ user }: ApplicantChatProps) {
+export default function ApplicantChat({ user, userId }: ApplicantChatProps) {
+  const steps: ChatStep[] = useMemo(() => [
+    { type: "message", sender: "client", text: "Я — абитуриент" },
+    { type: "message", sender: "server", text: "Привет, давай познакомимся!", delay: 800 },
+    { type: "message", sender: "server", text: "Напиши своё имя.", delay: 500 },
+    { type: "input", key: "name", placeholder: "Ваше имя..." },
+    { type: "message", sender: "server", text: "Ещё раз приветствую, {name}.", delay: 500 },
+    { type: "message", sender: "server", text: "Ты можешь оставить номер — он нужен, чтобы не потерять прогресс.", delay: 1000 },
+    { type: "input", key: "phone", placeholder: "+7 900 123-45-67", regex: /^(\+7|8)9\d{9}$/, error: "Введите корректный номер: +7 9XX XXX-XX-XX", skip: "Пропустить" },
+    { type: "condition", key: "phone", match: /^(\+7|8)9\d{9}$/,
+      then: [{ type: "message", sender: "server", text: "Спасибо за то что поделился номером.", delay: 500 }] },
+    { type: "message", sender: "server", text: "А теперь перейдём к возможностям.", delay: 500 },
+    { type: "component", render: () => <ActionButtons userId={userId} /> },
+  ], [userId]);
   const handleComplete = useCallback(async (data: Record<string, string>) => {
     if (user) return;
     try {

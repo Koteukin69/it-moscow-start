@@ -7,7 +7,8 @@ export default async function Applicant() {
   const name = rawName ? decodeURIComponent(rawName) : null;
   const phone = h.get("x-user-phone") || undefined;
 
+  const userId = h.get("x-user-id") || undefined;
   const user = name ? { name, phone } : null;
 
-  return <ApplicantChat user={user} />;
+  return <ApplicantChat user={user} userId={userId} />;
 }

@@ -8,7 +8,7 @@ export async function proxy(request: NextRequest) {
   const payload: JWTPayload | undefined = token ? await verifyToken(token) ?? undefined : undefined;
 
   if ((pathname.startsWith("/profile") || pathname.startsWith("/quiz")) && !payload) {
-    return NextResponse.redirect(new URL('/', request.url));
+    return NextResponse.redirect(new URL('/applicant', request.url));
   }
 
   if (!payload) return NextResponse.next();

@@ -11,7 +11,6 @@ export async function POST(): Promise<NextResponse> {
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: 0,
-    domain: `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN?.split(":")[0] ?? "localhost"}`,
   });
 
   return response;

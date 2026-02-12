@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function ActionButtons() {
   return (<div className="flex flex-wrap gap-2 max-w-sm">
-    <Button disabled className={"rounded-xl"} variant={"outline"}>Тест: Кто ты в IT?</Button>
+    <Button className={"rounded-xl"} variant={"outline"} asChild><Link href={"/quiz"}>Тест: Кто ты в IT?</Link></Button>
     <Button className={"rounded-xl"} variant={"outline"} asChild><Link href={"/faq"}>FAQ</Link></Button>
     <Button disabled className={"rounded-xl"} variant={"outline"}>Гид по профессиям умного города</Button>
     <Button disabled className={"rounded-xl"} variant={"outline"}>Курсы IT.Москва School</Button>

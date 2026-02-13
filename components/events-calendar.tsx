@@ -9,7 +9,6 @@ import {Calendar} from "@/components/ui/calendar";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {Search, CalendarDays, Loader2, X} from "lucide-react";
 import OrbAnimation from "@/components/orb";
-import {ru} from "date-fns/locale/ru";
 
 interface EventData {
   _id: string;
@@ -30,23 +29,23 @@ function EventCard({event, upcoming = true}: {event: EventData; upcoming?: boole
   };
 
   return (
-    <Card className={`bg-background/50 ${!upcoming ? "opacity-60" : ""}`}>
-      <CardContent className="flex flex-col gap-2 p-4">
+    <Card className={`max-w-sm bg-background/50 ${!upcoming ? "opacity-60" : ""}`}>
+      <CardContent className="flex flex-col gap-2">
+        <h3 className="font-semibold">{event.name}</h3>
+        <p className="text-sm">{event.description}</p>
         {event.image && (
           <img
             src={event.image}
             alt={event.name}
-            className="w-full h-40 object-cover rounded-lg"
+            className="w-full aspect-square object-cover rounded-lg"
           />
         )}
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold">{event.name}</h3>
+          <p className="text-sm text-muted-foreground">{formatDate(event.date)}</p>
           <Badge variant={upcoming ? "default" : "secondary"} className="shrink-0 text-xs">
             {upcoming ? "Скоро" : "Прошло"}
           </Badge>
         </div>
-        <p className="text-sm text-muted-foreground">{formatDate(event.date)}</p>
-        <p className="text-sm">{event.description}</p>
       </CardContent>
     </Card>
   );
@@ -112,9 +111,9 @@ export default function EventsCalendar() {
 
       <Card className="w-full max-w-2xl bg-background/70 animate-[chatFadeIn_0.3s_ease_both]">
         <CardHeader>
-          <h1 className="text-xl font-semibold text-center">Мероприятия</h1>
+          <h1 className="text-xl font-semibold">Мероприятия</h1>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
+        <CardContent className="flex flex-col gap-4 h-[50vh] overflow-y-scroll">
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"/>
@@ -136,7 +135,6 @@ export default function EventsCalendar() {
                   mode="single"
                   selected={selectedDate}
                   onSelect={setSelectedDate}
-                  locale={ru}
                 />
               </PopoverContent>
             </Popover>
@@ -162,18 +160,22 @@ export default function EventsCalendar() {
           {!loading && upcoming.length > 0 && (
             <div className="flex flex-col gap-3">
               <h2 className="text-sm font-medium text-muted-foreground">Предстоящие</h2>
-              {upcoming.map(event => (
-                <EventCard key={event._id} event={event}/>
-              ))}
+              <div className={"grid grid-cols-1 sm:grid-cols-2 gap-x-3"}>
+                {upcoming.map(event => (
+                  <EventCard key={event._id} event={event}/>
+                ))}
+              </div>
             </div>
           )}
 
           {!loading && past.length > 0 && (
             <div className="flex flex-col gap-3">
               <h2 className="text-sm font-medium text-muted-foreground">Прошедшие</h2>
-              {past.map(event => (
-                <EventCard key={event._id} event={event} upcoming={false}/>
-              ))}
+              <div className={"grid grid-cols-1 sm:grid-cols-2 gap-x-3"}>
+                {past.map(event => (
+                  <EventCard key={event._id} event={event} upcoming={false}/>
+                ))}
+              </div>
             </div>
           )}
 

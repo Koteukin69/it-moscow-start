@@ -135,6 +135,9 @@ export default function ProfileCard({name: initialName, phone: initialPhone, rol
             <span className="text-sm text-muted-foreground">Статус</span>
             <span>{verified ? "Подтверждён" : "Не подтверждён"}</span>
           </div>
+          <Button variant={"outline"} className="mt-4 rounded-xl w-full" asChild>
+            <Link href={"/shop"}>Магазин мерча</Link>
+          </Button>
           <div className="flex flex-row items-center justify-between gap-1">
             <span className="text-sm text-muted-foreground flex items-center gap-1">
               <Coins size={14}/>

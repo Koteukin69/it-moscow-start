@@ -17,9 +17,10 @@ interface UserData {
     top: string[];
     completedAt: string;
   } | null;
+  coins: number;
 }
 
-type SortField = "name" | "phone" | "quizResult" | "quizDate";
+type SortField = "name" | "phone" | "quizResult" | "quizDate" | "quizCoin";
 type SortDir = "asc" | "desc";
 
 export default function UsersTab() {
@@ -134,6 +135,11 @@ export default function UsersTab() {
                     Дата прохождения <SortIcon field="quizDate"/>
                   </button>
                 </TableHead>
+                <TableHead>
+                  <button onClick={() => toggleSort("quizCoin")} className="flex items-center gap-1 font-medium">
+                    Монеты <SortIcon field="quizCoin"/>
+                  </button>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -170,6 +176,9 @@ export default function UsersTab() {
                           })
                         : <span className="text-muted-foreground/50">&mdash;</span>
                       }
+                    </TableCell>
+                    <TableCell className={"text-muted-foreground"}>
+                      {user.coins}
                     </TableCell>
                   </TableRow>
                 ))

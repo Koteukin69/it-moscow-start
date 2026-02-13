@@ -5,7 +5,10 @@
       "Bash(python:*)",
       "Bash(findstr:*)",
       "Bash(dir:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(npx next build:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

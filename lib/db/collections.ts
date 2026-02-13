@@ -8,3 +8,19 @@ export const quizResultsCollection = getCollection<{
   top: string[];
   completedAt: Date;
 }>("quizResults");
+
+export const eventsCollection = getCollection<{
+  name: string;
+  date: string;
+  image?: string;
+  description: string;
+}>("events");
+
+export const productsCollection = getCollection<{
+  name: string;
+  price: number;
+  description: string;
+  image?: string;
+  stock?: number;
+  sizes?: Record<string, number>;
+}>("products");

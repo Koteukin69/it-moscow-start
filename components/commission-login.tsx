@@ -5,6 +5,7 @@ import {useRouter} from "next/navigation";
 import {Card, CardContent, CardHeader} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
+import Nav from "@/components/nav";
 import OrbAnimation from "@/components/orb";
 import {Loader2} from "lucide-react";
 import Image from "next/image";
@@ -27,6 +28,7 @@ export default function CommissionLogin() {
         body: JSON.stringify({login, password}),
       });
       if (res.ok) {
+        router.refresh();
         router.push("/commission/dashboard");
       } else {
         const data = await res.json();
@@ -40,10 +42,14 @@ export default function CommissionLogin() {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen px-10 sm:px-20">
-      <div className="overflow-hidden absolute w-screen h-screen -z-1 flex items-center justify-center">
+    <div className="flex align-center h-screen">
+      <div className="overflow-hidden absolute -inset-x-[20%] w-screen h-screen -z-1 flex items-center justify-start">
         <div className="h-screen aspect-square"><OrbAnimation/></div>
       </div>
+      <div className="w-full max-w-sm hidden md:flex">
+        <Nav/>
+      </div>
+      <div className="flex items-center justify-center w-full px-10 sm:px-20">
       <Card className="w-full max-w-sm bg-background/70">
         <CardHeader className="flex flex-col items-center gap-3">
           <Image className="w-[80%] aspect-18258/9871" src="logo.svg" width={18258} height={9871} alt="logo"/>
@@ -71,6 +77,7 @@ export default function CommissionLogin() {
           </form>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

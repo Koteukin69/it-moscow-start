@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import Nav from "@/components/nav";
 import OrbAnimation from "@/components/orb";
 import Chat, {ChatStep} from "@/components/chat";
@@ -12,6 +13,7 @@ interface ApplicantChatProps {
 }
 
 export default function ApplicantChat({ user, userId }: ApplicantChatProps) {
+  const router = useRouter();
   const steps: ChatStep[] = useMemo(() => [
     { type: "message", sender: "client", text: "Я — абитуриент" },
     { type: "message", sender: "server", text: "Привет, давай познакомимся!", delay: 800 },
@@ -23,8 +25,8 @@ export default function ApplicantChat({ user, userId }: ApplicantChatProps) {
     { type: "condition", key: "phone", match: /^(\+7|8)9\d{9}$/,
       then: [{ type: "message", sender: "server", text: "Спасибо за то что поделился номером.", delay: 500 }] },
     { type: "message", sender: "server", text: "А теперь перейдём к возможностям.", delay: 500 },
-    { type: "component", render: () => <ActionButtons userId={userId} /> },
-  ], [userId]);
+    { type: "component", render: () => <ActionButtons /> },
+  ], []);
   const handleComplete = useCallback(async (data: Record<string, string>) => {
     if (user) return;
     try {
@@ -36,10 +38,11 @@ export default function ApplicantChat({ user, userId }: ApplicantChatProps) {
           phone: data.phone || undefined,
         }),
       });
+      router.refresh();
     } catch (err) {
       console.error(err);
     }
-  }, [user]);
+  }, [user, router]);
 
   const initialData = user
     ? { name: user.name, phone: user.phone ?? "Пропустить" }

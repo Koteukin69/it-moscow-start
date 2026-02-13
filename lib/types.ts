@@ -3,13 +3,6 @@ export interface JWTPayload {
   userId: string;
   phone?: string;
   verified: boolean;
-  role: Role
-}
-
-export enum Role {
-  applicant,
-  parent,
-  commission,
 }
 
 export interface QuizResult {

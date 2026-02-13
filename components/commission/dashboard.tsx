@@ -15,7 +15,7 @@ export default function CommissionDashboard() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    await fetch("/api/logout", {method: "POST"});
+    await fetch("/api/commission/logout", {method: "POST"});
     router.push("/commission");
   };
 
@@ -27,8 +27,8 @@ export default function CommissionDashboard() {
         </div>
       </div>
 
-      <header className="border-b border-border/40 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="mx-auto px-10 sm:px-20 h-14 flex items-center justify-between">
+      <header className="border-b border-border bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60">
+        <div className="mx-auto px-10 sm:px-20 h-18 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Image src="/logo-square.svg" width={64} height={64} alt="IT.Москва" className="h-6 w-auto"/>
             <span className="text-sm text-muted-foreground hidden sm:inline">Приёмная комиссия</span>

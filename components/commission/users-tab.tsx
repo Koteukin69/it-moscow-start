@@ -4,9 +4,9 @@ import {useEffect, useState, useMemo} from "react";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Badge} from "@/components/ui/badge";
-import {Card, CardContent} from "@/components/ui/card";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {Search, ArrowUpDown, ArrowUp, ArrowDown, RefreshCw, Loader2} from "lucide-react";
+import {Search, ArrowUpDown, ArrowUp, ArrowDown, RefreshCw, Loader2, Users} from "lucide-react";
+import {formatDate} from "@/lib/utils";
+import DataTable, {type Column} from "./data-table";
 
 interface UserData {
   _id: string;
@@ -90,6 +90,56 @@ export default function UsersTab() {
       : <ArrowDown size={14} className="text-primary"/>;
   };
 
+  const columns: Column<UserData>[] = [
+    {
+      header: (
+        <button onClick={() => toggleSort("name")} className="flex items-center gap-1 font-medium">
+          Имя <SortIcon field="name"/>
+        </button>
+      ),
+      cell: (u) => <span className="font-medium">{u.name}</span>,
+    },
+    {
+      header: (
+        <button onClick={() => toggleSort("phone")} className="flex items-center gap-1 font-medium">
+          Телефон <SortIcon field="phone"/>
+        </button>
+      ),
+      cell: (u) => <span className="text-muted-foreground">{u.phone || <span className="text-muted-foreground/50">&mdash;</span>}</span>,
+    },
+    {
+      header: (
+        <button onClick={() => toggleSort("quizResult")} className="flex items-center gap-1 font-medium">
+          Результат профтеста <SortIcon field="quizResult"/>
+        </button>
+      ),
+      cell: (u) => u.quiz?.top?.[0]
+        ? <Badge variant="secondary">{u.quiz.top[0]}</Badge>
+        : <span className="text-muted-foreground/50">&mdash;</span>,
+    },
+    {
+      header: (
+        <button onClick={() => toggleSort("quizDate")} className="flex items-center gap-1 font-medium">
+          Дата прохождения <SortIcon field="quizDate"/>
+        </button>
+      ),
+      cell: (u) => <span className="text-muted-foreground">
+        {u.quiz?.completedAt
+          ? formatDate(u.quiz.completedAt)
+          : <span className="text-muted-foreground/50">&mdash;</span>
+        }
+      </span>,
+    },
+    {
+      header: (
+        <button onClick={() => toggleSort("quizCoin")} className="flex items-center gap-1 font-medium">
+          Монеты <SortIcon field="quizCoin"/>
+        </button>
+      ),
+      cell: (u) => <span className="text-muted-foreground">{u.coins}</span>,
+    },
+  ];
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
@@ -110,83 +160,14 @@ export default function UsersTab() {
         </div>
       </div>
 
-      <Card className="bg-background/70 overflow-hidden">
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead>
-                  <button onClick={() => toggleSort("name")} className="flex items-center gap-1 font-medium">
-                    Имя <SortIcon field="name"/>
-                  </button>
-                </TableHead>
-                <TableHead>
-                  <button onClick={() => toggleSort("phone")} className="flex items-center gap-1 font-medium">
-                    Телефон <SortIcon field="phone"/>
-                  </button>
-                </TableHead>
-                <TableHead>
-                  <button onClick={() => toggleSort("quizResult")} className="flex items-center gap-1 font-medium">
-                    Результат профтеста <SortIcon field="quizResult"/>
-                  </button>
-                </TableHead>
-                <TableHead>
-                  <button onClick={() => toggleSort("quizDate")} className="flex items-center gap-1 font-medium">
-                    Дата прохождения <SortIcon field="quizDate"/>
-                  </button>
-                </TableHead>
-                <TableHead>
-                  <button onClick={() => toggleSort("quizCoin")} className="flex items-center gap-1 font-medium">
-                    Монеты <SortIcon field="quizCoin"/>
-                  </button>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8">
-                    <Loader2 size={20} className="animate-spin mx-auto text-muted-foreground"/>
-                  </TableCell>
-                </TableRow>
-              ) : sorted.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                    {search ? "Ничего не найдено" : "Нет данных"}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                sorted.map(user => (
-                  <TableRow key={user._id}>
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {user.phone || <span className="text-muted-foreground/50">&mdash;</span>}
-                    </TableCell>
-                    <TableCell>
-                      {user.quiz?.top?.[0]
-                        ? <Badge variant="secondary">{user.quiz.top[0]}</Badge>
-                        : <span className="text-muted-foreground/50">&mdash;</span>
-                      }
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {user.quiz?.completedAt
-                        ? new Date(user.quiz.completedAt).toLocaleDateString("ru-RU", {
-                            day: "2-digit", month: "2-digit", year: "numeric",
-                            hour: "2-digit", minute: "2-digit"
-                          })
-                        : <span className="text-muted-foreground/50">&mdash;</span>
-                      }
-                    </TableCell>
-                    <TableCell className={"text-muted-foreground"}>
-                      {user.coins}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <DataTable
+        data={sorted}
+        columns={columns}
+        keyField="_id"
+        loading={loading}
+        emptyIcon={<Users size={24}/>}
+        emptyMessage={search ? "Ничего не найдено" : "Нет данных"}
+      />
 
       <p className="text-sm text-muted-foreground">
         Всего: {sorted.length} {search && `из ${users.length}`}

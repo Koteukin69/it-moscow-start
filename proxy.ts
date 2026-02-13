@@ -1,38 +1,45 @@
 import {NextRequest, NextResponse} from "next/server";
 import {verifyToken} from "@/lib/auth";
-import {JWTPayload, Role} from "@/lib/types";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token: string | undefined = request.cookies.get('auth-token')?.value;
-  const payload: JWTPayload | undefined = token ? await verifyToken(token) ?? undefined : undefined;
+
+  const authToken = request.cookies.get('auth-token')?.value;
+  const commissionToken = request.cookies.get('commission-token')?.value;
+
+  const applicant = authToken ? await verifyToken(authToken) ?? undefined : undefined;
+  const commission = commissionToken ? await verifyToken(commissionToken) !== null : false;
 
   const isApplicantRoute = pathname.startsWith("/profile") || pathname.startsWith("/quiz") || pathname.startsWith("/guide") || pathname.startsWith("/game") || pathname.startsWith("/shop");
 
-  if (isApplicantRoute && (!payload || payload.role === Role.commission)) {
-    return NextResponse.redirect(new URL(payload ? '/commission/dashboard' : '/applicant', request.url));
+  if (isApplicantRoute && !applicant) {
+    return NextResponse.redirect(new URL('/applicant', request.url));
   }
 
-  if (pathname.startsWith("/commission/dashboard") && (!payload || payload.role !== Role.commission)) {
+  if (pathname.startsWith("/commission/dashboard") && !commission) {
     return NextResponse.redirect(new URL('/commission', request.url));
   }
 
-  if (pathname.startsWith("/api/commission/") && !pathname.startsWith("/api/commission/login") && (!payload || payload.role !== Role.commission)) {
+  if (pathname.startsWith("/api/commission/") && !pathname.startsWith("/api/commission/login") && !commission) {
     return NextResponse.json({error: "Unauthorized"}, {status: 401});
   }
 
-  if (pathname.startsWith("/api/shop") && (!payload || payload.role === Role.commission)) {
+  if (pathname.startsWith("/api/shop") && !applicant) {
     return NextResponse.json({error: "Unauthorized"}, {status: 401});
   }
-
-  if (!payload) return NextResponse.next();
 
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-user-id', payload.userId);
-  requestHeaders.set('x-user-role', payload.role.toString());
-  requestHeaders.set('x-user-name', encodeURIComponent(payload.name));
-  if (payload.phone) requestHeaders.set('x-user-phone', payload.phone?.toString());
-  requestHeaders.set('x-user-verified', payload.verified.toString());
+
+  if (applicant) {
+    requestHeaders.set('x-user-id', applicant.userId);
+    requestHeaders.set('x-user-name', encodeURIComponent(applicant.name));
+    if (applicant.phone) requestHeaders.set('x-user-phone', applicant.phone);
+    requestHeaders.set('x-user-verified', applicant.verified.toString());
+  }
+
+  if (commission) {
+    requestHeaders.set('x-commission', 'true');
+  }
 
   return NextResponse.next({
     request: { headers: requestHeaders },

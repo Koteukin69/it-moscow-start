@@ -6,10 +6,11 @@ import {Badge} from "@/components/ui/badge";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
 import {Label} from "@/components/ui/label";
-import {Card, CardContent} from "@/components/ui/card";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose} from "@/components/ui/dialog";
-import {Plus, Trash2, RefreshCw, Loader2, ShoppingBag, Package} from "lucide-react";
+import {Plus, RefreshCw, Loader2, ShoppingBag, Package} from "lucide-react";
+import DataTable, {type Column} from "./data-table";
+import ImageUpload from "./image-upload";
+import DeleteButton from "./delete-button";
 
 interface ProductData {
   _id: string;
@@ -159,6 +160,42 @@ export default function ProductsTab() {
     return <span className="text-muted-foreground/50">&mdash;</span>;
   };
 
+  const columns: Column<ProductData>[] = [
+    {
+      header: "Название",
+      cell: (p) => (
+        <div className="flex items-center gap-2 font-medium">
+          {p.name}
+          {p.isNew && <Badge className="text-xs">NEW</Badge>}
+        </div>
+      ),
+    },
+    {
+      header: "Цена",
+      cell: (p) => <span className="whitespace-nowrap">{p.price} <span className="text-muted-foreground text-xs">монет</span></span>,
+    },
+    {
+      header: "Описание",
+      cell: (p) => <span className="text-muted-foreground max-w-xs truncate block">{p.description}</span>,
+    },
+    {
+      header: "Остаток / по размерам",
+      cell: (p) => formatStock(p),
+    },
+    {
+      header: "Действия",
+      className: "w-24",
+      cell: (p) => (
+        <div className="flex gap-1">
+          <Button variant="ghost" size="icon-sm" onClick={() => openRestock(p)} title="Пополнить">
+            <Package size={14}/>
+          </Button>
+          <DeleteButton loading={deletingId === p._id} onClick={() => handleDelete(p._id)}/>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
@@ -188,10 +225,7 @@ export default function ProductsTab() {
                   <Label>Описание</Label>
                   <Textarea placeholder="Описание товара" value={form.description} onChange={e => setForm(f => ({...f, description: e.target.value}))} rows={2}/>
                 </div>
-                <div className="space-y-2">
-                  <Label>Ссылка на изображение <span className="text-muted-foreground">(необязательно)</span></Label>
-                  <Input placeholder="https://..." value={form.image} onChange={e => setForm(f => ({...f, image: e.target.value}))}/>
-                </div>
+                <ImageUpload value={form.image} onChange={url => setForm(f => ({...f, image: url}))}/>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 text-sm">
                     <input type="checkbox" checked={form.isNew} onChange={e => setForm(f => ({...f, isNew: e.target.checked}))}/>
@@ -235,72 +269,14 @@ export default function ProductsTab() {
         </div>
       </div>
 
-      <Card className="bg-background/70 overflow-hidden">
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead>Название</TableHead>
-                <TableHead>Цена</TableHead>
-                <TableHead>Описание</TableHead>
-                <TableHead>Остаток / по размерам</TableHead>
-                <TableHead className="w-24">Действия</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
-                    <Loader2 size={20} className="animate-spin mx-auto text-muted-foreground"/>
-                  </TableCell>
-                </TableRow>
-              ) : products.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
-                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                      <ShoppingBag size={24}/>
-                      <span>Нет товаров</span>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                products.map(product => (
-                  <TableRow key={product._id}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        {product.name}
-                        {product.isNew && <Badge className="text-xs">NEW</Badge>}
-                      </div>
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">{product.price} <span className="text-muted-foreground text-xs">монет</span></TableCell>
-                    <TableCell className="text-muted-foreground max-w-xs truncate">{product.description}</TableCell>
-                    <TableCell>{formatStock(product)}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="icon-sm" onClick={() => openRestock(product)} title="Пополнить">
-                          <Package size={14}/>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => handleDelete(product._id)}
-                          disabled={deletingId === product._id}
-                        >
-                          {deletingId === product._id
-                            ? <Loader2 size={14} className="animate-spin"/>
-                            : <Trash2 size={14}/>
-                          }
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <DataTable
+        data={products}
+        columns={columns}
+        keyField="_id"
+        loading={loading}
+        emptyIcon={<ShoppingBag size={24}/>}
+        emptyMessage="Нет товаров"
+      />
 
       <p className="text-sm text-muted-foreground">
         Всего: {products.length}

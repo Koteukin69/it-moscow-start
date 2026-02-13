@@ -4,9 +4,9 @@ import {useEffect, useState, useMemo} from "react";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Badge} from "@/components/ui/badge";
-import {Card, CardContent} from "@/components/ui/card";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {Search, RefreshCw, Loader2, ClipboardList} from "lucide-react";
+import {formatDate} from "@/lib/utils";
+import DataTable, {type Column} from "./data-table";
 
 interface OrderData {
   _id: string;
@@ -72,14 +72,60 @@ export default function OrdersTab() {
     setUpdatingId(null);
   };
 
-  const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    return d.toLocaleDateString("ru-RU", {
-      day: "2-digit", month: "2-digit", year: "numeric",
-      hour: "2-digit", minute: "2-digit"
-    });
-  };
+  const columns: Column<OrderData>[] = [
+    {
+      header: "Абитуриент",
+      cell: (o) => <span className="font-medium">{o.userName}</span>,
+    },
+    {
+      header: "Товар",
+      cell: (o) => o.productName,
+    },
+    {
+      header: "Размер",
+      cell: (o) => <span className="text-muted-foreground">{o.size || <span className="text-muted-foreground/50">&mdash;</span>}</span>,
+    },
+    {
+      header: "Цена",
+      cell: (o) => <span className="whitespace-nowrap">{o.price} <span className="text-muted-foreground text-xs">монет</span></span>,
+    },
+    {
+      header: "Дата",
+      cell: (o) => <span className="text-muted-foreground whitespace-nowrap">{formatDate(o.createdAt)}</span>,
+    },
+    {
+      header: "Статус",
+      cell: (o) => {
+        const st = statusLabels[o.status];
+        return <Badge variant={st.variant}>{st.label}</Badge>;
+      },
+    },
+    {
+      header: "Действия",
+      className: "w-36",
+      cell: (o) => o.status === "pending" ? (
+        <div className="flex gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={updatingId === o._id}
+            onClick={() => updateStatus(o._id, "completed")}
+          >
+            {updatingId === o._id ? <Loader2 size={12} className="animate-spin"/> : "Выдать"}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-destructive hover:text-destructive"
+            disabled={updatingId === o._id}
+            onClick={() => updateStatus(o._id, "cancelled")}
+          >
+            Отмена
+          </Button>
+        </div>
+      ) : null,
+    },
+  ];
 
   return (
     <div className="space-y-4">
@@ -101,82 +147,14 @@ export default function OrdersTab() {
         </div>
       </div>
 
-      <Card className="bg-background/70 overflow-hidden">
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead>Абитуриент</TableHead>
-                <TableHead>Товар</TableHead>
-                <TableHead>Размер</TableHead>
-                <TableHead>Цена</TableHead>
-                <TableHead>Дата</TableHead>
-                <TableHead>Статус</TableHead>
-                <TableHead className="w-36">Действия</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
-                    <Loader2 size={20} className="animate-spin mx-auto text-muted-foreground"/>
-                  </TableCell>
-                </TableRow>
-              ) : filtered.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
-                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                      <ClipboardList size={24}/>
-                      <span>{search ? "Ничего не найдено" : "Нет заказов"}</span>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filtered.map(order => {
-                  const st = statusLabels[order.status];
-                  return (
-                    <TableRow key={order._id}>
-                      <TableCell className="font-medium">{order.userName}</TableCell>
-                      <TableCell>{order.productName}</TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {order.size || <span className="text-muted-foreground/50">&mdash;</span>}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap">{order.price} <span className="text-muted-foreground text-xs">монет</span></TableCell>
-                      <TableCell className="text-muted-foreground whitespace-nowrap">{formatDate(order.createdAt)}</TableCell>
-                      <TableCell>
-                        <Badge variant={st.variant}>{st.label}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        {order.status === "pending" && (
-                          <div className="flex gap-1">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              disabled={updatingId === order._id}
-                              onClick={() => updateStatus(order._id, "completed")}
-                            >
-                              {updatingId === order._id ? <Loader2 size={12} className="animate-spin"/> : "Выдать"}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-destructive hover:text-destructive"
-                              disabled={updatingId === order._id}
-                              onClick={() => updateStatus(order._id, "cancelled")}
-                            >
-                              Отмена
-                            </Button>
-                          </div>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <DataTable
+        data={filtered}
+        columns={columns}
+        keyField="_id"
+        loading={loading}
+        emptyIcon={<ClipboardList size={24}/>}
+        emptyMessage={search ? "Ничего не найдено" : "Нет заказов"}
+      />
 
       <p className="text-sm text-muted-foreground">
         Всего: {filtered.length} {search && `из ${orders.length}`}

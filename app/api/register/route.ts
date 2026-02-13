@@ -2,7 +2,7 @@ import {NextRequest, NextResponse} from "next/server";
 import {loginSchema} from "@/lib/validator";
 import {usersCollection} from "@/lib/db/collections"
 import {createToken} from "@/lib/auth";
-import {JWTPayload, Role} from "@/lib/types";
+import type {JWTPayload} from "@/lib/types";
 
 export async function POST(req: NextRequest):Promise<NextResponse> {
   try {
@@ -22,7 +22,6 @@ export async function POST(req: NextRequest):Promise<NextResponse> {
       userId: id,
       name,
       phone,
-      role: Role.applicant,
       verified: false
     } as JWTPayload);
 

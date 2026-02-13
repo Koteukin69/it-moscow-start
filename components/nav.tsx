@@ -10,7 +10,6 @@ export default function Nav() {
     </CardHeader>
     <CardContent className="flex flex-col gap-3">
       <Button size={"lg"} variant={"outline"} asChild><a href={"/applicant"}>Я - абитуриент</a></Button>
-      <Button size={"lg"} variant={"outline"} asChild><a href={"/parent"}>Я - родитель</a></Button>
       <Button size={"lg"} variant={"outline"} asChild><a href={"/commission"}>Я - приёмная комиссия</a></Button>
     </CardContent>
   </Card>);

@@ -6,16 +6,10 @@ import {Card, CardContent, CardHeader} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Pencil, Check, X, Loader2, Coins} from "lucide-react";
-import {Role, type QuizResult} from "@/lib/types";
+import type {QuizResult} from "@/lib/types";
 import {phoneRegex} from "@/lib/validator";
 import OrbAnimation from "@/components/orb";
 import Link from "next/link";
-
-const roleLabels: Record<Role, string> = {
-  [Role.applicant]: "Абитуриент",
-  [Role.parent]: "Родитель",
-  [Role.commission]: "Приёмная комиссия",
-};
 
 type EditField = "name" | "phone";
 type EditStatus = "editing" | "loading" | "success" | "error";
@@ -76,13 +70,12 @@ function useInlineEdit(initialValue: string, field: EditField, onSaved: (value: 
 interface ProfileCardProps {
   name: string;
   phone?: string;
-  role: Role;
   verified: boolean;
   coins: number;
   quizResult?: QuizResult;
 }
 
-export default function ProfileCard({name: initialName, phone: initialPhone, role, verified, coins, quizResult}: ProfileCardProps) {
+export default function ProfileCard({name: initialName, phone: initialPhone, verified, coins, quizResult}: ProfileCardProps) {
   const router = useRouter();
   const [displayName, setDisplayName] = useState(initialName);
   const [displayPhone, setDisplayPhone] = useState(initialPhone);
@@ -110,9 +103,8 @@ export default function ProfileCard({name: initialName, phone: initialPhone, rol
         </div>
       </div>
       <Card className="w-full max-w-sm bg-background/70">
-        <CardHeader className={"flex justify-between items-center"}>
+        <CardHeader className={"flex items-center"}>
           <h1 className="font-semibold text-center">Мой Профиль</h1>
-          <h1 className="font-semibold text-center">IT.Москва Старт</h1>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <EditableField
@@ -128,16 +120,11 @@ export default function ProfileCard({name: initialName, phone: initialPhone, rol
             placeholder="+79123456789"
           />
           <div className="flex flex-row items-center justify-between gap-1">
-            <span className="text-sm text-muted-foreground">Роль</span>
-            <span>{roleLabels[role]}</span>
-          </div>
-          <div className="flex flex-row items-center justify-between gap-1">
             <span className="text-sm text-muted-foreground">Статус</span>
             <span>{verified ? "Подтверждён" : "Не подтверждён"}</span>
           </div>
-          <Button variant={"outline"} className="mt-4 rounded-xl w-full" asChild>
-            <Link href={"/shop"}>Магазин мерча</Link>
-          </Button>
+        </CardContent>
+        <CardContent className="flex flex-col">
           <div className="flex flex-row items-center justify-between gap-1">
             <span className="text-sm text-muted-foreground flex items-center gap-1">
               <Coins size={14}/>
@@ -145,6 +132,9 @@ export default function ProfileCard({name: initialName, phone: initialPhone, rol
             </span>
             <span>{coins}</span>
           </div>
+          <Button variant={"outline"} className="mt-4 rounded-xl w-full" asChild>
+            <Link href={"/shop"}>Потратить</Link>
+          </Button>
         </CardContent>
         <CardContent className="flex flex-col gap-2">
           <span className="text-sm text-muted-foreground">Тест: Кто ты в IT?</span>

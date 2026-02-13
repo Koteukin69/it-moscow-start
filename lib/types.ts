@@ -34,4 +34,17 @@ export interface ProductItem {
   image?: string;
   stock?: number;
   sizes?: Record<string, number>;
+  isNew?: boolean;
+}
+
+export interface OrderItem {
+  _id?: string;
+  userId: string;
+  userName: string;
+  productId: string;
+  productName: string;
+  size?: string;
+  price: number;
+  status: "pending" | "completed" | "cancelled";
+  createdAt: string;
 }

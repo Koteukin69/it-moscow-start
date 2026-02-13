@@ -7,7 +7,7 @@ export async function proxy(request: NextRequest) {
   const token: string | undefined = request.cookies.get('auth-token')?.value;
   const payload: JWTPayload | undefined = token ? await verifyToken(token) ?? undefined : undefined;
 
-  if ((pathname.startsWith("/profile") || pathname.startsWith("/quiz") || pathname.startsWith("/guide") || pathname.startsWith("/game")) && !payload) {
+  if ((pathname.startsWith("/profile") || pathname.startsWith("/quiz") || pathname.startsWith("/guide") || pathname.startsWith("/game") || pathname.startsWith("/shop")) && !payload) {
     return NextResponse.redirect(new URL('/applicant', request.url));
   }
 
@@ -16,6 +16,10 @@ export async function proxy(request: NextRequest) {
   }
 
   if (pathname.startsWith("/api/commission/") && !pathname.startsWith("/api/commission/login") && (!payload || payload.role !== Role.commission)) {
+    return NextResponse.json({error: "Unauthorized"}, {status: 401});
+  }
+
+  if (pathname.startsWith("/api/shop") && !payload) {
     return NextResponse.json({error: "Unauthorized"}, {status: 401});
   }
 

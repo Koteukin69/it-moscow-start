@@ -1,7 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
 import {createToken} from "@/lib/auth";
-import {Role} from "@/lib/types";
-import type {JWTPayload} from "@/lib/types";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
@@ -15,17 +13,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({error: "Неверный логин или пароль"}, {status: 401});
     }
 
-    const payload: JWTPayload = {
-      userId: "commission",
-      name: "Приёмная комиссия",
-      role: Role.commission,
-      verified: true,
-    };
-
-    const token = await createToken(payload);
+    const token = await createToken({commission: true});
 
     const response = NextResponse.json({success: true});
-    response.cookies.set("auth-token", token, {
+    response.cookies.set("commission-token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

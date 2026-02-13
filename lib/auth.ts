@@ -12,7 +12,7 @@ const SECRET_KEY: Uint8Array<ArrayBuffer> = new TextEncoder().encode(
   jwtSecret || 'dev-secret-key-for-local-development-only'
 );
 
-export async function createToken(payload: JWTPayload): Promise<string> {
+export async function createToken(payload: JWTPayload | Record<string, unknown>): Promise<string> {
   return await new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()

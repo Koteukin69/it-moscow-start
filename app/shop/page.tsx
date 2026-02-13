@@ -9,7 +9,7 @@ export default async function ShopPage() {
   const h = await headers();
   const userId = h.get("x-user-id");
 
-  if (!userId || !ObjectId.isValid(userId)) redirect("/");
+  if (!userId) redirect("/");
 
   const collection = await usersCollection;
   const user = await collection.findOne({_id: new ObjectId(userId)});

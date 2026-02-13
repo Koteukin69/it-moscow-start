@@ -5,10 +5,12 @@ import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
 import {Label} from "@/components/ui/label";
-import {Card, CardContent} from "@/components/ui/card";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose} from "@/components/ui/dialog";
-import {Plus, Trash2, RefreshCw, Loader2, CalendarDays} from "lucide-react";
+import {Plus, RefreshCw, Loader2, CalendarDays} from "lucide-react";
+import {formatDate} from "@/lib/utils";
+import DataTable, {type Column} from "./data-table";
+import ImageUpload from "./image-upload";
+import DeleteButton from "./delete-button";
 
 interface EventData {
   _id: string;
@@ -73,14 +75,25 @@ export default function EventsTab() {
     setDeletingId(null);
   };
 
-  const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    return d.toLocaleDateString("ru-RU", {
-      day: "2-digit", month: "2-digit", year: "numeric",
-      hour: "2-digit", minute: "2-digit"
-    });
-  };
+  const columns: Column<EventData>[] = [
+    {
+      header: "Название",
+      cell: (e) => <span className="font-medium">{e.name}</span>,
+    },
+    {
+      header: "Дата и время",
+      cell: (e) => <span className="text-muted-foreground whitespace-nowrap">{formatDate(e.date)}</span>,
+    },
+    {
+      header: "Описание",
+      cell: (e) => <span className="text-muted-foreground max-w-xs truncate block">{e.description}</span>,
+    },
+    {
+      header: "Действия",
+      className: "w-20",
+      cell: (e) => <DeleteButton loading={deletingId === e._id} onClick={() => handleDelete(e._id)}/>,
+    },
+  ];
 
   return (
     <div className="space-y-4">
@@ -124,14 +137,7 @@ export default function EventsTab() {
                     rows={3}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>Ссылка на изображение <span className="text-muted-foreground">(необязательно)</span></Label>
-                  <Input
-                    placeholder="https://..."
-                    value={form.image}
-                    onChange={e => setForm(f => ({...f, image: e.target.value}))}
-                  />
-                </div>
+                <ImageUpload value={form.image} onChange={url => setForm(f => ({...f, image: url}))}/>
               </div>
               <DialogFooter>
                 <DialogClose asChild>
@@ -152,64 +158,14 @@ export default function EventsTab() {
         </div>
       </div>
 
-      <Card className="bg-background/70 overflow-hidden">
-        <CardContent className="p-0">
-          <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead>Название</TableHead>
-              <TableHead>Дата и время</TableHead>
-              <TableHead>Описание</TableHead>
-              <TableHead className="w-20">Действия</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center py-8">
-                  <Loader2 size={20} className="animate-spin mx-auto text-muted-foreground"/>
-                </TableCell>
-              </TableRow>
-            ) : events.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center py-8">
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <CalendarDays size={24}/>
-                    <span>Нет мероприятий</span>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : (
-              events.map(event => (
-                <TableRow key={event._id}>
-                  <TableCell className="font-medium">{event.name}</TableCell>
-                  <TableCell className="text-muted-foreground whitespace-nowrap">
-                    {formatDate(event.date)}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground max-w-xs truncate">
-                    {event.description}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      className="text-destructive hover:text-destructive"
-                      onClick={() => handleDelete(event._id)}
-                      disabled={deletingId === event._id}
-                    >
-                      {deletingId === event._id
-                        ? <Loader2 size={14} className="animate-spin"/>
-                        : <Trash2 size={14}/>
-                      }
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <DataTable
+        data={events}
+        columns={columns}
+        keyField="_id"
+        loading={loading}
+        emptyIcon={<CalendarDays size={24}/>}
+        emptyMessage="Нет мероприятий"
+      />
 
       <p className="text-sm text-muted-foreground">
         Всего: {events.length}

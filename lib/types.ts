@@ -9,10 +9,29 @@ export interface JWTPayload {
 export enum Role {
   applicant,
   parent,
+  commission,
 }
 
 export interface QuizResult {
   directions: Record<string, number>;
   top: string[];
   completedAt: string;
+}
+
+export interface EventItem {
+  _id?: string;
+  name: string;
+  date: string;
+  image?: string;
+  description: string;
+}
+
+export interface ProductItem {
+  _id?: string;
+  name: string;
+  price: number;
+  description: string;
+  image?: string;
+  stock?: number;
+  sizes?: Record<string, number>;
 }

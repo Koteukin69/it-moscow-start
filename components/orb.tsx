@@ -14,6 +14,8 @@ export interface OrbBlob {
   blur?: number;
 }
 
+export type OrbScaleMode = "min" | "max" | "width" | "height";
+
 export interface OrbAnimationProps {
   resolution?: number;
   speed?: number;
@@ -24,6 +26,7 @@ export interface OrbAnimationProps {
   preset?: "cyan" | "sunset" | "aurora" | "neon";
   className?: string;
   paused?: boolean;
+  scaleMode?: OrbScaleMode;
 }
 
 // ─── Presets ─────────────────────────────────────────────────────────────────
@@ -83,6 +86,15 @@ interface BlobState {
   phase: number;
 }
 
+function getScale(W: number, H: number, mode: OrbScaleMode): number {
+  switch (mode) {
+    case "max": return Math.max(W, H);
+    case "width": return W;
+    case "height": return H;
+    default: return Math.min(W, H);
+  }
+}
+
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
 }
@@ -111,6 +123,7 @@ export function OrbAnimation({
                                preset = "cyan",
                                className,
                                paused = false,
+                               scaleMode = "min",
                              }: OrbAnimationProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -134,7 +147,7 @@ export function OrbAnimation({
   useEffect(() => {
     if (!stateRef.current) return;
     const s = stateRef.current;
-    const short = Math.min(s.W, s.H);
+    const short = getScale(s.W, s.H, scaleMode);
     s.blobs.forEach((b, i) => {
       const def = blobDefs[i % blobDefs.length];
       b.targetColor = [...def.color];
@@ -165,7 +178,7 @@ export function OrbAnimation({
     };
 
     let { W, H } = resize();
-    const short = Math.min(W, H);
+    const short = getScale(W, H, scaleMode);
     const { blurMin: bMin, blurMax: bMax } = propsRef.current;
 
     const blobStates: BlobState[] = blobDefs.map((def) => ({
@@ -253,7 +266,7 @@ export function OrbAnimation({
         c.width = W;
         c.height = H;
       });
-      const newShort = Math.min(W, H);
+      const newShort = getScale(W, H, scaleMode);
       const defs = customBlobs && customBlobs.length > 0
         ? customBlobs
         : PRESETS[preset] ?? PRESETS.cyan;

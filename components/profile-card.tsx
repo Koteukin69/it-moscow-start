@@ -14,6 +14,7 @@ import Link from "next/link";
 const roleLabels: Record<Role, string> = {
   [Role.applicant]: "Абитуриент",
   [Role.parent]: "Родитель",
+  [Role.commission]: "Приёмная комиссия",
 };
 
 type EditField = "name" | "phone";

@@ -5,7 +5,7 @@ import {useRouter} from "next/navigation";
 import {Card, CardContent, CardHeader} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
-import {Pencil, Check, X, Loader2} from "lucide-react";
+import {Pencil, Check, X, Loader2, Coins} from "lucide-react";
 import {Role, type QuizResult} from "@/lib/types";
 import {phoneRegex} from "@/lib/validator";
 import OrbAnimation from "@/components/orb";
@@ -78,10 +78,11 @@ interface ProfileCardProps {
   phone?: string;
   role: Role;
   verified: boolean;
+  coins: number;
   quizResult?: QuizResult;
 }
 
-export default function ProfileCard({name: initialName, phone: initialPhone, role, verified, quizResult}: ProfileCardProps) {
+export default function ProfileCard({name: initialName, phone: initialPhone, role, verified, coins, quizResult}: ProfileCardProps) {
   const router = useRouter();
   const [displayName, setDisplayName] = useState(initialName);
   const [displayPhone, setDisplayPhone] = useState(initialPhone);
@@ -133,6 +134,13 @@ export default function ProfileCard({name: initialName, phone: initialPhone, rol
           <div className="flex flex-row items-center justify-between gap-1">
             <span className="text-sm text-muted-foreground">Статус</span>
             <span>{verified ? "Подтверждён" : "Не подтверждён"}</span>
+          </div>
+          <div className="flex flex-row items-center justify-between gap-1">
+            <span className="text-sm text-muted-foreground flex items-center gap-1">
+              <Coins size={14}/>
+              Монетки
+            </span>
+            <span>{coins}</span>
           </div>
         </CardContent>
         <CardContent className="flex flex-col gap-2">

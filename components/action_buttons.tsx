@@ -12,6 +12,7 @@ export default function ActionButtons({ userId }: { userId?: string }) {
     ) : (
       <Button className={"rounded-xl"} variant={"secondary"}>Играть</Button>
     )}
+    <Button className={"rounded-xl"} variant={"outline"} asChild><Link href={"/shop"}>Магазин мерча</Link></Button>
     <Button disabled className={"rounded-xl"} variant={"outline"}>Наши мероприятия</Button>
     <Button className={"rounded-xl"} variant={"outline"} asChild><Link href={"/profile"}>Мой профиль</Link></Button>
   </div>);

@@ -3,10 +3,11 @@
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Button} from "@/components/ui/button";
 import {useRouter} from "next/navigation";
-import {LogOut, Users, CalendarDays, ShoppingBag} from "lucide-react";
+import {LogOut, Users, CalendarDays, ShoppingBag, Coins} from "lucide-react";
 import UsersTab from "./users-tab";
 import EventsTab from "./events-tab";
 import ProductsTab from "./products-tab";
+import CoinsTab from "./coins-tab";
 import OrbAnimation from "@/components/orb";
 import Image from "next/image";
 
@@ -54,6 +55,10 @@ export default function CommissionDashboard() {
               <ShoppingBag size={16}/>
               Товары
             </TabsTrigger>
+            <TabsTrigger value="coins" className="gap-2">
+              <Coins size={16}/>
+              Монетки
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="users" className="mt-6">
@@ -64,6 +69,9 @@ export default function CommissionDashboard() {
           </TabsContent>
           <TabsContent value="products" className="mt-6">
             <ProductsTab/>
+          </TabsContent>
+          <TabsContent value="coins" className="mt-6">
+            <CoinsTab/>
           </TabsContent>
         </Tabs>
       </main>

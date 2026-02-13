@@ -1,6 +1,6 @@
 import {getCollection} from "@/lib/db/mongodb";
 
-export const usersCollection = getCollection<{name: string, phone?: string}>("users");
+export const usersCollection = getCollection<{name: string, phone?: string, coins: number}>("users");
 
 export const quizResultsCollection = getCollection<{
   userId: string;

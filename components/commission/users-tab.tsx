@@ -12,6 +12,7 @@ interface UserData {
   _id: string;
   name: string;
   phone: string | null;
+  coins: number;
   quiz: {
     directions: Record<string, number>;
     top: string[];
@@ -19,7 +20,7 @@ interface UserData {
   } | null;
 }
 
-type SortField = "name" | "phone" | "quizResult" | "quizDate";
+type SortField = "name" | "phone" | "coins" | "quizResult" | "quizDate";
 type SortDir = "asc" | "desc";
 
 export default function UsersTab() {
@@ -63,6 +64,8 @@ export default function UsersTab() {
           return dir * a.name.localeCompare(b.name, "ru");
         case "phone":
           return dir * (a.phone || "").localeCompare(b.phone || "");
+        case "coins":
+          return dir * ((a.coins ?? 0) - (b.coins ?? 0));
         case "quizResult":
           return dir * (a.quiz?.top?.[0] || "").localeCompare(b.quiz?.top?.[0] || "");
         case "quizDate":
@@ -125,6 +128,11 @@ export default function UsersTab() {
                   </button>
                 </TableHead>
                 <TableHead>
+                  <button onClick={() => toggleSort("coins")} className="flex items-center gap-1 font-medium">
+                    Монетки <SortIcon field="coins"/>
+                  </button>
+                </TableHead>
+                <TableHead>
                   <button onClick={() => toggleSort("quizResult")} className="flex items-center gap-1 font-medium">
                     Результат профтеста <SortIcon field="quizResult"/>
                   </button>
@@ -139,13 +147,13 @@ export default function UsersTab() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8">
+                  <TableCell colSpan={5} className="text-center py-8">
                     <Loader2 size={20} className="animate-spin mx-auto text-muted-foreground"/>
                   </TableCell>
                 </TableRow>
               ) : sorted.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                     {search ? "Ничего не найдено" : "Нет данных"}
                   </TableCell>
                 </TableRow>
@@ -156,6 +164,7 @@ export default function UsersTab() {
                     <TableCell className="text-muted-foreground">
                       {user.phone || <span className="text-muted-foreground/50">&mdash;</span>}
                     </TableCell>
+                    <TableCell>{user.coins ?? 0}</TableCell>
                     <TableCell>
                       {user.quiz?.top?.[0]
                         ? <Badge variant="secondary">{user.quiz.top[0]}</Badge>

@@ -23,26 +23,54 @@ export async function PATCH(req: NextRequest, {params}: {params: Promise<{id: st
     const collection = await productsCollection;
 
     const update: Record<string, unknown> = {};
+    const unset: Record<string, string> = {};
 
-    if (body.stock !== undefined && typeof body.stock === "number") {
-      update.stock = body.stock;
+    if (body.name !== undefined && typeof body.name === "string" && body.name.trim()) {
+      update.name = body.name.trim();
     }
-
-    if (body.sizes && typeof body.sizes === "object") {
-      update.sizes = body.sizes;
+    if (body.price !== undefined && typeof body.price === "number" && body.price >= 0) {
+      update.price = body.price;
     }
-
+    if (body.description !== undefined && typeof body.description === "string") {
+      update.description = body.description.trim();
+    }
+    if (body.image !== undefined) {
+      if (body.image && typeof body.image === "string") {
+        update.image = body.image;
+      } else {
+        unset.image = "";
+      }
+    }
+    if (body.stock !== undefined) {
+      if (typeof body.stock === "number") {
+        update.stock = body.stock;
+      } else {
+        unset.stock = "";
+      }
+    }
+    if (body.sizes !== undefined) {
+      if (body.sizes && typeof body.sizes === "object" && Object.keys(body.sizes).length > 0) {
+        update.sizes = body.sizes;
+        unset.stock = "";
+      } else {
+        unset.sizes = "";
+      }
+    }
     if (body.isNew !== undefined && typeof body.isNew === "boolean") {
       update.isNew = body.isNew;
     }
 
-    if (Object.keys(update).length === 0) {
+    const ops: Record<string, unknown> = {};
+    if (Object.keys(update).length > 0) ops.$set = update;
+    if (Object.keys(unset).length > 0) ops.$unset = unset;
+
+    if (Object.keys(ops).length === 0) {
       return NextResponse.json({error: "Нечего обновлять"}, {status: 422});
     }
 
     const result = await collection.findOneAndUpdate(
       {_id: new ObjectId(id)},
-      {$set: update},
+      ops,
       {returnDocument: "after"}
     );
 

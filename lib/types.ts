@@ -45,6 +45,6 @@ export interface OrderItem {
   productName: string;
   size?: string;
   price: number;
-  status: "pending" | "completed" | "cancelled";
+  code: string;
   createdAt: string;
 }

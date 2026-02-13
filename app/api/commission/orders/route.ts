@@ -12,7 +12,7 @@ export async function GET(): Promise<NextResponse> {
       productName: o.productName,
       size: o.size || null,
       price: o.price,
-      status: o.status,
+      code: o.code,
       createdAt: o.createdAt.toISOString(),
     }));
     return NextResponse.json({orders: result});

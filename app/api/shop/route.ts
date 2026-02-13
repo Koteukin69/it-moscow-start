@@ -2,19 +2,25 @@ import {NextRequest, NextResponse} from "next/server";
 import {productsCollection, usersCollection, ordersCollection} from "@/lib/db/collections";
 import {ObjectId} from "mongodb";
 
+function generateCode(): string {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
 export async function GET(): Promise<NextResponse> {
   try {
     const products = await (await productsCollection).find({}).toArray();
-    const result = products.map(p => ({
-      _id: p._id.toString(),
-      name: p.name,
-      price: p.price,
-      description: p.description,
-      image: p.image || null,
-      stock: p.stock ?? null,
-      sizes: p.sizes || null,
-      isNew: p.isNew ?? false,
-    }));
+    const result = products
+      .filter(p => p.name && p.price && p.description && p.image)
+      .map(p => ({
+        _id: p._id.toString(),
+        name: p.name,
+        price: p.price,
+        description: p.description,
+        image: p.image || null,
+        stock: p.stock ?? null,
+        sizes: p.sizes || null,
+        isNew: p.isNew ?? false,
+      }));
     return NextResponse.json({products: result});
   } catch {
     return NextResponse.json({error: "Ошибка сервера"}, {status: 500});
@@ -99,6 +105,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       }
     }
 
+    let code = generateCode();
+    const existingCodes = await orders.find({}, {projection: {code: 1}}).toArray();
+    const codeSet = new Set(existingCodes.map(o => o.code));
+    while (codeSet.has(code)) {
+      code = generateCode();
+    }
+
     await orders.insertOne({
       userId,
       userName: decodeURIComponent(userName),
@@ -106,13 +119,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       productName: product.name,
       size: size || undefined,
       price: product.price,
-      status: "pending",
+      code,
       createdAt: new Date(),
     });
 
     return NextResponse.json({
       success: true,
       coins: coinResult.coins,
+      code,
     });
   } catch (error) {
     console.error(error);

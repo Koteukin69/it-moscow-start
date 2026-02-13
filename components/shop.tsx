@@ -64,7 +64,7 @@ export default function Shop({initialCoins}: {initialCoins: number}) {
       const data = await res.json();
       if (res.ok) {
         setCoins(data.coins);
-        setMessage({type: "success", text: "Заказ оформлен!"});
+        setMessage({type: "success", text: `Заказ оформлен! Код для получения: ${data.code}`});
         setSelected(null);
         setSelectedSize(null);
         fetchProducts();
@@ -106,17 +106,17 @@ export default function Shop({initialCoins}: {initialCoins: number}) {
       <div className="mx-auto px-6 sm:px-20 pt-20 pb-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-semibold">Магазин мерча</h1>
-          <div className="flex items-center gap-2 bg-background/70 border border-border/40 rounded-full px-4 py-2">
+          <div className="flex items-center gap-2 bg-background/90 backdrop-blur border border-border/40 rounded-full px-4 py-2">
             <Coins size={18} className="text-yellow-500"/>
             <span className="font-semibold">{coins}</span>
           </div>
         </div>
 
         {message && (
-          <div className={`mb-6 px-4 py-3 rounded-xl text-sm ${
+          <div className={`mb-6 px-4 py-3 rounded-xl text-sm backdrop-blur ${
             message.type === "success"
-              ? "bg-primary/10 text-primary border border-primary/20"
-              : "bg-destructive/10 text-destructive border border-destructive/20"
+              ? "bg-background/90 text-foreground border border-primary/30"
+              : "bg-background/90 text-destructive border border-destructive/30"
           }`}>
             {message.text}
           </div>
@@ -140,7 +140,7 @@ export default function Shop({initialCoins}: {initialCoins: number}) {
               return (
                 <Card
                   key={product._id}
-                  className={`bg-background/70 overflow-hidden cursor-pointer transition-all hover:scale-[1.02] hover:shadow-lg ${outOfStock ? "opacity-60" : ""}`}
+                  className={`bg-background/90 backdrop-blur overflow-hidden cursor-pointer transition-all hover:scale-[1.02] hover:shadow-lg ${outOfStock ? "opacity-60" : ""}`}
                   onClick={() => !outOfStock && openProduct(product)}
                 >
                   <div className="relative aspect-square bg-muted/30 flex items-center justify-center overflow-hidden">
@@ -158,16 +158,16 @@ export default function Shop({initialCoins}: {initialCoins: number}) {
                     )}
                     {outOfStock && (
                       <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
-                        <span className="text-sm font-medium text-muted-foreground">Нет в наличии</span>
+                        <span className="text-sm font-medium text-foreground">Нет в наличии</span>
                       </div>
                     )}
                   </div>
                   <CardContent className="p-4">
-                    <h3 className="font-medium truncate">{product.name}</h3>
+                    <h3 className="font-medium truncate text-foreground">{product.name}</h3>
                     <p className="text-sm text-muted-foreground truncate mt-1">{product.description}</p>
                     <div className="flex items-center gap-1 mt-3">
                       <Coins size={14} className="text-yellow-500"/>
-                      <span className="font-semibold">{product.price}</span>
+                      <span className="font-semibold text-foreground">{product.price}</span>
                     </div>
                   </CardContent>
                 </Card>

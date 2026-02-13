@@ -5,7 +5,7 @@ import {useRouter} from "next/navigation";
 import {Card, CardContent, CardHeader} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
-import {Pencil, Check, X, Loader2, Coins} from "lucide-react";
+import {Pencil, Check, X, Loader2, Coins, ShoppingBag} from "lucide-react";
 import {Role, type QuizResult} from "@/lib/types";
 import {phoneRegex} from "@/lib/validator";
 import OrbAnimation from "@/components/orb";
@@ -142,6 +142,12 @@ export default function ProfileCard({name: initialName, phone: initialPhone, rol
             </span>
             <span>{coins}</span>
           </div>
+          <Button variant="outline" className="w-full mt-2 gap-2 rounded-xl" asChild>
+            <Link href="/shop">
+              <ShoppingBag size={16}/>
+              Магазин мерча
+            </Link>
+          </Button>
         </CardContent>
         <CardContent className="flex flex-col gap-2">
           <span className="text-sm text-muted-foreground">Тест: Кто ты в IT?</span>

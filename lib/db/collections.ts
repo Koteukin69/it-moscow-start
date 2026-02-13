@@ -33,6 +33,6 @@ export const ordersCollection = getCollection<{
   productName: string;
   size?: string;
   price: number;
-  status: "pending" | "completed" | "cancelled";
+  code: string;
   createdAt: Date;
 }>("orders");

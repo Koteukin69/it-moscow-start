@@ -23,4 +23,16 @@ export const productsCollection = getCollection<{
   image?: string;
   stock?: number;
   sizes?: Record<string, number>;
+  isNew?: boolean;
 }>("products");
+
+export const ordersCollection = getCollection<{
+  userId: string;
+  userName: string;
+  productId: string;
+  productName: string;
+  size?: string;
+  price: number;
+  status: "pending" | "completed" | "cancelled";
+  createdAt: Date;
+}>("orders");

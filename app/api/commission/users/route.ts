@@ -14,6 +14,7 @@ export async function GET(): Promise<NextResponse> {
         _id: u._id.toString(),
         name: u.name,
         phone: u.phone || null,
+        coins: u.coins ?? 0,
         quiz: quiz
           ? {directions: quiz.directions, top: quiz.top, completedAt: quiz.completedAt.toISOString()}
           : null,

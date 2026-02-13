@@ -16,7 +16,7 @@ export async function POST(req: NextRequest):Promise<NextResponse> {
     const {name, phone} = validated.data;
 
     const collection = await usersCollection;
-    const id = (await collection.insertOne({name, phone})).insertedId.toString();
+    const id = (await collection.insertOne({name, phone, coins: 0})).insertedId.toString();
 
     const token = await createToken({
       userId: id,

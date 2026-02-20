@@ -1,5 +1,6 @@
 export interface GuideSpecialty {
   id: string;
+  code: string;
   title: string;
   description: string;
   relevance: string;
@@ -11,6 +12,7 @@ export interface GuideSpecialty {
 export const specialties: GuideSpecialty[] = [
   {
     id: "web",
+    code: "09.02.07",
     title: "Веб-разработка",
     description:
       "Создание сайтов, веб-приложений и цифровых сервисов: от лендингов до сложных онлайн-платформ и личных кабинетов.",
@@ -37,6 +39,7 @@ export const specialties: GuideSpecialty[] = [
   },
   {
     id: "security",
+    code: "10.02.05",
     title: "Информационная безопасность",
     description:
       "Защита данных, сетей и цифровых систем от взломов, атак и утечек информации.",
@@ -62,6 +65,7 @@ export const specialties: GuideSpecialty[] = [
   },
   {
     id: "gamedev",
+    code: "09.02.07",
     title: "Разработка компьютерных игр, AR и VR",
     description:
       "Создание игр, виртуальной и дополненной реальности, интерактивных симуляторов и цифровых миров.",
@@ -87,6 +91,7 @@ export const specialties: GuideSpecialty[] = [
   },
   {
     id: "systems",
+    code: "09.02.01",
     title: "Компьютерные системы и комплексы",
     description:
       "Работа с компьютерным оборудованием и системами, на которых строится вся IT-инфраструктура.",
@@ -111,6 +116,7 @@ export const specialties: GuideSpecialty[] = [
   },
   {
     id: "networks",
+    code: "09.02.06",
     title: "Сетевое и системное администрирование",
     description:
       "Поддержка и управление сетями, серверами и IT-инфраструктурой компаний.",
@@ -135,6 +141,7 @@ export const specialties: GuideSpecialty[] = [
   },
   {
     id: "intelligent",
+    code: "09.02.08",
     title: "Интеллектуальные интегрированные системы",
     description:
       "Создание и управление «умными» системами: автоматизация, IoT, интеллектуальные цифровые решения.",
@@ -159,6 +166,7 @@ export const specialties: GuideSpecialty[] = [
   },
   {
     id: "design",
+    code: "54.01.20",
     title: "Графический дизайнер / Digital-дизайнер",
     description:
       "Создание визуальных решений для цифровых продуктов: сайты, интерфейсы, брендинг, digital-контент.",
@@ -183,6 +191,7 @@ export const specialties: GuideSpecialty[] = [
   },
   {
     id: "transport",
+    code: "27.02.07",
     title: "Инженер умных транспортных систем",
     description:
       "Современные цифровые и автоматизированные системы вертикального транспорта: лифты, эскалаторы, интеллектуальные системы управления.",

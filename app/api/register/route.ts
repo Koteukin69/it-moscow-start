@@ -41,7 +41,7 @@ export async function POST(req: NextRequest):Promise<NextResponse> {
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      {error: 'Внутренняя ошибка сервера'},
+      {success: false, error: 'Внутренняя ошибка сервера'},
       {status: 500}
     )
   }

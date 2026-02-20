@@ -23,7 +23,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({success: true});
   } catch (error) {
     console.error(error);
-    return NextResponse.json({error: "Внутренняя ошибка сервера"}, {status: 500});
+    return NextResponse.json(
+      {success: false, error: 'Внутренняя ошибка сервера'},
+      {status: 500}
+    );
   }
 }
 
@@ -47,6 +50,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({error: "Внутренняя ошибка сервера"}, {status: 500});
+    return NextResponse.json(
+      {success: false, error: 'Внутренняя ошибка сервера'},
+      {status: 500}
+    );
   }
 }

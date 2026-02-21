@@ -15,7 +15,7 @@ export default async function CommissionPage() {
   }
 
   return (<>
-    <div className="absolute w-full flex justify-between shrink-0 items-center gap-3 border-b border-border px-5 py-4 md:hidden">
+    <div className="absolute w-full flex justify-between shrink-0 items-center gap-3 border-b border-border px-5 py-4">
       <Button variant="link" asChild><Link href="/">Вернуться</Link></Button>
       <Image className={"max-w-10 aspect-square"} alt={"logo square"} src={"logo-square.svg"} width={64} height={64}/>
     </div>

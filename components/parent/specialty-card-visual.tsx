@@ -127,7 +127,7 @@ export default function SpecialtyCardVisual({image, imageAlign, alt, iconNames, 
           [imageAlign === "right" ? "right" : "left"]: "-100%",
         }}
       >
-        <OrbAnimation preset={orbPreset} speed={1.2} saturate={1.6} blurMin={2} blurMax={6}/>
+        <OrbAnimation paused={true} preset={orbPreset} speed={1.2} saturate={1.6} blurMin={2} blurMax={6}/>
       </div>
 
       <Image

@@ -14,7 +14,7 @@ export default function CourseCardVisual({image, alt, orbPreset}: CourseCardVisu
   return (
     <div className="relative aspect-square overflow-hidden">
       <div className="absolute inset-0 opacity-50">
-        <OrbAnimation preset={orbPreset} speed={1.2} saturate={1.4} blurMin={3} blurMax={8}/>
+        <OrbAnimation paused={true} preset={orbPreset} speed={1.2} saturate={1.4} blurMin={3} blurMax={8}/>
       </div>
       <div className="absolute inset-0 z-10 p-5">
         <div className="relative h-full w-full">

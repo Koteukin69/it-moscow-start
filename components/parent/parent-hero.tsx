@@ -4,7 +4,7 @@ import {ChevronDown} from "lucide-react";
 
 export default function ParentHero() {
   return (
-    <section className="relative flex min-h-[calc(100vh-4.5rem)] flex-col items-center justify-center gap-8 px-4 py-20 text-center">
+    <section className="relative flex min-h-[calc(100vh-4.5rem)] flex-col items-center justify-center gap-8 px-10 sm:px-20 py-20 text-center">
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/10 via-transparent to-transparent"/>
 
       <Image

@@ -2,6 +2,64 @@ import {NextRequest, NextResponse} from "next/server";
 import {productsCollection} from "@/lib/db/collections";
 import {ObjectId} from "mongodb";
 
+export async function PUT(req: NextRequest, {params}: {params: Promise<{id: string}>}): Promise<NextResponse> {
+  try {
+    const {id} = await params;
+    if (!ObjectId.isValid(id)) {
+      return NextResponse.json({error: "Неверный ID"}, {status: 400});
+    }
+
+    const body = await req.json();
+    const {name, price, description} = body;
+    if (!name || price === undefined || !description) {
+      return NextResponse.json({error: "Заполните обязательные поля"}, {status: 400});
+    }
+
+    const update: Record<string, unknown> = {
+      name: String(name),
+      price: Number(price),
+      description: String(description),
+      image: body.image ? String(body.image) : undefined,
+      isNew: !!body.isNew,
+    };
+
+    if (body.sizes && typeof body.sizes === "object") {
+      update.sizes = body.sizes;
+      update.stock = undefined;
+    } else if (body.stock !== undefined && body.stock !== null) {
+      update.stock = Number(body.stock);
+      update.sizes = undefined;
+    }
+
+    const collection = await productsCollection;
+    const result = await collection.findOneAndUpdate(
+      {_id: new ObjectId(id)},
+      {$set: update},
+      {returnDocument: "after"},
+    );
+
+    if (!result) {
+      return NextResponse.json({error: "Товар не найден"}, {status: 404});
+    }
+
+    return NextResponse.json({
+      success: true,
+      product: {
+        _id: result._id.toString(),
+        name: result.name,
+        price: result.price,
+        description: result.description,
+        image: result.image || null,
+        stock: result.stock ?? null,
+        sizes: result.sizes || null,
+        isNew: result.isNew ?? false,
+      },
+    });
+  } catch {
+    return NextResponse.json({error: "Ошибка сервера"}, {status: 500});
+  }
+}
+
 export async function DELETE(_req: NextRequest, {params}: {params: Promise<{id: string}>}): Promise<NextResponse> {
   try {
     const {id} = await params;

@@ -20,7 +20,7 @@ const specialtyConfig: Record<string, {
 
 export default function ParentDirections() {
   return (
-    <section id="directions" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+    <section id="directions" className="mx-auto max-w-6xl px-10 py-20 sm:px-20">
       <div className="mb-12 flex flex-col gap-3 text-center">
         <h2 className="text-2xl font-bold sm:text-3xl">
           Какое направление выбрать ребёнку?

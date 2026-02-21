@@ -21,7 +21,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const {name, date, image, description} = await req.json();
 
-    if (!name || !date || !description) {
+    if (!name || !date || !description || !image) {
       return NextResponse.json({error: "Заполните обязательные поля"}, {status: 400});
     }
 
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const result = await collection.insertOne({
       name: String(name),
       date: String(date),
-      image: image ? String(image) : undefined,
+      image: String(image),
       description: String(description),
     });
 

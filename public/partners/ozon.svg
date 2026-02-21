@@ -1,1 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40"><rect width="120" height="40" rx="6" fill="#005BFF"/><text x="60" y="27" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="bold" fill="white">OZON</text></svg>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 27.2.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="200px" height="200px" viewBox="0 0 200 200" style="enable-background:new 0 0 200 200;" xml:space="preserve">
+<style type="text/css">
+	.st0{clip-path:url(#SVGID_00000101097726363587391230000006720259003379071929_);}
+	.st1{fill:#005BFF;}
+	.st2{fill-rule:evenodd;clip-rule:evenodd;fill:#FFFFFF;filter:url(#Adobe_OpacityMaskFilter);}
+	.st3{mask:url(#mask0_50_1310_00000095320020606665496270000008432119224919020720_);}
+	.st4{fill-rule:evenodd;clip-rule:evenodd;fill:#F91155;}
+	.st5{fill-rule:evenodd;clip-rule:evenodd;fill:#FFFFFF;}
+</style>
+<g>
+	<defs>
+		<path id="SVGID_1_" d="M42.4,0h115.3C181,0,200,19,200,42.4v115.3c0,23.4-19,42.4-42.4,42.4H42.4C19,200,0,181,0,157.6V42.4
+			C0,19,19,0,42.4,0z"/>
+	</defs>
+	<clipPath id="SVGID_00000031918899816861013930000014474311342605318551_">
+		<use xlink:href="#SVGID_1_"  style="overflow:visible;"/>
+	</clipPath>
+	<g style="clip-path:url(#SVGID_00000031918899816861013930000014474311342605318551_);">
+		<rect class="st1" width="200" height="200"/>
+		<defs>
+			<filter id="Adobe_OpacityMaskFilter" filterUnits="userSpaceOnUse" x="-6.8" y="50.9" width="254.3" height="201.9">
+				<feColorMatrix  type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+			</filter>
+		</defs>
+		
+			<mask maskUnits="userSpaceOnUse" x="-6.8" y="50.9" width="254.3" height="201.9" id="mask0_50_1310_00000095320020606665496270000008432119224919020720_">
+			<path class="st2" d="M0,0h200v200H0V0z"/>
+		</mask>
+		<g class="st3">
+			<path class="st4" d="M98.5,100.3l-2.9-11.4l19.4-13l23.2,1.6l3.4,11.1l106,114L81.9,252.8L98.5,100.3z"/>
+			<path class="st5" d="M21.3,133.7c-7.5,3.1-15.9-1.9-17.1-10.2c-0.8-5.7,2.3-11.2,7.4-13.3c7.5-3.1,15.9,1.9,17.1,10.2
+				C29.5,126,26.4,131.6,21.3,133.7z M12.6,98.4c-14.5,2.3-23.1,17.7-17.8,31.8c3.9,10.5,14.7,17,25.5,15.2
+				c14.5-2.3,23.1-17.7,17.8-31.8C34.1,103.1,23.3,96.7,12.6,98.4L12.6,98.4z"/>
+			<path class="st5" d="M45.1,90.1c-3.3,0.9-5,4.6-3.4,7.8c1.2,2.4,4,3.5,6.5,2.8l14.7-3.9l-14.7,36.8c-0.5,1.2,0.6,2.5,1.9,2.1
+				l35.9-9.6c2.5-0.7,4.4-3,4.2-5.7c-0.2-3.6-3.6-6-6.9-5.1l-17.9,4.8L80,83.4c0.5-1.2-0.6-2.5-1.9-2.2L45.1,90.1"/>
+			<path class="st5" d="M188.5,51.5c-2.3,1.2-3.4,3.9-2.7,6.5l4.8,17.8l-34.9-15.3c-1.2-0.5-2.5,0.6-2.2,1.9l9.9,36.8
+				c0.7,2.5,3,4.4,5.6,4.3c3.6-0.2,5.9-3.6,5.1-7l-4.8-18l34.9,15.3c1.2,0.5,2.5-0.6,2.2-1.9L196.4,55
+				C195.5,51.6,191.7,49.8,188.5,51.5"/>
+			<path class="st5" d="M113.6,70.6c-17.5,4.7-28.9,18.8-25.4,31.5c3.4,12.7,20.3,19.2,37.8,14.6c17.5-4.7,28.9-18.8,25.4-31.5
+				C148,72.4,131.1,65.9,113.6,70.6z M116.5,81.3c12.1-3.2,22.8,0.8,24.4,6.6c1.6,5.8-5.7,14.7-17.8,17.9
+				c-12.1,3.2-22.8-0.8-24.4-6.6C97.2,93.5,104.4,84.5,116.5,81.3L116.5,81.3z"/>
+		</g>
+	</g>
+</g>
+</svg>

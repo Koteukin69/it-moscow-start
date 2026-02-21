@@ -28,7 +28,7 @@ export default function CommissionDashboard() {
       </div>
 
       <header className="border-b border-border bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60">
-        <div className="mx-auto px-10 sm:px-20 h-18 flex items-center justify-between">
+        <div className="mx-auto px-4 sm:px-10 md:px-20 h-18 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Image src="/logo-square.svg" width={64} height={64} alt="IT.Москва" className="h-6 w-auto"/>
             <span className="text-sm text-muted-foreground hidden sm:inline">Приёмная комиссия</span>
@@ -40,24 +40,24 @@ export default function CommissionDashboard() {
         </div>
       </header>
 
-      <main className="mx-auto px-10 sm:px-20 py-8">
+      <main className="mx-auto px-2 sm:px-10 md:px-20 py-4 sm:py-8">
         <Tabs defaultValue="users" className="w-full">
           <TabsList className="w-full sm:w-auto bg-background/70">
-            <TabsTrigger value="users" className="gap-2">
+            <TabsTrigger value="users" className="gap-1.5">
               <Users size={16}/>
-              Абитуриенты
+              <span className="hidden sm:inline">Абитуриенты</span>
             </TabsTrigger>
-            <TabsTrigger value="events" className="gap-2">
+            <TabsTrigger value="events" className="gap-1.5">
               <CalendarDays size={16}/>
-              Мероприятия
+              <span className="hidden sm:inline">Мероприятия</span>
             </TabsTrigger>
-            <TabsTrigger value="products" className="gap-2">
+            <TabsTrigger value="products" className="gap-1.5">
               <ShoppingBag size={16}/>
-              Товары
+              <span className="hidden sm:inline">Товары</span>
             </TabsTrigger>
-            <TabsTrigger value="orders" className="gap-2">
+            <TabsTrigger value="orders" className="gap-1.5">
               <ClipboardList size={16}/>
-              Заказы
+              <span className="hidden sm:inline">Заказы</span>
             </TabsTrigger>
           </TabsList>
 

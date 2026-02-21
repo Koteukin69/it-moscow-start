@@ -22,7 +22,7 @@ export default function ParentEarnings() {
   const current = salaryData.find((s) => s.id === selected) ?? salaryData[0];
 
   return (
-    <section id="earnings" className="relative mx-auto max-w-6xl overflow-hidden px-4 py-20 sm:px-6">
+    <section id="earnings" className="relative mx-auto max-w-6xl overflow-hidden px-10 py-20 sm:px-20">
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-15">
         <Image
           src="/infinity-symbolnew.png"

@@ -20,7 +20,7 @@ export default function CommissionDashboard() {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden">
+    <div className="min-h-dvh overflow-x-hidden">
       <div className="overflow-hidden fixed inset-0 -z-1 flex items-center justify-center">
         <div className="w-full h-full">
           <OrbAnimation scaleMode="max"/>

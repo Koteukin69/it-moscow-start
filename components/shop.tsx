@@ -96,7 +96,7 @@ export default function Shop({initialCoins}: {initialCoins: number}) {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-dvh">
       <div className="overflow-hidden fixed inset-0 -z-1 flex items-center justify-center">
         <div className="w-full h-full">
           <OrbAnimation scaleMode="max"/>

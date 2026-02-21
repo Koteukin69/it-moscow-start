@@ -96,9 +96,9 @@ export default function ProfileCard({name: initialName, phone: initialPhone, ver
   };
 
   return (
-    <div className="flex items-center justify-center h-screen px-10 sm:px-20">
-      <div className="overflow-hidden absolute w-screen h-screen -z-1 flex items-center justify-center">
-        <div className="h-screen aspect-square">
+    <div className="flex items-center justify-center h-dvh px-10 sm:px-20">
+      <div className="overflow-hidden absolute w-screen h-dvh -z-1 flex items-center justify-center">
+        <div className="h-dvh aspect-square">
           <OrbAnimation/>
         </div>
       </div>

@@ -16,7 +16,7 @@ export default function ParentFooter() {
 
             <div className="flex flex-col gap-4 sm:flex-row">
               <Card>
-                <CardContent className="flex items-center gap-3 p-4">
+                <CardContent className="flex items-center gap-3">
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <Phone className="size-5"/>
                   </div>
@@ -35,7 +35,7 @@ export default function ParentFooter() {
               </Card>
 
               <Card>
-                <CardContent className="flex items-center gap-3 p-4">
+                <CardContent className="flex items-center gap-3">
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <Mail className="size-5"/>
                   </div>
@@ -47,7 +47,7 @@ export default function ParentFooter() {
                       info@it-moscow.ru
                     </Link>
                     <p className="text-xs text-muted-foreground">
-                      Приёмная комиссия
+                      Крулосуточно
                     </p>
                   </div>
                 </CardContent>

@@ -101,9 +101,8 @@ export default function ParentCourses() {
         <h2 className="text-2xl font-bold sm:text-3xl">
           Курсы Digital Art Academy
         </h2>
-        <p className="mx-auto max-w-2xl text-muted-foreground">
-          Бесплатные кружки для школьников — попробуй IT до поступления
-          и заработай свои первые it.coin
+        <p className="mx-auto max-w-3xl text-muted-foreground">
+          Попробуй себя в IT до поступления. Заработай первые it.coin и начни карьеру прямо сейчас!
         </p>
       </div>
 
@@ -152,11 +151,13 @@ export default function ParentCourses() {
         })}
       </div>
 
+      {/*
       <div className="mt-8 text-center">
         <Button variant="outline" size="lg" asChild>
           <Link href="/courses">Все курсы</Link>
         </Button>
       </div>
+      */}
     </section>
   );
 }

@@ -18,7 +18,7 @@ export default function ParentPartners() {
         <h2 className="text-2xl font-bold sm:text-3xl">
           Партнёры — работодатели
         </h2>
-        <p className="mx-auto max-w-2xl text-muted-foreground">
+        <p className="mx-auto max-w-3xl text-muted-foreground">
           Наши выпускники проходят стажировки и получают офферы от ведущих
           IT-компаний страны
         </p>

@@ -60,7 +60,7 @@ export default function EventsCalendar() {
   };
 
   return (
-    <div className="min-h-screen px-10 sm:px-20 pt-30 pb-10">
+    <div className="min-h-dvh px-10 sm:px-20 pt-30 pb-10">
       <div className="overflow-hidden fixed -inset-10 -z-1 flex items-center justify-center">
         <OrbAnimation/>
       </div>

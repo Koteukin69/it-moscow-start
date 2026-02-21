@@ -98,7 +98,7 @@ export default function Courses() {
   );
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-10 sm:px-20 pt-16 pb-10 overflow-x-hidden">
+    <div className="flex items-center justify-center min-h-dvh px-10 sm:px-20 pt-16 pb-10 overflow-x-hidden">
       <div className="overflow-hidden fixed inset-0 -z-1 flex items-center justify-center">
         <div className="h-full aspect-square">
           <OrbAnimation/>

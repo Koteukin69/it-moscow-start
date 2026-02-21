@@ -7,7 +7,7 @@ import {useState} from "react";
 export default function FAQ({questions}: {questions: {question: string, answer: string}[]}) {
   const [anwser, setAnwser] = useState<string>("Выбери вопрос — я отвечу!");
 
-  return <div className={"flex flex-col md:flex-row justify-center min-h-screen items-center"}>
+  return <div className={"flex flex-col md:flex-row justify-center min-h-dvh items-center"}>
     <div className={"flex w-full flex-col justify-center items-center"}>
       <div className={"w-full max-w-100 aspect-square"}>
         <Orb/>

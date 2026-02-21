@@ -11,7 +11,7 @@ import ParentFooter from "@/components/parent/parent-footer";
 
 export default function Parent() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-dvh">
       <ParentHeader/>
       <ParentHero/>
       <ParentDirections/>

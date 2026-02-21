@@ -46,7 +46,7 @@ export default function ImageUpload({value, onChange}: ImageUploadProps) {
       }}/>
       {value ? (
         <div className="relative">
-          <img src={value} alt="Превью" className="w-full aspect-video object-cover rounded-lg"/>
+          <img src={value} alt="Превью" className="w-full aspect-square object-cover rounded-lg"/>
           <Button variant="destructive" size="icon-sm" className="absolute top-2 right-2" onClick={() => onChange("")}>
             <X size={12}/>
           </Button>

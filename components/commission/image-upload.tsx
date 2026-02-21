@@ -30,7 +30,7 @@ export default function ImageUpload({value, onChange}: ImageUploadProps) {
 
   return (
     <div className="space-y-2">
-      <Label>Изображение <span className="text-muted-foreground">(необязательно)</span></Label>
+      <Label>Изображение <span className="text-destructive">*</span></Label>
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={e => {
         const file = e.target.files?.[0];
         if (file) handleUpload(file);

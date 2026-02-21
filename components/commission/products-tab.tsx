@@ -7,7 +7,7 @@ import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
 import {Label} from "@/components/ui/label";
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose} from "@/components/ui/dialog";
-import {Plus, RefreshCw, Loader2, ShoppingBag, Package} from "lucide-react";
+import {Plus, Minus, RefreshCw, Loader2, ShoppingBag, Package, Pencil} from "lucide-react";
 import DataTable, {type Column} from "./data-table";
 import ImageUpload from "./image-upload";
 import DeleteButton from "./delete-button";
@@ -33,11 +33,41 @@ export default function ProductsTab() {
   const [restockValues, setRestockValues] = useState<Record<string, string>>({});
   const [restockLoading, setRestockLoading] = useState(false);
 
+  const emptyStockField = () => ({label: "", value: ""});
+
   const [form, setForm] = useState({
     name: "", price: "", description: "", image: "", isNew: false,
-    hasSizes: false, sizes: "" as string,
-    hasStock: false, stock: "" as string,
+    stockFields: [emptyStockField()],
   });
+
+  const [editingProduct, setEditingProduct] = useState<ProductData | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: "", price: "", description: "", image: "", isNew: false,
+    stockFields: [emptyStockField()],
+  });
+  const [saving, setSaving] = useState(false);
+
+  const stockFieldsToBody = (fields: {label: string; value: string}[]): {stock?: number; sizes?: Record<string, number>} => {
+    if (fields.length === 1) {
+      const v = Number(fields[0].value);
+      return v > 0 ? {stock: v} : {};
+    }
+    const sizes: Record<string, number> = {};
+    fields.forEach(f => {
+      if (f.label.trim()) sizes[f.label.trim()] = Number(f.value) || 0;
+    });
+    return Object.keys(sizes).length > 0 ? {sizes} : {};
+  };
+
+  const productToStockFields = (p: ProductData): {label: string; value: string}[] => {
+    if (p.sizes && Object.keys(p.sizes).length > 0) {
+      return Object.entries(p.sizes).map(([k, v]) => ({label: k, value: v.toString()}));
+    }
+    if (p.stock !== null) {
+      return [{label: "", value: p.stock.toString()}];
+    }
+    return [emptyStockField()];
+  };
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -64,19 +94,9 @@ export default function ProductsTab() {
         price: Number(form.price),
         description: form.description,
         isNew: form.isNew,
+        ...stockFieldsToBody(form.stockFields),
       };
       if (form.image) body.image = form.image;
-      if (form.hasSizes && form.sizes) {
-        const sizes: Record<string, number> = {};
-        form.sizes.split(",").forEach(pair => {
-          const [key, val] = pair.split(":").map(s => s.trim());
-          if (key && val) sizes[key] = Number(val) || 0;
-        });
-        body.sizes = sizes;
-      }
-      if (form.hasStock && form.stock) {
-        body.stock = Number(form.stock) || 0;
-      }
       const res = await fetch("/api/commission/products", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -85,11 +105,49 @@ export default function ProductsTab() {
       if (res.ok) {
         const data = await res.json();
         setProducts(prev => [data.product, ...prev]);
-        setForm({name: "", price: "", description: "", image: "", isNew: false, hasSizes: false, sizes: "", hasStock: false, stock: ""});
+        setForm({name: "", price: "", description: "", image: "", isNew: false, stockFields: [emptyStockField()]});
         setDialogOpen(false);
       }
     } catch { /* ignore */ }
     setCreating(false);
+  };
+
+  const openEdit = (p: ProductData) => {
+    setEditForm({
+      name: p.name,
+      price: p.price.toString(),
+      description: p.description,
+      image: p.image || "",
+      isNew: p.isNew,
+      stockFields: productToStockFields(p),
+    });
+    setEditingProduct(p);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingProduct || !editForm.name || !editForm.price || !editForm.description) return;
+    setSaving(true);
+    try {
+      const body: Record<string, unknown> = {
+        name: editForm.name,
+        price: Number(editForm.price),
+        description: editForm.description,
+        isNew: editForm.isNew,
+        ...stockFieldsToBody(editForm.stockFields),
+      };
+      if (editForm.image) body.image = editForm.image;
+      const res = await fetch(`/api/commission/products/${editingProduct._id}`, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProducts(prev => prev.map(p => p._id === data.product._id ? data.product : p));
+        setEditingProduct(null);
+      }
+    } catch { /* ignore */ }
+    setSaving(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -187,6 +245,9 @@ export default function ProductsTab() {
       className: "w-24",
       cell: (p) => (
         <div className="flex gap-1">
+          <Button variant="ghost" size="icon-sm" onClick={() => openEdit(p)} title="Редактировать">
+            <Pencil size={14}/>
+          </Button>
           <Button variant="ghost" size="icon-sm" onClick={() => openRestock(p)} title="Пополнить">
             <Package size={14}/>
           </Button>
@@ -212,7 +273,7 @@ export default function ProductsTab() {
               <DialogHeader>
                 <DialogTitle>Новый товар</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 py-2">
+              <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto pr-1">
                 <div className="space-y-2">
                   <Label>Название</Label>
                   <Input placeholder="Название товара" value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))}/>
@@ -233,25 +294,55 @@ export default function ProductsTab() {
                   </label>
                 </div>
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" checked={form.hasSizes} onChange={e => setForm(f => ({...f, hasSizes: e.target.checked, hasStock: false}))}/>
-                    Размеры
-                  </label>
-                  {form.hasSizes && (
-                    <Input placeholder="S:10, M:15, L:20" value={form.sizes} onChange={e => setForm(f => ({...f, sizes: e.target.value}))}/>
-                  )}
-                </div>
-                {!form.hasSizes && (
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-sm">
-                      <input type="checkbox" checked={form.hasStock} onChange={e => setForm(f => ({...f, hasStock: e.target.checked}))}/>
-                      Общий остаток
-                    </label>
-                    {form.hasStock && (
-                      <Input type="number" min="0" placeholder="50" value={form.stock} onChange={e => setForm(f => ({...f, stock: e.target.value}))}/>
-                    )}
+                  <div className="flex items-center justify-between">
+                    <Label>Остаток</Label>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      type="button"
+                      onClick={() => setForm(f => ({...f, stockFields: [...f.stockFields, emptyStockField()]}))}
+                    >
+                      <Plus size={14}/>
+                    </Button>
                   </div>
-                )}
+                  {form.stockFields.map((field, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      {form.stockFields.length > 1 && (
+                        <Input
+                          placeholder="Размер"
+                          value={field.label}
+                          onChange={e => setForm(f => {
+                            const fields = [...f.stockFields];
+                            fields[i] = {...fields[i], label: e.target.value};
+                            return {...f, stockFields: fields};
+                          })}
+                          className="w-24"
+                        />
+                      )}
+                      <Input
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        value={field.value}
+                        onChange={e => setForm(f => {
+                          const fields = [...f.stockFields];
+                          fields[i] = {...fields[i], value: e.target.value};
+                          return {...f, stockFields: fields};
+                        })}
+                      />
+                      {form.stockFields.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          type="button"
+                          onClick={() => setForm(f => ({...f, stockFields: f.stockFields.filter((_, j) => j !== i)}))}
+                        >
+                          <Minus size={14}/>
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
               <DialogFooter>
                 <DialogClose asChild>
@@ -281,6 +372,97 @@ export default function ProductsTab() {
       <p className="text-sm text-muted-foreground">
         Всего: {products.length}
       </p>
+
+      <Dialog open={!!editingProduct} onOpenChange={(open) => { if (!open) setEditingProduct(null); }}>
+        <DialogContent>
+          {editingProduct && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Редактировать товар</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto pr-1">
+                <div className="space-y-2">
+                  <Label>Название</Label>
+                  <Input value={editForm.name} onChange={e => setEditForm(f => ({...f, name: e.target.value}))}/>
+                </div>
+                <div className="space-y-2">
+                  <Label>Цена (монетки)</Label>
+                  <Input type="number" min="0" value={editForm.price} onChange={e => setEditForm(f => ({...f, price: e.target.value}))}/>
+                </div>
+                <div className="space-y-2">
+                  <Label>Описание</Label>
+                  <Textarea value={editForm.description} onChange={e => setEditForm(f => ({...f, description: e.target.value}))} rows={2}/>
+                </div>
+                <ImageUpload value={editForm.image} onChange={url => setEditForm(f => ({...f, image: url}))}/>
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input type="checkbox" checked={editForm.isNew} onChange={e => setEditForm(f => ({...f, isNew: e.target.checked}))}/>
+                    Метка NEW
+                  </label>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label>Остаток</Label>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      type="button"
+                      onClick={() => setEditForm(f => ({...f, stockFields: [...f.stockFields, emptyStockField()]}))}
+                    >
+                      <Plus size={14}/>
+                    </Button>
+                  </div>
+                  {editForm.stockFields.map((field, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      {editForm.stockFields.length > 1 && (
+                        <Input
+                          placeholder="Размер"
+                          value={field.label}
+                          onChange={e => setEditForm(f => {
+                            const fields = [...f.stockFields];
+                            fields[i] = {...fields[i], label: e.target.value};
+                            return {...f, stockFields: fields};
+                          })}
+                          className="w-24"
+                        />
+                      )}
+                      <Input
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        value={field.value}
+                        onChange={e => setEditForm(f => {
+                          const fields = [...f.stockFields];
+                          fields[i] = {...fields[i], value: e.target.value};
+                          return {...f, stockFields: fields};
+                        })}
+                      />
+                      {editForm.stockFields.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          type="button"
+                          onClick={() => setEditForm(f => ({...f, stockFields: f.stockFields.filter((_, j) => j !== i)}))}
+                        >
+                          <Minus size={14}/>
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline">Отмена</Button>
+                </DialogClose>
+                <Button onClick={handleSaveEdit} disabled={saving || !editForm.name || !editForm.price || !editForm.description}>
+                  {saving ? <Loader2 size={16} className="animate-spin"/> : "Сохранить"}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!restockDialog} onOpenChange={(open) => {if (!open) setRestockDialog(null);}}>
         <DialogContent>

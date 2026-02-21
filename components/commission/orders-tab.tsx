@@ -4,7 +4,10 @@ import {useEffect, useState, useMemo} from "react";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Badge} from "@/components/ui/badge";
-import {Search, RefreshCw, Loader2, ClipboardList} from "lucide-react";
+import {Label} from "@/components/ui/label";
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose} from "@/components/ui/dialog";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {Search, RefreshCw, Loader2, ClipboardList, Pencil} from "lucide-react";
 import {formatDate} from "@/lib/utils";
 import DataTable, {type Column} from "./data-table";
 
@@ -32,6 +35,10 @@ export default function OrdersTab() {
   const [search, setSearch] = useState("");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
+  const [editingOrder, setEditingOrder] = useState<OrderData | null>(null);
+  const [editForm, setEditForm] = useState({status: "" as string, size: ""});
+  const [saving, setSaving] = useState(false);
+
   const fetchOrders = async () => {
     setLoading(true);
     try {
@@ -57,6 +64,31 @@ export default function OrdersTab() {
     );
   }, [orders, search]);
 
+  const openEdit = (o: OrderData) => {
+    setEditForm({status: o.status, size: o.size || ""});
+    setEditingOrder(o);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingOrder) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/commission/orders/${editingOrder._id}`, {
+        method: "PATCH",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({status: editForm.status, size: editForm.size || null}),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.order) {
+          setOrders(prev => prev.map(o => o._id === data.order._id ? data.order : o));
+        }
+        setEditingOrder(null);
+      }
+    } catch { /* ignore */ }
+    setSaving(false);
+  };
+
   const updateStatus = async (id: string, status: string) => {
     setUpdatingId(id);
     try {
@@ -66,7 +98,12 @@ export default function OrdersTab() {
         body: JSON.stringify({status}),
       });
       if (res.ok) {
-        setOrders(prev => prev.map(o => o._id === id ? {...o, status: status as OrderData["status"]} : o));
+        const data = await res.json();
+        if (data.order) {
+          setOrders(prev => prev.map(o => o._id === data.order._id ? data.order : o));
+        } else {
+          setOrders(prev => prev.map(o => o._id === id ? {...o, status: status as OrderData["status"]} : o));
+        }
       }
     } catch { /* ignore */ }
     setUpdatingId(null);
@@ -102,28 +139,35 @@ export default function OrdersTab() {
     },
     {
       header: "Действия",
-      className: "w-36",
-      cell: (o) => o.status === "pending" ? (
+      className: "w-44",
+      cell: (o) => (
         <div className="flex gap-1">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={updatingId === o._id}
-            onClick={() => updateStatus(o._id, "completed")}
-          >
-            {updatingId === o._id ? <Loader2 size={12} className="animate-spin"/> : "Выдать"}
+          <Button variant="ghost" size="icon-sm" onClick={() => openEdit(o)} title="Редактировать">
+            <Pencil size={14}/>
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-destructive hover:text-destructive"
-            disabled={updatingId === o._id}
-            onClick={() => updateStatus(o._id, "cancelled")}
-          >
-            Отмена
-          </Button>
+          {o.status === "pending" && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={updatingId === o._id}
+                onClick={() => updateStatus(o._id, "completed")}
+              >
+                {updatingId === o._id ? <Loader2 size={12} className="animate-spin"/> : "Выдать"}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-destructive hover:text-destructive"
+                disabled={updatingId === o._id}
+                onClick={() => updateStatus(o._id, "cancelled")}
+              >
+                Отмена
+              </Button>
+            </>
+          )}
         </div>
-      ) : null,
+      ),
     },
   ];
 
@@ -159,6 +203,49 @@ export default function OrdersTab() {
       <p className="text-sm text-muted-foreground">
         Всего: {filtered.length} {search && `из ${orders.length}`}
       </p>
+
+      <Dialog open={!!editingOrder} onOpenChange={(open) => { if (!open) setEditingOrder(null); }}>
+        <DialogContent>
+          {editingOrder && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Редактировать заказ</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-2">
+                <div className="space-y-1 text-sm text-muted-foreground">
+                  <p>Абитуриент: <span className="text-foreground font-medium">{editingOrder.userName}</span></p>
+                  <p>Товар: <span className="text-foreground font-medium">{editingOrder.productName}</span></p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Статус</Label>
+                  <Select value={editForm.status} onValueChange={v => setEditForm(f => ({...f, status: v}))}>
+                    <SelectTrigger>
+                      <SelectValue/>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Ожидает</SelectItem>
+                      <SelectItem value="completed">Выдан</SelectItem>
+                      <SelectItem value="cancelled">Отменён</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Размер</Label>
+                  <Input value={editForm.size} onChange={e => setEditForm(f => ({...f, size: e.target.value}))} placeholder="Не указан"/>
+                </div>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline">Отмена</Button>
+                </DialogClose>
+                <Button onClick={handleSaveEdit} disabled={saving}>
+                  {saving ? <Loader2 size={16} className="animate-spin"/> : "Сохранить"}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -6,16 +6,16 @@ import Link from "next/link";
 export default function ParentFooter() {
   return (
     <footer id="footer" className="border-t bg-muted/30">
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="grid gap-12 sm:grid-cols-2">
-          <div className="flex flex-col gap-6">
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-10">
+        <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between md:gap-12">
+          <div className="flex flex-col gap-6 min-w-0">
             <h2 className="text-2xl font-bold">Остались вопросы?</h2>
             <p className="text-muted-foreground">
               Задайте вопрос приёмной комиссии
             </p>
 
             <div className="flex flex-col gap-4 sm:flex-row">
-              <Card className="flex-1">
+              <Card>
                 <CardContent className="flex items-center gap-3 p-4">
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <Phone className="size-5"/>
@@ -23,7 +23,7 @@ export default function ParentFooter() {
                   <div>
                     <Link
                       href="tel:+74996121498"
-                      className="font-semibold hover:underline"
+                      className="whitespace-nowrap font-semibold hover:underline"
                     >
                       8 (499) 612-14-98
                     </Link>
@@ -34,7 +34,7 @@ export default function ParentFooter() {
                 </CardContent>
               </Card>
 
-              <Card className="flex-1">
+              <Card>
                 <CardContent className="flex items-center gap-3 p-4">
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <Mail className="size-5"/>
@@ -42,7 +42,7 @@ export default function ParentFooter() {
                   <div>
                     <Link
                       href="mailto:info@it-moscow.ru"
-                      className="font-semibold hover:underline"
+                      className="whitespace-nowrap font-semibold hover:underline"
                     >
                       info@it-moscow.ru
                     </Link>
@@ -55,7 +55,7 @@ export default function ParentFooter() {
             </div>
           </div>
 
-          <div className="flex flex-col items-end gap-6">
+          <div className="flex flex-col items-start gap-6 shrink-0 md:items-end">
             <h2 className="text-2xl font-bold">Наши соцсети</h2>
             <div className="flex gap-4">
               <Link

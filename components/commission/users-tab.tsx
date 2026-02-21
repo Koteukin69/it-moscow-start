@@ -4,7 +4,9 @@ import {useEffect, useState, useMemo} from "react";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Badge} from "@/components/ui/badge";
-import {Search, ArrowUpDown, ArrowUp, ArrowDown, RefreshCw, Loader2, Users} from "lucide-react";
+import {Label} from "@/components/ui/label";
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose} from "@/components/ui/dialog";
+import {Search, ArrowUpDown, ArrowUp, ArrowDown, RefreshCw, Loader2, Users, Pencil} from "lucide-react";
 import {formatDate} from "@/lib/utils";
 import DataTable, {type Column} from "./data-table";
 
@@ -29,6 +31,10 @@ export default function UsersTab() {
   const [search, setSearch] = useState("");
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const [editingUser, setEditingUser] = useState<UserData | null>(null);
+  const [editForm, setEditForm] = useState({name: "", phone: "", coins: ""});
+  const [saving, setSaving] = useState(false);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -73,6 +79,29 @@ export default function UsersTab() {
       }
     });
   }, [filtered, sortField, sortDir]);
+
+  const openEdit = (u: UserData) => {
+    setEditForm({name: u.name, phone: u.phone || "", coins: u.coins.toString()});
+    setEditingUser(u);
+  };
+
+  const handleUpdate = async () => {
+    if (!editingUser || !editForm.name) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/commission/users/${editingUser._id}`, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({name: editForm.name, phone: editForm.phone || null, coins: Number(editForm.coins) || 0}),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(prev => prev.map(u => u._id === data.user._id ? {...u, ...data.user} : u));
+        setEditingUser(null);
+      }
+    } catch { /* ignore */ }
+    setSaving(false);
+  };
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
@@ -138,6 +167,15 @@ export default function UsersTab() {
       ),
       cell: (u) => <span className="text-muted-foreground">{u.coins}</span>,
     },
+    {
+      header: "Действия",
+      className: "w-16",
+      cell: (u) => (
+        <Button variant="ghost" size="icon-sm" onClick={() => openEdit(u)} title="Редактировать">
+          <Pencil size={14}/>
+        </Button>
+      ),
+    },
   ];
 
   return (
@@ -172,6 +210,40 @@ export default function UsersTab() {
       <p className="text-sm text-muted-foreground">
         Всего: {sorted.length} {search && `из ${users.length}`}
       </p>
+
+      <Dialog open={!!editingUser} onOpenChange={(open) => { if (!open) setEditingUser(null); }}>
+        <DialogContent>
+          {editingUser && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Редактировать абитуриента</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                  <Label>Имя</Label>
+                  <Input value={editForm.name} onChange={e => setEditForm(f => ({...f, name: e.target.value}))}/>
+                </div>
+                <div className="space-y-2">
+                  <Label>Телефон</Label>
+                  <Input value={editForm.phone} onChange={e => setEditForm(f => ({...f, phone: e.target.value}))} placeholder="+7..."/>
+                </div>
+                <div className="space-y-2">
+                  <Label>Монеты</Label>
+                  <Input type="number" min="0" value={editForm.coins} onChange={e => setEditForm(f => ({...f, coins: e.target.value}))}/>
+                </div>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline">Отмена</Button>
+                </DialogClose>
+                <Button onClick={handleUpdate} disabled={saving || !editForm.name}>
+                  {saving ? <Loader2 size={16} className="animate-spin"/> : "Сохранить"}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

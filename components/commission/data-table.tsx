@@ -22,8 +22,8 @@ interface DataTableProps<T> {
 
 export default function DataTable<T>({data, columns, keyField, loading, emptyIcon, emptyMessage}: DataTableProps<T>) {
   return (
-    <Card className="bg-background/70 overflow-hidden">
-      <CardContent>
+    <Card className="bg-background/70 overflow-hidden rounded-none sm:rounded-xl border-x-0 sm:border-x">
+      <CardContent className="px-0 sm:px-6">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">

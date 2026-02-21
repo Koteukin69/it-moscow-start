@@ -25,7 +25,7 @@ export default function ParentDirections() {
         <h2 className="text-2xl font-bold sm:text-3xl">
           Какое направление выбрать ребёнку?
         </h2>
-        <p className="mx-auto max-w-2xl text-muted-foreground">
+        <p className="mx-auto max-w-3xl text-muted-foreground">
           8 востребованных IT-специальностей с трудоустройством в ведущие компании страны
         </p>
       </div>

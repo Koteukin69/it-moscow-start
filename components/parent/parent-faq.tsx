@@ -51,11 +51,13 @@ export default function ParentFaq() {
       </Accordion>
 
       <div className="text-center">
+        {/*
         <Button variant="outline" size="lg" asChild>
           <Link href="https://t.me/itmoscow" target="_blank">
             Другие вопросы
           </Link>
         </Button>
+        */}
       </div>
     </section>
   );

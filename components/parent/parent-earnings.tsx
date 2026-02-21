@@ -38,7 +38,7 @@ export default function ParentEarnings() {
           <h2 className="text-2xl font-bold sm:text-3xl">
             Заработок в IT
           </h2>
-          <p className="mx-auto max-w-2xl text-muted-foreground">
+          <p className="mx-auto max-w-3xl text-muted-foreground">
             Заработок будет расти вместе с опытом, а работать можно из любой
             точки мира!
           </p>

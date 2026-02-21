@@ -32,7 +32,7 @@ export default function ParentEnrollment() {
         <h2 className="text-2xl font-bold sm:text-3xl">
           Поступи в IT.Москва
         </h2>
-        <p className="mx-auto max-w-2xl text-muted-foreground">
+        <p className="mx-auto max-w-3xl text-muted-foreground">
           Приём документов на 2025/2026 учебный год уже открыт. Поступление
           после 9 и 11 класса на бюджетные и коммерческие места
         </p>
@@ -58,9 +58,11 @@ export default function ParentEnrollment() {
       </div>
 
       <div className="flex flex-col items-center gap-4">
+        {/*
         <p className="text-muted-foreground">
           Остались вопросы? Напиши нам!
         </p>
+        */}
         <div className="flex gap-3">
           {socials.map((s) => (
             <Button key={s.name} variant="outline" size="lg" asChild>

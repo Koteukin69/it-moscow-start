@@ -49,9 +49,9 @@ export default function ApplicantChat({ user, userId }: ApplicantChatProps) {
     : undefined;
 
   return (
-    <div className="flex align-center h-screen">
-      <div className={"overflow-hidden absolute -inset-x-[20%] w-screen h-screen -z-1 flex items-center justify-start"}>
-        <div className={"h-screen aspect-square"}>
+    <div className="flex align-center h-dvh">
+      <div className={"overflow-hidden absolute -inset-x-[20%] w-screen h-dvh -z-1 flex items-center justify-start"}>
+        <div className={"h-dvh aspect-square"}>
           <OrbAnimation />
         </div>
       </div>

@@ -11,8 +11,13 @@ const ALLOWED_TYPES: Record<string, string> = {
   "image/gif": "gif",
 };
 
+const uploadDir = join(process.cwd(), "public", "uploads");
+const ensureDir = mkdir(uploadDir, {recursive: true}).catch(() => {});
+
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
+    await ensureDir;
+
     const formData = await req.formData();
     const file = formData.get("file");
 
@@ -30,12 +35,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     const filename = `${randomUUID()}.${ext}`;
-    const uploadDir = join(process.cwd(), "public", "uploads");
 
-    await mkdir(uploadDir, {recursive: true});
-
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(join(uploadDir, filename), buffer);
+    const data = new Uint8Array(await file.arrayBuffer());
+    await writeFile(join(uploadDir, filename), data);
 
     return NextResponse.json({url: `/uploads/${filename}`});
   } catch (error) {

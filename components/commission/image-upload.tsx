@@ -4,6 +4,7 @@ import {useState, useRef} from "react";
 import {Button} from "@/components/ui/button";
 import {Label} from "@/components/ui/label";
 import {Loader2, Upload, X} from "lucide-react";
+import imageCompression from "browser-image-compression";
 
 interface ImageUploadProps {
   value: string;
@@ -17,8 +18,15 @@ export default function ImageUpload({value, onChange}: ImageUploadProps) {
   const handleUpload = async (file: File) => {
     setUploading(true);
     try {
+      const compressed = await imageCompression(file, {
+        maxSizeMB: 0.5,
+        maxWidthOrHeight: 1200,
+        useWebWorker: true,
+        fileType: "image/webp",
+      });
+
       const body = new FormData();
-      body.append("file", file);
+      body.append("file", compressed, compressed.name);
       const res = await fetch("/api/commission/upload", {method: "POST", body});
       if (res.ok) {
         const data = await res.json();

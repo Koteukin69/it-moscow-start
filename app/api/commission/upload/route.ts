@@ -11,7 +11,7 @@ const ALLOWED_TYPES: Record<string, string> = {
   "image/gif": "gif",
 };
 
-const uploadDir = join(process.cwd(), "public", "uploads");
+const uploadDir = join(process.cwd(), "uploads");
 const ensureDir = mkdir(uploadDir, {recursive: true}).catch(() => {});
 
 export async function POST(req: NextRequest): Promise<NextResponse> {

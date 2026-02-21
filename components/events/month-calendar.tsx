@@ -50,7 +50,8 @@ export default function MonthCalendar({events, onDayClick}: MonthCalendarProps) 
     const map = new Map<string, EventData[]>();
     for (const event of events) {
       const d = new Date(event.date);
-      const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      const parts = d.toLocaleDateString("en-CA", {timeZone: "Europe/Moscow", year: "numeric", month: "2-digit", day: "2-digit"}).split("-");
+      const key = `${Number(parts[0])}-${Number(parts[1]) - 1}-${Number(parts[2])}`;
       const arr = map.get(key) || [];
       arr.push(event);
       map.set(key, arr);

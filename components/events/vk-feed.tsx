@@ -89,6 +89,7 @@ export default function VkFeed() {
               <span className="text-xs text-muted-foreground">
                 {new Date(post.date * 1000).toLocaleDateString("ru-RU", {
                   day: "numeric", month: "long",
+                  timeZone: "Europe/Moscow",
                 })}
               </span>
               <a

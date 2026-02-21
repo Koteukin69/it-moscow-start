@@ -60,12 +60,12 @@ export default function EventsCalendar() {
   };
 
   return (
-    <div className="min-h-screen px-10 sm:px-20 py-20">
+    <div className="min-h-screen px-10 sm:px-20 pt-30 pb-10">
       <div className="overflow-hidden fixed -inset-10 -z-1 flex items-center justify-center">
         <OrbAnimation/>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_500px] lg:h-[calc(100vh-10rem)] gap-6 max-w-7xl mx-auto animate-[chatFadeIn_0.3s_ease_both]">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] lg:h-[calc(100vh-10rem)] gap-6 mx-auto animate-[chatFadeIn_0.3s_ease_both]">
         <Card className="bg-background/70 flex flex-col overflow-hidden h-fit">
           <CardHeader className="shrink-0">
             <h1 className="text-xl font-semibold">Мероприятия</h1>

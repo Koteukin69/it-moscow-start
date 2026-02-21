@@ -144,7 +144,7 @@ export default function EventsTab() {
               <DialogHeader>
                 <DialogTitle>Новое мероприятие</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 py-2">
+              <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto pr-1">
                 <div className="space-y-2">
                   <Label>Название</Label>
                   <Input
@@ -211,7 +211,7 @@ export default function EventsTab() {
               <DialogHeader>
                 <DialogTitle>Редактировать мероприятие</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 py-2">
+              <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto pr-1">
                 <div className="space-y-2">
                   <Label>Название</Label>
                   <Input value={editForm.name} onChange={e => setEditForm(f => ({...f, name: e.target.value}))}/>

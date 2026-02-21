@@ -44,7 +44,7 @@ export default function Game({ userId, isMobile }: { userId: string; isMobile: b
   }, [isMobile]);
 
   return (
-    <div ref={containerRef} className="relative w-screen h-screen bg-background">
+    <div ref={containerRef} className="relative w-screen h-dvh bg-background">
       {isMobile && (
         <button
           onClick={toggleFullscreen}

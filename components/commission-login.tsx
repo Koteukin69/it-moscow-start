@@ -42,42 +42,32 @@ export default function CommissionLogin() {
   };
 
   return (
-    <div className="flex align-center h-screen">
-      <div className="overflow-hidden absolute -inset-x-[20%] w-screen h-screen -z-1 flex items-center justify-start">
-        <div className="h-screen aspect-square"><OrbAnimation/></div>
-      </div>
-      <div className="w-full max-w-sm hidden md:flex">
-        <Nav/>
-      </div>
-      <div className="flex items-center justify-center w-full px-10 sm:px-20">
-      <Card className="w-full max-w-sm bg-background/70">
-        <CardHeader className="flex flex-col items-center gap-3">
-          <Image className="w-[80%] aspect-18258/9871" src="logo.svg" width={18258} height={9871} alt="logo"/>
-          <h1 className="font-semibold text-center text-lg">Приёмная комиссия</h1>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-            <Input
-              placeholder="Логин"
-              value={login}
-              onChange={e => setLogin(e.target.value)}
-              autoComplete="username"
-            />
-            <Input
-              type="password"
-              placeholder="Пароль"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              autoComplete="current-password"
-            />
-            {error && <p className="text-sm text-destructive text-center">{error}</p>}
-            <Button type="submit" disabled={loading || !login || !password} className="w-full">
-              {loading ? <Loader2 className="animate-spin" size={18}/> : "Войти"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-      </div>
-    </div>
+    <Card className="w-full bg-background/70 justify-center">
+      <CardHeader className="flex flex-col items-center">
+        <Image className={"w-[80%] aspect-18258/9871 my-5"} src={"logo.svg"} width={18258} height={9871} alt={"logo"}/>
+        <h1 className="font-semibold text-center text-lg">Приёмная комиссия</h1>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <Input
+            placeholder="Логин"
+            value={login}
+            onChange={e => setLogin(e.target.value)}
+            autoComplete="username"
+          />
+          <Input
+            type="password"
+            placeholder="Пароль"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            autoComplete="current-password"
+          />
+          {error && <p className="text-sm text-destructive text-center">{error}</p>}
+          <Button type="submit" disabled={loading || !login || !password} className="w-full">
+            {loading ? <Loader2 className="animate-spin" size={18}/> : "Войти"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

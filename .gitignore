@@ -46,4 +46,4 @@ next-env.d.ts
 
 /game
 /.claude
-/public/uploads
+/uploads

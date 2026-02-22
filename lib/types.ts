@@ -24,20 +24,43 @@ export interface ProductItem {
   name: string;
   price: number;
   description: string;
-  image?: string;
+  images?: string[];
   stock?: number;
-  sizes?: Record<string, number>;
+  variants?: Record<string, number>;
+  variantLabel?: string;
   isNew?: boolean;
 }
 
 export interface OrderItem {
   _id?: string;
+  orderNumber: number;
+  pickupCode: string;
   userId: string;
   userName: string;
+  phone: string | null;
   productId: string;
   productName: string;
-  size?: string;
+  variant?: string;
+  quantity: number;
   price: number;
   status: "pending" | "completed" | "cancelled";
   createdAt: string;
+}
+
+export interface CartItem {
+  productId: string;
+  quantity: number;
+  variant?: string;
+}
+
+export interface CartWithProducts {
+  items: Array<CartItem & {
+    index: number;
+    name: string;
+    price: number;
+    images: string[];
+    variants: Record<string, number> | null;
+    variantLabel: string | null;
+    stock: number | null;
+  }>;
 }

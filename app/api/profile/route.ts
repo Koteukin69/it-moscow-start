@@ -24,6 +24,19 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
       if (value !== "" && !phoneRegex.test(value.replace(/[\s\-()]+/g, ""))) {
         return NextResponse.json({error: "Введите корректный номер телефона"}, {status: 422});
       }
+    } else if (field === "avatar") {
+      const allowed = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+      if (typeof value !== "string" || !allowed.includes(value)) {
+        return NextResponse.json({error: "Некорректный аватар"}, {status: 422});
+      }
+
+      const collection = await usersCollection;
+      await collection.updateOne(
+        {_id: new ObjectId(payload.userId)},
+        {$set: {avatar: value}}
+      );
+
+      return NextResponse.json({success: true, value});
     } else {
       return NextResponse.json({error: "Неизвестное поле"}, {status: 422});
     }

@@ -1,6 +1,6 @@
 import {getCollection} from "@/lib/db/mongodb";
 
-export const usersCollection = getCollection<{name: string, phone?: string, coins: number}>("users");
+export const usersCollection = getCollection<{name: string, phone?: string, coins: number, avatar?: string}>("users");
 
 export const quizResultsCollection = getCollection<{
   userId: string;
@@ -20,19 +20,39 @@ export const productsCollection = getCollection<{
   name: string;
   price: number;
   description: string;
-  image?: string;
+  images?: string[];
   stock?: number;
-  sizes?: Record<string, number>;
+  variants?: Record<string, number>;
+  variantLabel?: string;
   isNew?: boolean;
 }>("products");
 
 export const ordersCollection = getCollection<{
+  orderNumber: number;
+  pickupCode: string;
   userId: string;
   userName: string;
+  phone: string | null;
   productId: string;
   productName: string;
-  size?: string;
+  variant?: string;
+  quantity: number;
   price: number;
   status: "pending" | "completed" | "cancelled";
   createdAt: Date;
 }>("orders");
+
+export const countersCollection = getCollection<{
+  _id: string;
+  seq: number;
+}>("counters");
+
+export const cartsCollection = getCollection<{
+  userId: string;
+  items: Array<{
+    productId: string;
+    quantity: number;
+    variant?: string;
+  }>;
+  updatedAt: Date;
+}>("carts");

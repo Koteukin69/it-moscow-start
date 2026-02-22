@@ -9,7 +9,7 @@ import {Label} from "@/components/ui/label";
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose} from "@/components/ui/dialog";
 import {Plus, Minus, RefreshCw, Loader2, ShoppingBag, Package, Pencil} from "lucide-react";
 import DataTable, {type Column} from "./data-table";
-import ImageUpload from "./image-upload";
+import MultiImageUpload from "./multi-image-upload";
 import DeleteButton from "./delete-button";
 
 interface ProductData {
@@ -17,10 +17,122 @@ interface ProductData {
   name: string;
   price: number;
   description: string;
-  image: string | null;
+  images: string[];
   stock: number | null;
-  sizes: Record<string, number> | null;
+  variants: Record<string, number> | null;
+  variantLabel: string | null;
   isNew: boolean;
+}
+
+interface FormState {
+  name: string;
+  price: string;
+  description: string;
+  images: string[];
+  isNew: boolean;
+  variantLabel: string;
+  variantFields: {label: string; value: string}[];
+}
+
+const emptyVariantField = () => ({label: "", value: ""});
+
+const emptyForm = (): FormState => ({
+  name: "", price: "", description: "", images: [], isNew: false,
+  variantLabel: "Размер",
+  variantFields: [emptyVariantField()],
+});
+
+const variantFieldsToBody = (fields: {label: string; value: string}[]): {stock?: number; variants?: Record<string, number>} => {
+  if (fields.length === 1 && !fields[0].label.trim()) {
+    const v = Number(fields[0].value);
+    return v > 0 ? {stock: v} : {};
+  }
+  const variants: Record<string, number> = {};
+  fields.forEach(f => {
+    if (f.label.trim()) variants[f.label.trim()] = Number(f.value) || 0;
+  });
+  return Object.keys(variants).length > 0 ? {variants} : {};
+};
+
+const productToForm = (p: ProductData): FormState => {
+  let variantFields: {label: string; value: string}[];
+  if (p.variants && Object.keys(p.variants).length > 0) {
+    variantFields = Object.entries(p.variants).map(([k, v]) => ({label: k, value: v.toString()}));
+  } else if (p.stock !== null) {
+    variantFields = [{label: "", value: p.stock.toString()}];
+  } else {
+    variantFields = [emptyVariantField()];
+  }
+  return {
+    name: p.name,
+    price: p.price.toString(),
+    description: p.description,
+    images: p.images,
+    isNew: p.isNew,
+    variantLabel: p.variantLabel || "Размер",
+    variantFields,
+  };
+};
+
+function VariantFieldsEditor({fields, onChange, variantLabel}: {
+  fields: {label: string; value: string}[];
+  onChange: (fields: {label: string; value: string}[]) => void;
+  variantLabel: string;
+}) {
+  const hasLabels = fields.length > 1 || fields[0]?.label.trim();
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <Label>Остаток</Label>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          type="button"
+          onClick={() => onChange([...fields, emptyVariantField()])}
+        >
+          <Plus size={14}/>
+        </Button>
+      </div>
+      {fields.map((field, i) => (
+        <div key={i} className="flex items-center gap-2">
+          {(hasLabels || fields.length > 1) && (
+            <Input
+              placeholder={variantLabel || "Вариант"}
+              value={field.label}
+              onChange={e => {
+                const next = [...fields];
+                next[i] = {...next[i], label: e.target.value};
+                onChange(next);
+              }}
+              className="w-24"
+            />
+          )}
+          <Input
+            type="number"
+            min="0"
+            placeholder="0"
+            value={field.value}
+            onChange={e => {
+              const next = [...fields];
+              next[i] = {...next[i], value: e.target.value};
+              onChange(next);
+            }}
+          />
+          {fields.length > 1 && (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              type="button"
+              onClick={() => onChange(fields.filter((_, j) => j !== i))}
+            >
+              <Minus size={14}/>
+            </Button>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default function ProductsTab() {
@@ -33,41 +145,10 @@ export default function ProductsTab() {
   const [restockValues, setRestockValues] = useState<Record<string, string>>({});
   const [restockLoading, setRestockLoading] = useState(false);
 
-  const emptyStockField = () => ({label: "", value: ""});
-
-  const [form, setForm] = useState({
-    name: "", price: "", description: "", image: "", isNew: false,
-    stockFields: [emptyStockField()],
-  });
-
+  const [form, setForm] = useState<FormState>(emptyForm());
   const [editingProduct, setEditingProduct] = useState<ProductData | null>(null);
-  const [editForm, setEditForm] = useState({
-    name: "", price: "", description: "", image: "", isNew: false,
-    stockFields: [emptyStockField()],
-  });
+  const [editForm, setEditForm] = useState<FormState>(emptyForm());
   const [saving, setSaving] = useState(false);
-
-  const stockFieldsToBody = (fields: {label: string; value: string}[]): {stock?: number; sizes?: Record<string, number>} => {
-    if (fields.length === 1) {
-      const v = Number(fields[0].value);
-      return v > 0 ? {stock: v} : {};
-    }
-    const sizes: Record<string, number> = {};
-    fields.forEach(f => {
-      if (f.label.trim()) sizes[f.label.trim()] = Number(f.value) || 0;
-    });
-    return Object.keys(sizes).length > 0 ? {sizes} : {};
-  };
-
-  const productToStockFields = (p: ProductData): {label: string; value: string}[] => {
-    if (p.sizes && Object.keys(p.sizes).length > 0) {
-      return Object.entries(p.sizes).map(([k, v]) => ({label: k, value: v.toString()}));
-    }
-    if (p.stock !== null) {
-      return [{label: "", value: p.stock.toString()}];
-    }
-    return [emptyStockField()];
-  };
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -94,9 +175,12 @@ export default function ProductsTab() {
         price: Number(form.price),
         description: form.description,
         isNew: form.isNew,
-        ...stockFieldsToBody(form.stockFields),
+        images: form.images,
+        ...variantFieldsToBody(form.variantFields),
       };
-      if (form.image) body.image = form.image;
+      const hasVariants = form.variantFields.length > 1 || form.variantFields[0]?.label.trim();
+      if (hasVariants) body.variantLabel = form.variantLabel;
+
       const res = await fetch("/api/commission/products", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -105,7 +189,7 @@ export default function ProductsTab() {
       if (res.ok) {
         const data = await res.json();
         setProducts(prev => [data.product, ...prev]);
-        setForm({name: "", price: "", description: "", image: "", isNew: false, stockFields: [emptyStockField()]});
+        setForm(emptyForm());
         setDialogOpen(false);
       }
     } catch { /* ignore */ }
@@ -113,14 +197,7 @@ export default function ProductsTab() {
   };
 
   const openEdit = (p: ProductData) => {
-    setEditForm({
-      name: p.name,
-      price: p.price.toString(),
-      description: p.description,
-      image: p.image || "",
-      isNew: p.isNew,
-      stockFields: productToStockFields(p),
-    });
+    setEditForm(productToForm(p));
     setEditingProduct(p);
   };
 
@@ -133,9 +210,12 @@ export default function ProductsTab() {
         price: Number(editForm.price),
         description: editForm.description,
         isNew: editForm.isNew,
-        ...stockFieldsToBody(editForm.stockFields),
+        images: editForm.images,
+        ...variantFieldsToBody(editForm.variantFields),
       };
-      if (editForm.image) body.image = editForm.image;
+      const hasVariants = editForm.variantFields.length > 1 || editForm.variantFields[0]?.label.trim();
+      if (hasVariants) body.variantLabel = editForm.variantLabel;
+
       const res = await fetch(`/api/commission/products/${editingProduct._id}`, {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
@@ -154,18 +234,16 @@ export default function ProductsTab() {
     setDeletingId(id);
     try {
       const res = await fetch(`/api/commission/products/${id}`, {method: "DELETE"});
-      if (res.ok) {
-        setProducts(prev => prev.filter(p => p._id !== id));
-      }
+      if (res.ok) setProducts(prev => prev.filter(p => p._id !== id));
     } catch { /* ignore */ }
     setDeletingId(null);
   };
 
   const openRestock = (product: ProductData) => {
     setRestockDialog(product);
-    if (product.sizes) {
+    if (product.variants) {
       const vals: Record<string, string> = {};
-      Object.entries(product.sizes).forEach(([k, v]) => { vals[k] = v.toString(); });
+      Object.entries(product.variants).forEach(([k, v]) => { vals[k] = v.toString(); });
       setRestockValues(vals);
     } else {
       setRestockValues({stock: (product.stock ?? 0).toString()});
@@ -177,12 +255,10 @@ export default function ProductsTab() {
     setRestockLoading(true);
     try {
       const body: Record<string, unknown> = {};
-      if (restockDialog.sizes) {
-        const sizes: Record<string, number> = {};
-        Object.keys(restockValues).forEach(k => {
-          sizes[k] = Number(restockValues[k]) || 0;
-        });
-        body.sizes = sizes;
+      if (restockDialog.variants) {
+        const variants: Record<string, number> = {};
+        Object.keys(restockValues).forEach(k => { variants[k] = Number(restockValues[k]) || 0; });
+        body.variants = variants;
       } else {
         body.stock = Number(restockValues.stock) || 0;
       }
@@ -201,20 +277,18 @@ export default function ProductsTab() {
   };
 
   const formatStock = (product: ProductData) => {
-    if (product.sizes && Object.keys(product.sizes).length > 0) {
+    if (product.variants && Object.keys(product.variants).length > 0) {
       return (
         <div className="flex flex-wrap gap-1">
-          {Object.entries(product.sizes).map(([size, count]) => (
-            <Badge key={size} variant="outline" className="text-xs">
-              {size}: {count}
+          {Object.entries(product.variants).map(([variant, count]) => (
+            <Badge key={variant} variant="outline" className="text-xs">
+              {variant}: {count}
             </Badge>
           ))}
         </div>
       );
     }
-    if (product.stock !== null) {
-      return <span>Всего: {product.stock}</span>;
-    }
+    if (product.stock !== null) return <span>Всего: {product.stock}</span>;
     return <span className="text-muted-foreground/50">&mdash;</span>;
   };
 
@@ -237,7 +311,7 @@ export default function ProductsTab() {
       cell: (p) => <span className="text-muted-foreground max-w-xs truncate block">{p.description}</span>,
     },
     {
-      header: "Остаток / по размерам",
+      header: "Остаток",
       cell: (p) => formatStock(p),
     },
     {
@@ -257,6 +331,39 @@ export default function ProductsTab() {
     },
   ];
 
+  const renderProductForm = (f: FormState, setF: (updater: (prev: FormState) => FormState) => void) => (
+    <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto pr-1">
+      <div className="space-y-2">
+        <Label>Название</Label>
+        <Input placeholder="Название товара" value={f.name} onChange={e => setF(prev => ({...prev, name: e.target.value}))}/>
+      </div>
+      <div className="space-y-2">
+        <Label>Цена (монетки)</Label>
+        <Input type="number" min="0" placeholder="100" value={f.price} onChange={e => setF(prev => ({...prev, price: e.target.value}))}/>
+      </div>
+      <div className="space-y-2">
+        <Label>Описание</Label>
+        <Textarea placeholder="Описание товара" value={f.description} onChange={e => setF(prev => ({...prev, description: e.target.value}))} rows={2}/>
+      </div>
+      <MultiImageUpload value={f.images} onChange={urls => setF(prev => ({...prev, images: urls}))}/>
+      <div className="flex items-center gap-4">
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={f.isNew} onChange={e => setF(prev => ({...prev, isNew: e.target.checked}))}/>
+          Метка NEW
+        </label>
+      </div>
+      <div className="space-y-2">
+        <Label>Подпись варианта</Label>
+        <Input placeholder="Размер, Цвет..." value={f.variantLabel} onChange={e => setF(prev => ({...prev, variantLabel: e.target.value}))}/>
+      </div>
+      <VariantFieldsEditor
+        fields={f.variantFields}
+        onChange={fields => setF(prev => ({...prev, variantFields: fields}))}
+        variantLabel={f.variantLabel}
+      />
+    </div>
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
@@ -273,77 +380,7 @@ export default function ProductsTab() {
               <DialogHeader>
                 <DialogTitle>Новый товар</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto pr-1">
-                <div className="space-y-2">
-                  <Label>Название</Label>
-                  <Input placeholder="Название товара" value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))}/>
-                </div>
-                <div className="space-y-2">
-                  <Label>Цена (монетки)</Label>
-                  <Input type="number" min="0" placeholder="100" value={form.price} onChange={e => setForm(f => ({...f, price: e.target.value}))}/>
-                </div>
-                <div className="space-y-2">
-                  <Label>Описание</Label>
-                  <Textarea placeholder="Описание товара" value={form.description} onChange={e => setForm(f => ({...f, description: e.target.value}))} rows={2}/>
-                </div>
-                <ImageUpload value={form.image} onChange={url => setForm(f => ({...f, image: url}))}/>
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" checked={form.isNew} onChange={e => setForm(f => ({...f, isNew: e.target.checked}))}/>
-                    Метка NEW
-                  </label>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label>Остаток</Label>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      type="button"
-                      onClick={() => setForm(f => ({...f, stockFields: [...f.stockFields, emptyStockField()]}))}
-                    >
-                      <Plus size={14}/>
-                    </Button>
-                  </div>
-                  {form.stockFields.map((field, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      {form.stockFields.length > 1 && (
-                        <Input
-                          placeholder="Размер"
-                          value={field.label}
-                          onChange={e => setForm(f => {
-                            const fields = [...f.stockFields];
-                            fields[i] = {...fields[i], label: e.target.value};
-                            return {...f, stockFields: fields};
-                          })}
-                          className="w-24"
-                        />
-                      )}
-                      <Input
-                        type="number"
-                        min="0"
-                        placeholder="0"
-                        value={field.value}
-                        onChange={e => setForm(f => {
-                          const fields = [...f.stockFields];
-                          fields[i] = {...fields[i], value: e.target.value};
-                          return {...f, stockFields: fields};
-                        })}
-                      />
-                      {form.stockFields.length > 1 && (
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          type="button"
-                          onClick={() => setForm(f => ({...f, stockFields: f.stockFields.filter((_, j) => j !== i)}))}
-                        >
-                          <Minus size={14}/>
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              {renderProductForm(form, setForm)}
               <DialogFooter>
                 <DialogClose asChild>
                   <Button variant="outline">Отмена</Button>
@@ -380,77 +417,7 @@ export default function ProductsTab() {
               <DialogHeader>
                 <DialogTitle>Редактировать товар</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto pr-1">
-                <div className="space-y-2">
-                  <Label>Название</Label>
-                  <Input value={editForm.name} onChange={e => setEditForm(f => ({...f, name: e.target.value}))}/>
-                </div>
-                <div className="space-y-2">
-                  <Label>Цена (монетки)</Label>
-                  <Input type="number" min="0" value={editForm.price} onChange={e => setEditForm(f => ({...f, price: e.target.value}))}/>
-                </div>
-                <div className="space-y-2">
-                  <Label>Описание</Label>
-                  <Textarea value={editForm.description} onChange={e => setEditForm(f => ({...f, description: e.target.value}))} rows={2}/>
-                </div>
-                <ImageUpload value={editForm.image} onChange={url => setEditForm(f => ({...f, image: url}))}/>
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" checked={editForm.isNew} onChange={e => setEditForm(f => ({...f, isNew: e.target.checked}))}/>
-                    Метка NEW
-                  </label>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label>Остаток</Label>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      type="button"
-                      onClick={() => setEditForm(f => ({...f, stockFields: [...f.stockFields, emptyStockField()]}))}
-                    >
-                      <Plus size={14}/>
-                    </Button>
-                  </div>
-                  {editForm.stockFields.map((field, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      {editForm.stockFields.length > 1 && (
-                        <Input
-                          placeholder="Размер"
-                          value={field.label}
-                          onChange={e => setEditForm(f => {
-                            const fields = [...f.stockFields];
-                            fields[i] = {...fields[i], label: e.target.value};
-                            return {...f, stockFields: fields};
-                          })}
-                          className="w-24"
-                        />
-                      )}
-                      <Input
-                        type="number"
-                        min="0"
-                        placeholder="0"
-                        value={field.value}
-                        onChange={e => setEditForm(f => {
-                          const fields = [...f.stockFields];
-                          fields[i] = {...fields[i], value: e.target.value};
-                          return {...f, stockFields: fields};
-                        })}
-                      />
-                      {editForm.stockFields.length > 1 && (
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          type="button"
-                          onClick={() => setEditForm(f => ({...f, stockFields: f.stockFields.filter((_, j) => j !== i)}))}
-                        >
-                          <Minus size={14}/>
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              {renderProductForm(editForm, setEditForm)}
               <DialogFooter>
                 <DialogClose asChild>
                   <Button variant="outline">Отмена</Button>
@@ -472,15 +439,15 @@ export default function ProductsTab() {
                 <DialogTitle>Пополнить: {restockDialog.name}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-2">
-                {restockDialog.sizes ? (
-                  Object.keys(restockDialog.sizes).map(size => (
-                    <div key={size} className="flex items-center gap-3">
-                      <Label className="w-12">{size}</Label>
+                {restockDialog.variants ? (
+                  Object.keys(restockDialog.variants).map(variant => (
+                    <div key={variant} className="flex items-center gap-3">
+                      <Label className="w-12">{variant}</Label>
                       <Input
                         type="number"
                         min="0"
-                        value={restockValues[size] ?? "0"}
-                        onChange={e => setRestockValues(v => ({...v, [size]: e.target.value}))}
+                        value={restockValues[variant] ?? "0"}
+                        onChange={e => setRestockValues(v => ({...v, [variant]: e.target.value}))}
                       />
                     </div>
                   ))

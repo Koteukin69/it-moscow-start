@@ -1,43 +1,60 @@
 'use client';
 
-import {useEffect, useState, useMemo} from "react";
+import {useEffect, useState, useMemo, useCallback} from "react";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Badge} from "@/components/ui/badge";
-import {Label} from "@/components/ui/label";
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose} from "@/components/ui/dialog";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
-import {Search, RefreshCw, Loader2, ClipboardList, Pencil} from "lucide-react";
+import {Search, ArrowUpDown, ArrowUp, ArrowDown, RefreshCw, Loader2, ClipboardList, Package, XCircle, RotateCcw, Trash2} from "lucide-react";
 import {formatDate} from "@/lib/utils";
 import DataTable, {type Column} from "./data-table";
 
 interface OrderData {
   _id: string;
+  orderNumber: number;
+  pickupCode: string;
   userId: string;
   userName: string;
+  phone: string | null;
   productId: string;
   productName: string;
-  size: string | null;
+  variant: string | null;
+  quantity: number;
   price: number;
   status: "pending" | "completed" | "cancelled";
   createdAt: string;
 }
 
-const statusLabels: Record<string, {label: string; variant: "default" | "secondary" | "destructive" | "outline"}> = {
+type StatusFilter = "all" | "pending" | "completed" | "cancelled";
+type SortField = "orderNumber" | "productName" | "createdAt";
+type SortDir = "asc" | "desc";
+
+const statusConfig: Record<string, {label: string; variant: "default" | "secondary" | "destructive" | "outline"}> = {
   pending: {label: "Ожидает", variant: "outline"},
   completed: {label: "Выдан", variant: "default"},
   cancelled: {label: "Отменён", variant: "destructive"},
 };
 
+const filterTabs: {value: StatusFilter; label: string}[] = [
+  {value: "all", label: "Все"},
+  {value: "pending", label: "Ожидают"},
+  {value: "completed", label: "Выданы"},
+  {value: "cancelled", label: "Отменены"},
+];
+
 export default function OrdersTab() {
   const [orders, setOrders] = useState<OrderData[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [sortField, setSortField] = useState<SortField>("orderNumber");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [actionId, setActionId] = useState<string | null>(null);
 
-  const [editingOrder, setEditingOrder] = useState<OrderData | null>(null);
-  const [editForm, setEditForm] = useState({status: "" as string, size: ""});
-  const [saving, setSaving] = useState(false);
+  const [pickupDialog, setPickupDialog] = useState<OrderData | null>(null);
+  const [pickupInput, setPickupInput] = useState("");
+  const [pickupError, setPickupError] = useState("");
+  const [pickupLoading, setPickupLoading] = useState(false);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -51,125 +68,218 @@ export default function OrdersTab() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
+  useEffect(() => { fetchOrders(); }, []);
 
   const filtered = useMemo(() => {
+    let list = orders;
+    if (statusFilter !== "all") {
+      list = list.filter(o => o.status === statusFilter);
+    }
     const q = search.toLowerCase().trim();
-    if (!q) return orders;
-    return orders.filter(o =>
-      o.userName.toLowerCase().includes(q) ||
-      o.productName.toLowerCase().includes(q)
-    );
-  }, [orders, search]);
+    if (q) {
+      list = list.filter(o =>
+        o.userName.toLowerCase().includes(q) ||
+        o.productName.toLowerCase().includes(q) ||
+        (o.phone && o.phone.includes(q)) ||
+        String(o.orderNumber).includes(q)
+      );
+    }
+    return list;
+  }, [orders, search, statusFilter]);
 
-  const openEdit = (o: OrderData) => {
-    setEditForm({status: o.status, size: o.size || ""});
-    setEditingOrder(o);
-  };
-
-  const handleSaveEdit = async () => {
-    if (!editingOrder) return;
-    setSaving(true);
-    try {
-      const res = await fetch(`/api/commission/orders/${editingOrder._id}`, {
-        method: "PATCH",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({status: editForm.status, size: editForm.size || null}),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.order) {
-          setOrders(prev => prev.map(o => o._id === data.order._id ? data.order : o));
-        }
-        setEditingOrder(null);
+  const sorted = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      const dir = sortDir === "asc" ? 1 : -1;
+      switch (sortField) {
+        case "orderNumber":
+          return dir * (a.orderNumber - b.orderNumber);
+        case "productName":
+          return dir * a.productName.localeCompare(b.productName, "ru");
+        case "createdAt":
+          return dir * a.createdAt.localeCompare(b.createdAt);
+        default:
+          return 0;
       }
-    } catch { /* ignore */ }
-    setSaving(false);
+    });
+  }, [filtered, sortField, sortDir]);
+
+  const toggleSort = useCallback((field: SortField) => {
+    if (sortField === field) {
+      setSortDir(d => d === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  }, [sortField]);
+
+  const SortIcon = ({field}: {field: SortField}) => {
+    if (sortField !== field) return <ArrowUpDown size={14} className="text-muted-foreground/50"/>;
+    return sortDir === "asc"
+      ? <ArrowUp size={14} className="text-primary"/>
+      : <ArrowDown size={14} className="text-primary"/>;
   };
 
-  const updateStatus = async (id: string, status: string) => {
-    setUpdatingId(id);
+  const updateStatus = async (id: string, status: string, pickupCode?: string) => {
+    setActionId(id);
     try {
+      const payload: Record<string, string> = {status};
+      if (pickupCode) payload.pickupCode = pickupCode;
       const res = await fetch(`/api/commission/orders/${id}`, {
         method: "PATCH",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({status}),
+        body: JSON.stringify(payload),
       });
+      const data = await res.json();
+      if (res.ok && data.order) {
+        setOrders(prev => prev.map(o => o._id === data.order._id ? data.order : o));
+        return true;
+      } else {
+        return data.error || "Ошибка";
+      }
+    } catch {
+      return "Ошибка сети";
+    } finally {
+      setActionId(null);
+    }
+  };
+
+  const handlePickup = async () => {
+    if (!pickupDialog) return;
+    setPickupLoading(true);
+    setPickupError("");
+    const result = await updateStatus(pickupDialog._id, "completed", pickupInput);
+    if (result === true) {
+      setPickupDialog(null);
+      setPickupInput("");
+    } else {
+      setPickupError(typeof result === "string" ? result : "Ошибка");
+    }
+    setPickupLoading(false);
+  };
+
+  const handleDelete = async (id: string) => {
+    setActionId(id);
+    try {
+      const res = await fetch(`/api/commission/orders/${id}`, {method: "DELETE"});
       if (res.ok) {
-        const data = await res.json();
-        if (data.order) {
-          setOrders(prev => prev.map(o => o._id === data.order._id ? data.order : o));
-        } else {
-          setOrders(prev => prev.map(o => o._id === id ? {...o, status: status as OrderData["status"]} : o));
-        }
+        setOrders(prev => prev.filter(o => o._id !== id));
       }
     } catch { /* ignore */ }
-    setUpdatingId(null);
+    setActionId(null);
   };
 
   const columns: Column<OrderData>[] = [
     {
-      header: "Абитуриент",
-      cell: (o) => <span className="font-medium">{o.userName}</span>,
+      header: (
+        <button onClick={() => toggleSort("orderNumber")} className="flex items-center gap-1 font-medium">
+          # <SortIcon field="orderNumber"/>
+        </button>
+      ),
+      className: "w-16",
+      cell: (o) => <span className="font-mono font-semibold">#{o.orderNumber}</span>,
     },
     {
-      header: "Товар",
-      cell: (o) => o.productName,
+      header: (
+        <button onClick={() => toggleSort("productName")} className="flex items-center gap-1 font-medium">
+          Товар <SortIcon field="productName"/>
+        </button>
+      ),
+      cell: (o) => (
+        <div>
+          <span className="font-medium">{o.productName}</span>
+          {o.variant && <span className="text-muted-foreground text-xs ml-1.5">({o.variant})</span>}
+          {o.quantity > 1 && <span className="text-muted-foreground text-xs ml-1">×{o.quantity}</span>}
+        </div>
+      ),
     },
     {
-      header: "Размер",
-      cell: (o) => <span className="text-muted-foreground">{o.size || <span className="text-muted-foreground/50">&mdash;</span>}</span>,
+      header: "Телефон",
+      cell: (o) => <span className="text-muted-foreground">{o.phone || <span className="text-muted-foreground/50">&mdash;</span>}</span>,
     },
     {
-      header: "Цена",
-      cell: (o) => <span className="whitespace-nowrap">{o.price} <span className="text-muted-foreground text-xs">монет</span></span>,
-    },
-    {
-      header: "Дата",
+      header: (
+        <button onClick={() => toggleSort("createdAt")} className="flex items-center gap-1 font-medium">
+          Дата <SortIcon field="createdAt"/>
+        </button>
+      ),
       cell: (o) => <span className="text-muted-foreground whitespace-nowrap">{formatDate(o.createdAt)}</span>,
     },
     {
       header: "Статус",
       cell: (o) => {
-        const st = statusLabels[o.status];
+        const st = statusConfig[o.status];
         return <Badge variant={st.variant}>{st.label}</Badge>;
       },
     },
     {
       header: "Действия",
-      className: "w-44",
-      cell: (o) => (
-        <div className="flex gap-1">
-          <Button variant="ghost" size="icon-sm" onClick={() => openEdit(o)} title="Редактировать">
-            <Pencil size={14}/>
-          </Button>
-          {o.status === "pending" && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={updatingId === o._id}
-                onClick={() => updateStatus(o._id, "completed")}
-              >
-                {updatingId === o._id ? <Loader2 size={12} className="animate-spin"/> : "Выдать"}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-destructive hover:text-destructive"
-                disabled={updatingId === o._id}
-                onClick={() => updateStatus(o._id, "cancelled")}
-              >
-                Отмена
-              </Button>
-            </>
-          )}
-        </div>
-      ),
+      className: "w-48",
+      cell: (o) => {
+        const busy = actionId === o._id;
+        return (
+          <div className="flex gap-1">
+            {o.status === "pending" && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1"
+                  disabled={busy}
+                  onClick={() => { setPickupDialog(o); setPickupInput(""); setPickupError(""); }}
+                >
+                  <Package size={12}/>
+                  Выдать
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive gap-1"
+                  disabled={busy}
+                  onClick={() => updateStatus(o._id, "cancelled")}
+                >
+                  {busy ? <Loader2 size={12} className="animate-spin"/> : <XCircle size={12}/>}
+                  Отмена
+                </Button>
+              </>
+            )}
+            {o.status === "cancelled" && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1"
+                  disabled={busy}
+                  onClick={() => updateStatus(o._id, "pending")}
+                >
+                  {busy ? <Loader2 size={12} className="animate-spin"/> : <RotateCcw size={12}/>}
+                  Вернуть
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive gap-1"
+                  disabled={busy}
+                  onClick={() => handleDelete(o._id)}
+                >
+                  {busy ? <Loader2 size={12} className="animate-spin"/> : <Trash2 size={12}/>}
+                  Удалить
+                </Button>
+              </>
+            )}
+            {o.status === "completed" && (
+              <span className="text-xs text-muted-foreground italic">Выдан</span>
+            )}
+          </div>
+        );
+      },
     },
   ];
+
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = {all: orders.length, pending: 0, completed: 0, cancelled: 0};
+    for (const o of orders) counts[o.status] = (counts[o.status] || 0) + 1;
+    return counts;
+  }, [orders]);
 
   return (
     <div className="space-y-4">
@@ -179,7 +289,7 @@ export default function OrdersTab() {
           <div className="relative flex-1 sm:w-72">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"/>
             <Input
-              placeholder="Поиск по имени, товару..."
+              placeholder="Поиск по имени, товару, телефону, №..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="pl-9"
@@ -191,55 +301,65 @@ export default function OrdersTab() {
         </div>
       </div>
 
+      <div className="flex gap-1 flex-wrap">
+        {filterTabs.map(tab => (
+          <Button
+            key={tab.value}
+            variant={statusFilter === tab.value ? "default" : "outline"}
+            size="sm"
+            onClick={() => setStatusFilter(tab.value)}
+          >
+            {tab.label}
+            <span className="ml-1 text-xs opacity-70">({statusCounts[tab.value] ?? 0})</span>
+          </Button>
+        ))}
+      </div>
+
       <DataTable
-        data={filtered}
+        data={sorted}
         columns={columns}
         keyField="_id"
         loading={loading}
         emptyIcon={<ClipboardList size={24}/>}
-        emptyMessage={search ? "Ничего не найдено" : "Нет заказов"}
+        emptyMessage={search || statusFilter !== "all" ? "Ничего не найдено" : "Нет заказов"}
       />
 
       <p className="text-sm text-muted-foreground">
-        Всего: {filtered.length} {search && `из ${orders.length}`}
+        Показано: {sorted.length} из {orders.length}
       </p>
 
-      <Dialog open={!!editingOrder} onOpenChange={(open) => { if (!open) setEditingOrder(null); }}>
+      <Dialog open={!!pickupDialog} onOpenChange={open => { if (!open) setPickupDialog(null); }}>
         <DialogContent>
-          {editingOrder && (
+          {pickupDialog && (
             <>
               <DialogHeader>
-                <DialogTitle>Редактировать заказ</DialogTitle>
+                <DialogTitle>Выдача заказа #{pickupDialog.orderNumber}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-2">
-                <div className="space-y-1 text-sm text-muted-foreground">
-                  <p>Абитуриент: <span className="text-foreground font-medium">{editingOrder.userName}</span></p>
-                  <p>Товар: <span className="text-foreground font-medium">{editingOrder.productName}</span></p>
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p>Товар: <span className="text-foreground font-medium">{pickupDialog.productName}</span></p>
+                  <p>Абитуриент: <span className="text-foreground font-medium">{pickupDialog.userName}</span></p>
                 </div>
                 <div className="space-y-2">
-                  <Label>Статус</Label>
-                  <Select value={editForm.status} onValueChange={v => setEditForm(f => ({...f, status: v}))}>
-                    <SelectTrigger>
-                      <SelectValue/>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Ожидает</SelectItem>
-                      <SelectItem value="completed">Выдан</SelectItem>
-                      <SelectItem value="cancelled">Отменён</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Размер</Label>
-                  <Input value={editForm.size} onChange={e => setEditForm(f => ({...f, size: e.target.value}))} placeholder="Не указан"/>
+                  <p className="text-sm font-medium">Введите код выдачи (6 цифр)</p>
+                  <Input
+                    value={pickupInput}
+                    onChange={e => { setPickupInput(e.target.value.replace(/\D/g, "").slice(0, 6)); setPickupError(""); }}
+                    placeholder="000000"
+                    maxLength={6}
+                    className="text-center text-2xl font-mono tracking-[0.3em] h-14"
+                    autoFocus
+                    onKeyDown={e => e.key === "Enter" && pickupInput.length === 6 && handlePickup()}
+                  />
+                  {pickupError && <p className="text-sm text-destructive">{pickupError}</p>}
                 </div>
               </div>
               <DialogFooter>
                 <DialogClose asChild>
                   <Button variant="outline">Отмена</Button>
                 </DialogClose>
-                <Button onClick={handleSaveEdit} disabled={saving}>
-                  {saving ? <Loader2 size={16} className="animate-spin"/> : "Сохранить"}
+                <Button onClick={handlePickup} disabled={pickupInput.length !== 6 || pickupLoading}>
+                  {pickupLoading ? <Loader2 size={16} className="animate-spin"/> : "Подтвердить"}
                 </Button>
               </DialogFooter>
             </>

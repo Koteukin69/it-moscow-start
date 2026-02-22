@@ -24,7 +24,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.json({error: "Unauthorized"}, {status: 401});
   }
 
-  if (pathname.startsWith("/api/shop") && !applicant) {
+  if ((pathname.startsWith("/api/shop") || pathname.startsWith("/api/cart") || pathname.startsWith("/api/orders")) && !applicant) {
     return NextResponse.json({error: "Unauthorized"}, {status: 401});
   }
 

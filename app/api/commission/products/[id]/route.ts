@@ -2,6 +2,18 @@ import {NextRequest, NextResponse} from "next/server";
 import {productsCollection} from "@/lib/db/collections";
 import {ObjectId} from "mongodb";
 
+const mapProduct = (p: Record<string, unknown> & {_id: {toString(): string}}) => ({
+  _id: p._id.toString(),
+  name: p.name,
+  price: p.price,
+  description: p.description,
+  images: Array.isArray(p.images) ? p.images : (p.image ? [p.image] : []),
+  stock: p.stock ?? null,
+  variants: p.variants || p.sizes || null,
+  variantLabel: p.variantLabel || null,
+  isNew: p.isNew ?? false,
+});
+
 export async function PUT(req: NextRequest, {params}: {params: Promise<{id: string}>}): Promise<NextResponse> {
   try {
     const {id} = await params;
@@ -19,22 +31,32 @@ export async function PUT(req: NextRequest, {params}: {params: Promise<{id: stri
       name: String(name),
       price: Number(price),
       description: String(description),
-      image: body.image ? String(body.image) : undefined,
       isNew: !!body.isNew,
     };
 
-    if (body.sizes && typeof body.sizes === "object") {
-      update.sizes = body.sizes;
-      update.stock = undefined;
+    if (Array.isArray(body.images)) {
+      update.images = body.images.filter((u: unknown) => typeof u === "string");
+    }
+
+    const unsetFields: Record<string, ""> = {};
+
+    if (body.variants && typeof body.variants === "object") {
+      update.variants = body.variants;
+      unsetFields.stock = "";
+      if (body.variantLabel) update.variantLabel = String(body.variantLabel);
     } else if (body.stock !== undefined && body.stock !== null) {
       update.stock = Number(body.stock);
-      update.sizes = undefined;
+      unsetFields.variants = "";
+      unsetFields.variantLabel = "";
     }
 
     const collection = await productsCollection;
+    const op: Record<string, unknown> = {$set: update};
+    if (Object.keys(unsetFields).length > 0) op.$unset = unsetFields;
+
     const result = await collection.findOneAndUpdate(
       {_id: new ObjectId(id)},
-      {$set: update},
+      op,
       {returnDocument: "after"},
     );
 
@@ -42,19 +64,7 @@ export async function PUT(req: NextRequest, {params}: {params: Promise<{id: stri
       return NextResponse.json({error: "Товар не найден"}, {status: 404});
     }
 
-    return NextResponse.json({
-      success: true,
-      product: {
-        _id: result._id.toString(),
-        name: result.name,
-        price: result.price,
-        description: result.description,
-        image: result.image || null,
-        stock: result.stock ?? null,
-        sizes: result.sizes || null,
-        isNew: result.isNew ?? false,
-      },
-    });
+    return NextResponse.json({success: true, product: mapProduct(result as never)});
   } catch {
     return NextResponse.json({error: "Ошибка сервера"}, {status: 500});
   }
@@ -63,6 +73,9 @@ export async function PUT(req: NextRequest, {params}: {params: Promise<{id: stri
 export async function DELETE(_req: NextRequest, {params}: {params: Promise<{id: string}>}): Promise<NextResponse> {
   try {
     const {id} = await params;
+    if (!ObjectId.isValid(id)) {
+      return NextResponse.json({error: "Неверный ID"}, {status: 400});
+    }
     const collection = await productsCollection;
     const result = await collection.deleteOne({_id: new ObjectId(id)});
     if (result.deletedCount === 0) {
@@ -77,6 +90,9 @@ export async function DELETE(_req: NextRequest, {params}: {params: Promise<{id: 
 export async function PATCH(req: NextRequest, {params}: {params: Promise<{id: string}>}): Promise<NextResponse> {
   try {
     const {id} = await params;
+    if (!ObjectId.isValid(id)) {
+      return NextResponse.json({error: "Неверный ID"}, {status: 400});
+    }
     const body = await req.json();
     const collection = await productsCollection;
 
@@ -86,8 +102,8 @@ export async function PATCH(req: NextRequest, {params}: {params: Promise<{id: st
       update.stock = body.stock;
     }
 
-    if (body.sizes && typeof body.sizes === "object") {
-      update.sizes = body.sizes;
+    if (body.variants && typeof body.variants === "object") {
+      update.variants = body.variants;
     }
 
     if (body.isNew !== undefined && typeof body.isNew === "boolean") {
@@ -108,19 +124,7 @@ export async function PATCH(req: NextRequest, {params}: {params: Promise<{id: st
       return NextResponse.json({error: "Товар не найден"}, {status: 404});
     }
 
-    return NextResponse.json({
-      success: true,
-      product: {
-        _id: result._id.toString(),
-        name: result.name,
-        price: result.price,
-        description: result.description,
-        image: result.image || null,
-        stock: result.stock ?? null,
-        sizes: result.sizes || null,
-        isNew: result.isNew ?? false,
-      },
-    });
+    return NextResponse.json({success: true, product: mapProduct(result as never)});
   } catch {
     return NextResponse.json({error: "Ошибка сервера"}, {status: 500});
   }

@@ -1,98 +1,222 @@
 'use client';
 
-import {useEffect, useState, useCallback} from "react";
-import {Card, CardContent} from "@/components/ui/card";
+import {useEffect, useState, useCallback, useMemo, useRef} from "react";
 import {Button} from "@/components/ui/button";
 import {Badge} from "@/components/ui/badge";
-import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose} from "@/components/ui/dialog";
-import {Coins, Loader2, ShoppingBag} from "lucide-react";
+import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog";
+import {ArrowLeft, Coins, Loader2, Minus, Plus, ShoppingBag, ShoppingCart} from "lucide-react";
+import Link from "next/link";
 import OrbAnimation from "@/components/orb";
+import ProductCard, {type ProductData} from "@/components/shop/product-card";
+import CartSheet from "@/components/shop/cart-sheet";
+import type {CartItemData} from "@/components/shop/cart-item";
+import ImageCarousel from "@/components/shop/image-carousel";
+import type {CartWithProducts} from "@/lib/types";
 
-interface ProductData {
-  _id: string;
-  name: string;
-  price: number;
-  description: string;
-  image: string | null;
-  stock: number | null;
-  sizes: Record<string, number> | null;
-  isNew: boolean;
+interface ShopProps {
+  initialCoins: number;
+  initialCart: CartWithProducts;
 }
 
-export default function Shop({initialCoins}: {initialCoins: number}) {
+function reindex(items: CartItemData[]): CartItemData[] {
+  return items.map((item, i) => ({...item, index: i}));
+}
+
+export default function Shop({initialCoins, initialCart}: ShopProps) {
   const [products, setProducts] = useState<ProductData[]>([]);
   const [loading, setLoading] = useState(true);
   const [coins, setCoins] = useState(initialCoins);
+  const [cartItems, setCartItems] = useState<CartItemData[]>(
+    reindex(initialCart.items.map(i => ({...i, index: 0, variant: i.variant || null})))
+  );
+  const [cartOpen, setCartOpen] = useState(false);
+  const [checking, setChecking] = useState(false);
   const [selected, setSelected] = useState<ProductData | null>(null);
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
-  const [buying, setBuying] = useState(false);
   const [message, setMessage] = useState<{type: "success" | "error"; text: string} | null>(null);
+
+  const pendingRef = useRef(0);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/shop");
-      if (res.ok) {
-        const data = await res.json();
-        setProducts(data.products);
-      }
+      if (res.ok) setProducts((await res.json()).products);
     } catch { /* ignore */ }
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+  useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
-  const totalStock = (p: ProductData) => {
-    if (p.sizes && Object.keys(p.sizes).length > 0) {
-      return Object.values(p.sizes).reduce((a, b) => a + b, 0);
-    }
-    return p.stock;
+  const applyServerCart = (data: {items: CartItemData[]}) => {
+    setCartItems(reindex(data.items.map(i => ({...i, variant: i.variant || null}))));
   };
 
-  const handleBuy = async () => {
-    if (!selected) return;
-    setBuying(true);
-    setMessage(null);
-    try {
-      const res = await fetch("/api/shop", {
+  const refetchCart = () => {
+    fetch("/api/cart").then(r => r.ok ? r.json() : null).then(data => {
+      if (data) applyServerCart(data);
+    }).catch(() => {});
+  };
+
+  const cartAction = (
+    optimistic: () => void,
+    apiCall: () => Promise<Response>,
+  ) => {
+    optimistic();
+    pendingRef.current++;
+    apiCall()
+      .then(async res => {
+        const data = res.ok ? await res.json() : null;
+        pendingRef.current--;
+        if (pendingRef.current === 0) {
+          if (data) applyServerCart(data);
+          else refetchCart();
+        }
+      })
+      .catch(() => {
+        pendingRef.current--;
+        if (pendingRef.current === 0) refetchCart();
+      });
+  };
+
+  const cartCountMap = useMemo(() => {
+    const map = new Map<string, number>();
+    cartItems.forEach(i => map.set(i.productId, (map.get(i.productId) || 0) + i.quantity));
+    return map;
+  }, [cartItems]);
+
+  const totalCartItems = useMemo(
+    () => cartItems.reduce((sum, i) => sum + i.quantity, 0),
+    [cartItems],
+  );
+
+  const makeItem = (product: ProductData, variant?: string | null): CartItemData => ({
+    index: 0,
+    productId: product._id,
+    quantity: 1,
+    variant: variant || null,
+    name: product.name,
+    price: product.price,
+    images: product.images,
+    variants: product.variants,
+    variantLabel: product.variantLabel,
+    stock: product.stock,
+  });
+
+  const addToCart = (productId: string) => {
+    const product = products.find(p => p._id === productId);
+    if (!product) return;
+    const hasVariants = product.variants && Object.keys(product.variants).length > 0;
+
+    cartAction(
+      () => {
+        if (hasVariants) {
+          const first = Object.entries(product.variants!).find(([, c]) => c > 0)?.[0];
+          setCartItems(prev => reindex([...prev, makeItem(product, first)]));
+        } else {
+          setCartItems(prev => {
+            const idx = prev.findIndex(i => i.productId === productId);
+            if (idx >= 0) return prev.map((it, i) => i === idx ? {...it, quantity: it.quantity + 1} : it);
+            return reindex([...prev, makeItem(product)]);
+          });
+        }
+      },
+      () => fetch("/api/cart", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({productId: selected._id, size: selectedSize}),
-      });
+        body: JSON.stringify({productId}),
+      }),
+    );
+  };
+
+  const updateCartQuantity = (index: number, quantity: number) => {
+    cartAction(
+      () => {
+        if (quantity <= 0) setCartItems(prev => reindex(prev.filter(i => i.index !== index)));
+        else setCartItems(prev => prev.map(i => i.index === index ? {...i, quantity} : i));
+      },
+      () => fetch("/api/cart", {
+        method: quantity <= 0 ? "DELETE" : "PATCH",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({index, quantity}),
+      }),
+    );
+  };
+
+  const updateCartVariant = (index: number, newVariant: string) => {
+    cartAction(
+      () => setCartItems(prev => prev.map(i => i.index === index ? {...i, variant: newVariant} : i)),
+      () => fetch("/api/cart", {
+        method: "PATCH",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({index, newVariant}),
+      }),
+    );
+  };
+
+  const removeFromCart = (index: number) => {
+    cartAction(
+      () => setCartItems(prev => reindex(prev.filter(i => i.index !== index))),
+      () => fetch("/api/cart", {
+        method: "DELETE",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({index}),
+      }),
+    );
+  };
+
+  const removeProduct = (productId: string) => {
+    cartAction(
+      () => setCartItems(prev => reindex(prev.filter(i => i.productId !== productId))),
+      () => fetch("/api/cart", {
+        method: "DELETE",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({productId}),
+      }),
+    );
+  };
+
+  const handleCheckout = async () => {
+    setChecking(true);
+    setMessage(null);
+    try {
+      const res = await fetch("/api/cart/checkout", {method: "POST"});
       const data = await res.json();
       if (res.ok) {
         setCoins(data.coins);
-        setMessage({type: "success", text: "Заказ оформлен!"});
-        setSelected(null);
-        setSelectedSize(null);
+        setCartItems([]);
+        setCartOpen(false);
+        setMessage({type: "success", text: `Заказ оформлен! (${data.ordersCount} шт.)`});
         fetchProducts();
       } else {
-        setMessage({type: "error", text: data.error || "Ошибка"});
+        setMessage({type: "error", text: data.deficit ? `Не хватает ${data.deficit} монет` : (data.error || "Ошибка оформления")});
       }
     } catch {
       setMessage({type: "error", text: "Ошибка сети"});
     }
-    setBuying(false);
+    setChecking(false);
   };
 
-  const openProduct = (p: ProductData) => {
-    setSelected(p);
-    setSelectedSize(null);
-    setMessage(null);
-  };
-
-  const canBuy = () => {
-    if (!selected) return false;
-    if (selected.price > coins) return false;
-    if (selected.sizes && Object.keys(selected.sizes).length > 0) {
-      if (!selectedSize) return false;
-      if (selected.sizes[selectedSize] <= 0) return false;
-    } else if (selected.stock !== null && selected.stock <= 0) {
-      return false;
+  const handleIncrement = (product: ProductData) => {
+    const hasVariants = product.variants && Object.keys(product.variants).length > 0;
+    if (hasVariants) {
+      addToCart(product._id);
+    } else {
+      const existing = cartItems.find(i => i.productId === product._id);
+      if (existing) updateCartQuantity(existing.index, existing.quantity + 1);
+      else addToCart(product._id);
     }
-    return true;
+  };
+
+  const handleDecrement = (product: ProductData) => {
+    const hasVariants = product.variants && Object.keys(product.variants).length > 0;
+    if (hasVariants) {
+      const items = cartItems.filter(i => i.productId === product._id);
+      const last = items[items.length - 1];
+      if (last) removeFromCart(last.index);
+    } else {
+      const existing = cartItems.find(i => i.productId === product._id);
+      if (existing) updateCartQuantity(existing.index, existing.quantity - 1);
+    }
   };
 
   return (
@@ -103,14 +227,38 @@ export default function Shop({initialCoins}: {initialCoins: number}) {
         </div>
       </div>
 
-      <div className="mx-auto px-6 sm:px-20 pt-20 pb-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-semibold">Магазин мерча</h1>
-          <div className="flex items-center gap-2 bg-background/70 border border-border/40 rounded-full px-4 py-2">
-            <Coins size={18} className="text-yellow-500"/>
-            <span className="font-semibold">{coins}</span>
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
+        <div className="flex h-18 items-center justify-between px-6 sm:px-10">
+          <Button variant="ghost" size="sm" className="gap-1" asChild>
+            <Link href="/profile">
+              <ArrowLeft size={16}/>
+              Вернуться
+            </Link>
+          </Button>
+          <h1 className="text-base font-semibold hidden sm:block">Магазин мерча</h1>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 bg-background/70 border border-border/40 rounded-full px-3 py-1.5 text-sm">
+              <Coins size={14} className="text-yellow-500"/>
+              <span className="font-semibold">{coins}</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative"
+              onClick={() => setCartOpen(true)}
+            >
+              <ShoppingCart size={18}/>
+              {totalCartItems > 0 && (
+                <Badge className="absolute -top-1.5 -right-1.5 h-5 min-w-5 px-1 text-[10px] flex items-center justify-center rounded-full">
+                  {totalCartItems}
+                </Badge>
+              )}
+            </Button>
           </div>
         </div>
+      </header>
+
+      <div className="mx-auto px-6 sm:px-20 py-6">
 
         {message && (
           <div className={`mb-6 px-4 py-3 rounded-xl text-sm ${
@@ -133,105 +281,69 @@ export default function Shop({initialCoins}: {initialCoins: number}) {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {products.map(product => {
-              const stock = totalStock(product);
-              const outOfStock = stock !== null && stock !== undefined && stock <= 0;
-
-              return (
-                <Card
-                  key={product._id}
-                  className={`bg-background/70 overflow-hidden cursor-pointer transition-all hover:scale-[1.02] hover:shadow-lg ${outOfStock ? "opacity-60" : ""}`}
-                  onClick={() => !outOfStock && openProduct(product)}
-                >
-                  <div className="relative aspect-square bg-muted/30 flex items-center justify-center overflow-hidden">
-                    {product.image ? (
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <ShoppingBag size={48} className="text-muted-foreground/30"/>
-                    )}
-                    {product.isNew && (
-                      <Badge className="absolute top-2 left-2 bg-primary text-primary-foreground">NEW</Badge>
-                    )}
-                    {outOfStock && (
-                      <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
-                        <span className="text-sm font-medium text-muted-foreground">Нет в наличии</span>
-                      </div>
-                    )}
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-medium truncate">{product.name}</h3>
-                    <p className="text-sm text-muted-foreground truncate mt-1">{product.description}</p>
-                    <div className="flex items-center gap-1 mt-3">
-                      <Coins size={14} className="text-yellow-500"/>
-                      <span className="font-semibold">{product.price}</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            {products.map(product => (
+              <ProductCard
+                key={product._id}
+                product={product}
+                cartQuantity={cartCountMap.get(product._id) || 0}
+                onAdd={() => addToCart(product._id)}
+                onIncrement={() => handleIncrement(product)}
+                onDecrement={() => handleDecrement(product)}
+                onClick={() => setSelected(product)}
+              />
+            ))}
           </div>
         )}
       </div>
 
-      <Dialog open={!!selected} onOpenChange={(open) => {if (!open) setSelected(null);}}>
-        <DialogContent>
+      <CartSheet
+        open={cartOpen}
+        onOpenChange={setCartOpen}
+        items={cartItems}
+        coins={coins}
+        checking={checking}
+        onUpdateVariant={updateCartVariant}
+        onRemove={removeFromCart}
+        onRemoveProduct={removeProduct}
+        onCheckout={handleCheckout}
+      />
+
+      <Dialog open={!!selected} onOpenChange={open => { if (!open) setSelected(null); }}>
+        <DialogContent className="max-w-md">
           {selected && (
             <>
-              <DialogHeader>
-                <DialogTitle>{selected.name}</DialogTitle>
+              <DialogHeader className="pr-8">
+                <DialogTitle className="text-base sm:text-lg">{selected.name}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-2">
-                {selected.image && (
-                  <div className="aspect-square rounded-lg overflow-hidden bg-muted/30">
-                    <img src={selected.image} alt={selected.name} className="w-full h-full object-cover"/>
-                  </div>
-                )}
+                <ImageCarousel images={selected.images} alt={selected.name} className="aspect-square rounded-lg" mode="arrows"/>
                 <p className="text-sm text-muted-foreground">{selected.description}</p>
-                <div className="flex items-center gap-1">
-                  <Coins size={16} className="text-yellow-500"/>
-                  <span className="font-semibold text-lg">{selected.price}</span>
-                </div>
-
-                {selected.sizes && Object.keys(selected.sizes).length > 0 && (
-                  <div className="space-y-2">
-                    <span className="text-sm text-muted-foreground">Размер</span>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(selected.sizes).map(([size, count]) => (
-                        <Button
-                          key={size}
-                          variant={selectedSize === size ? "default" : "outline"}
-                          size="sm"
-                          disabled={count <= 0}
-                          onClick={() => setSelectedSize(size)}
-                          className="min-w-12"
-                        >
-                          {size}
-                          {count <= 0 && <span className="ml-1 text-xs opacity-60">—</span>}
-                        </Button>
-                      ))}
-                    </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <Coins size={16} className="text-yellow-500"/>
+                    <span className="font-semibold text-lg">{selected.price}</span>
                   </div>
-                )}
-
-                {selected.price > coins && (
-                  <p className="text-sm text-destructive">Недостаточно монеток</p>
-                )}
+                  {(() => {
+                    const qty = cartCountMap.get(selected._id) || 0;
+                    return qty > 0 ? (
+                      <div className="flex items-center gap-1.5">
+                        <Button variant="outline" size="icon-xs" onClick={() => handleDecrement(selected)}>
+                          <Minus size={12}/>
+                        </Button>
+                        <span className="w-6 text-center text-sm font-medium">{qty}</span>
+                        <Button variant="outline" size="icon-xs" onClick={() => handleIncrement(selected)}>
+                          <Plus size={12}/>
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button size="sm" variant="outline" className="gap-1" onClick={() => addToCart(selected._id)}>
+                        <Plus size={14}/>
+                        В корзину
+                      </Button>
+                    );
+                  })()}
+                </div>
               </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline">Закрыть</Button>
-                </DialogClose>
-                <Button
-                  onClick={handleBuy}
-                  disabled={!canBuy() || buying}
-                >
-                  {buying ? <Loader2 size={16} className="animate-spin"/> : "Купить"}
-                </Button>
-              </DialogFooter>
             </>
           )}
         </DialogContent>

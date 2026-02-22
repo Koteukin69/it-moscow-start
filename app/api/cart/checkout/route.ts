@@ -9,7 +9,7 @@ function generatePickupCode(): string {
 async function getNextOrderNumber(): Promise<number> {
   const counters = await countersCollection;
   const result = await counters.findOneAndUpdate(
-    {_id: "orderNumber" as unknown as ObjectId},
+    {_id: "orderNumber"},
     {$inc: {seq: 1}},
     {upsert: true, returnDocument: "after"},
   );

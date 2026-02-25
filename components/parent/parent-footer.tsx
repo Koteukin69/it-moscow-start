@@ -23,7 +23,7 @@ export default function ParentFooter() {
                   <div>
                     <Link
                       href="tel:+74996121498"
-                      className="whitespace-nowrap font-semibold hover:underline"
+                      className="whitespace-nowrap font-semibold hover:underline text-red-500"
                     >
                       8 (499) 612-14-98
                     </Link>

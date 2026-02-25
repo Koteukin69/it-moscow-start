@@ -3,11 +3,12 @@
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Button} from "@/components/ui/button";
 import {useRouter} from "next/navigation";
-import {LogOut, Users, CalendarDays, ShoppingBag, Coins, ClipboardList} from "lucide-react";
+import {LogOut, Users, CalendarDays, ShoppingBag, ClipboardList, MessageSquare} from "lucide-react";
 import UsersTab from "./users-tab";
 import EventsTab from "./events-tab";
 import ProductsTab from "./products-tab";
 import OrdersTab from "./orders-tab";
+import ConsultationsTab from "./consultations-tab";
 import OrbAnimation from "@/components/orb";
 import Image from "next/image";
 
@@ -59,6 +60,10 @@ export default function CommissionDashboard() {
               <ClipboardList size={16}/>
               <span className="hidden sm:inline">Заказы</span>
             </TabsTrigger>
+            <TabsTrigger value="consultations" className="gap-1.5">
+              <MessageSquare size={16}/>
+              <span className="hidden sm:inline">Консультации</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="users" className="mt-6">
@@ -72,6 +77,9 @@ export default function CommissionDashboard() {
           </TabsContent>
           <TabsContent value="orders" className="mt-6">
             <OrdersTab/>
+          </TabsContent>
+          <TabsContent value="consultations" className="mt-6">
+            <ConsultationsTab/>
           </TabsContent>
         </Tabs>
       </main>

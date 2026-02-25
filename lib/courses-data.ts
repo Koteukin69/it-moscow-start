@@ -8,6 +8,7 @@ export interface Course {
   time: string;
   teacher: string;
   age: string;
+  price?: number
 }
 
 export const courses: Course[] = [
@@ -21,6 +22,7 @@ export const courses: Course[] = [
     time: "17:00–17:45",
     teacher: "Пынзарь Е.Н.",
     age: "12–18 лет",
+    price: 4850,
   },
   {
     id: "networks",
@@ -32,6 +34,7 @@ export const courses: Course[] = [
     time: "17:00–17:45",
     teacher: "Дубровин О.М.",
     age: "12–18 лет",
+    price: 4850,
   },
   {
     id: "design-kolomenskaya",
@@ -43,6 +46,7 @@ export const courses: Course[] = [
     time: "16:20–17:05",
     teacher: "Голомуздова С.А.",
     age: "12–18 лет",
+    price: 4850,
   },
   {
     id: "design-biryulevo",
@@ -54,6 +58,7 @@ export const courses: Course[] = [
     time: "16:20–17:05",
     teacher: "Жарова Д.Д.",
     age: "12–18 лет",
+    price: 4850,
   },
   {
     id: "web",
@@ -65,6 +70,7 @@ export const courses: Course[] = [
     time: "17:00–17:45",
     teacher: "Сенькина Д.С.",
     age: "12–18 лет",
+    price: 4850,
   },
   {
     id: "python",
@@ -76,6 +82,7 @@ export const courses: Course[] = [
     time: "17:30–18:15",
     teacher: "Ахмерова Н.Д.",
     age: "9–11 лет",
+    price: 4850,
   },
   {
     id: "photo",
@@ -87,5 +94,6 @@ export const courses: Course[] = [
     time: "17:00–17:45",
     teacher: "Аверкин Ю.А.",
     age: "12–18 лет",
+    price: 4850,
   },
 ];

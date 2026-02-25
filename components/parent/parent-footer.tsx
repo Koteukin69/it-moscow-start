@@ -41,10 +41,10 @@ export default function ParentFooter() {
                   </div>
                   <div>
                     <Link
-                      href="mailto:info@it-moscow.ru"
+                      href="mailto:priem@itmoscow.pro"
                       className="whitespace-nowrap font-semibold hover:underline"
                     >
-                      info@it-moscow.ru
+                      priem@itmoscow.pro
                     </Link>
                     <p className="text-xs text-muted-foreground">
                       Крулосуточно
@@ -59,14 +59,14 @@ export default function ParentFooter() {
             <h2 className="text-2xl font-bold">Наши соцсети</h2>
             <div className="flex gap-4">
               <Link
-                href="https://t.me/itmoscow"
+                href="https://t.me/itmoscow1"
                 target="_blank"
                 className="flex size-12 items-center justify-center rounded-full border transition-colors hover:bg-primary/10 hover:text-primary"
               >
                 <Send className="size-5"/>
               </Link>
               <Link
-                href="https://vk.com/itmoscow"
+                href="https://vk.com/it.moscowpro"
                 target="_blank"
                 className="flex size-12 items-center justify-center rounded-full border transition-colors hover:bg-primary/10 hover:text-primary"
               >

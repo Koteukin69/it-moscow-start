@@ -31,7 +31,7 @@ function CourseDetail({course, onBack}: {course: Course; onBack: () => void}) {
         <Field label="Расписание" value={`${course.schedule}, ${course.time}`}/>
         <Field label="Преподаватель" value={course.teacher}/>
         <Field label="Возраст" value={course.age}/>
-        <Field label="Стоимость" value="Бесплатно"/>
+        <Field label="Стоимость" value={course.price?`${course.price}р./месяц`:"Бесплатно"}/>
       </CardContent>
       <CardContent className="flex flex-col gap-2">
         <Button className="rounded-xl w-full gap-1" asChild>

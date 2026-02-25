@@ -3,21 +3,47 @@ import {Card, CardContent} from "@/components/ui/card";
 import {FileText, GraduationCap, ClipboardCheck, Send} from "lucide-react";
 import Link from "next/link";
 
-const steps = [
+type Step = {
+  icon: React.ElementType;
+  title: string;
+  description: React.ReactNode;
+};
+
+const steps: Step[] = [
   {
     icon: FileText,
-    title: "Подай документы",
-    description: "Заполни заявку на сайте или принеси документы лично в приёмную комиссию",
+    title: "Подай заявление на mos.ru",
+    description: (
+      <ul className="space-y-1 text-left text-sm text-muted-foreground">
+        <li>
+          <span className="font-medium text-foreground">Выпускник 9 класса московской школы:</span>{" "}
+          с 26 июня по 26 июля
+        </li>
+        <li>
+          <span className="font-medium text-foreground">Выпускник 9 класса областной / региональной школы или 11 класса:</span>{" "}
+          с 26 июня по 15 августа
+        </li>
+      </ul>
+    ),
   },
   {
     icon: GraduationCap,
-    title: "Пройди отбор",
-    description: "Средний балл аттестата — главный критерий поступления на бюджет",
+    title: "Ожидай результатов конкурсного отбора",
+    description: (
+      <ul className="space-y-1 text-left text-sm text-muted-foreground">
+        <li>Сумма первичных баллов 2 экзаменов ОГЭ: русский язык и математика</li>
+        <li>Средний балл аттестата для поступающих после 11 класса</li>
+      </ul>
+    ),
   },
   {
     icon: ClipboardCheck,
-    title: "Заключи договор",
-    description: "Подпиши договор и получи студенческий билет",
+    title: "Приезжай с документами в Приёмную комиссию",
+    description: (
+      <p className="text-sm text-muted-foreground">
+        Привези оригиналы документов и оформи зачисление
+      </p>
+    ),
   },
 ];
 
@@ -30,11 +56,17 @@ export default function ParentEnrollment() {
     <section id="enrollment" className="mx-auto max-w-6xl px-10 py-20 sm:px-20">
       <div className="mb-12 flex flex-col gap-3 text-center">
         <h2 className="text-2xl font-bold sm:text-3xl">
-          Поступи в IT.Москва
+          Поступление в IT.Москва начнётся 26 июня!
         </h2>
         <p className="mx-auto max-w-3xl text-muted-foreground">
-          Приём документов на 2025/2026 учебный год уже открыт. Поступление
-          после 9 и 11 класса на бюджетные и коммерческие места
+          Будь одним из первых — позвони в Приёмную комиссию по номеру{" "}
+          <Link
+            href="tel:84996121498"
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            8(499) 612-14-98
+          </Link>{" "}
+          и запишись на адресное сопровождение
         </p>
       </div>
 
@@ -49,38 +81,10 @@ export default function ParentEnrollment() {
                 Шаг {i + 1}
               </span>
               <h3 className="text-lg font-bold">{step.title}</h3>
-              <p className="text-sm text-muted-foreground">
-                {step.description}
-              </p>
+              {step.description}
             </CardContent>
           </Card>
         ))}
-      </div>
-
-      <div className="flex flex-col items-center gap-4">
-        {/*
-        <p className="text-muted-foreground">
-          Остались вопросы? Напиши нам!
-        </p>
-        */}
-        <div className="flex gap-3">
-          {socials.map((s) => (
-            <Button key={s.name} variant="outline" size="lg" asChild>
-              <Link href={s.href} target="_blank">
-                <s.icon className="size-5"/>
-                {s.name}
-              </Link>
-            </Button>
-          ))}
-          <Button variant="outline" size="lg" asChild>
-            <Link href="https://vk.com/itmoscow" target="_blank">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="size-5">
-                <path d="m9.489.004.729-.003h3.564l.73.003.914.01.433.007.418.011.403.014.388.016.374.021.36.025.345.03.333.033c1.74.196 2.933.616 3.833 1.516.9.9 1.32 2.092 1.516 3.833l.034.333.029.346.025.36.02.373.025.588.012.41.013.644.009.915.004.98-.001 3.313-.003.73-.01.914-.007.433-.011.418-.014.403-.016.388-.021.374-.025.36-.03.345-.033.333c-.196 1.74-.616 2.933-1.516 3.833-.9.9-2.092 1.32-3.833 1.516l-.333.034-.346.029-.36.025-.373.02-.588.025-.41.012-.644.013-.915.009-.98.004-3.313-.001-.73-.003-.914-.01-.433-.007-.418-.011-.403-.014-.388-.016-.374-.021-.36-.025-.345-.03-.333-.033c-1.74-.196-2.933-.616-3.833-1.516-.9-.9-1.32-2.092-1.516-3.833l-.034-.333-.029-.346-.025-.36-.02-.373-.025-.588-.012-.41-.013-.644-.009-.915-.004-.98.001-3.313.003-.73.01-.914.007-.433.011-.418.014-.403.016-.388.021-.374.025-.36.03-.345.033-.333c.196-1.74.616-2.933 1.516-3.833.9-.9 2.092-1.32 3.833-1.516l.333-.034.346-.029.36-.025.373-.02.588-.025.41-.012.644-.013.915-.009ZM6.79 7.3H4.05c.13 6.24 3.25 9.99 8.72 9.99h.31v-3.57c2.01.2 3.53 1.67 4.14 3.57h2.84c-.78-2.84-2.83-4.41-4.11-5.01 1.28-.74 3.08-2.54 3.51-4.98h-2.58c-.56 1.98-2.22 3.78-3.8 3.95V7.3H10.5v6.92c-1.6-.4-3.62-2.34-3.71-6.92Z"/>
-              </svg>
-              ВКонтакте
-            </Link>
-          </Button>
-        </div>
       </div>
     </section>
   );

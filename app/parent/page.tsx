@@ -8,6 +8,8 @@ import ParentVideo from "@/components/parent/parent-video";
 import ParentEarnings from "@/components/parent/parent-earnings";
 import ParentCourses from "@/components/parent/parent-courses";
 import ParentFaq from "@/components/parent/parent-faq";
+import ParentConsultation from "@/components/parent/parent-consultation";
+import ParentConsultationBanner from "@/components/parent/parent-consultation-banner";
 import ParentFooter from "@/components/parent/parent-footer";
 
 export default function Parent() {
@@ -16,14 +18,16 @@ export default function Parent() {
       <ParentHeader/>
       <ParentHero/>
       <ParentDirections/>
+      <ParentVideo/>
       <ParentCommunity/>
       <ParentPartners/>
       <ParentEnrollment/>
-      <ParentVideo/>
       <ParentEarnings/>
       <ParentCourses/>
       <ParentFaq/>
+      <ParentConsultation/>
       <ParentFooter/>
+      <ParentConsultationBanner/>
     </div>
   );
 }

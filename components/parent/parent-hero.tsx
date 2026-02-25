@@ -8,7 +8,7 @@ export default function ParentHero() {
       <div className="absolute inset-0 -z-5 bg-linear-to-b from-primary/10 via-transparent to-transparent"/>
       <div className="absolute inset-0 -z-7 bg-background/70"/>
       <div className="absolute inset-0 flex justify-end items-center -z-10 bg-background">
-        <video width={1080} height={1080} className={"max-w-full max-h-full h-fit w-fit mix-blend-screen aspect-square object-cover"} autoPlay loop muted playsInline preload={"auto"}>
+        <video className={"w-full h-full mix-blend-screen object-cover"} autoPlay loop muted playsInline preload={"auto"}>
           <source src="/video.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>

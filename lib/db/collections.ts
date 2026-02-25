@@ -56,3 +56,10 @@ export const cartsCollection = getCollection<{
   }>;
   updatedAt: Date;
 }>("carts");
+
+export const consultationsCollection = getCollection<{
+  name: string;
+  phone: string;
+  flames: number;
+  createdAt: Date;
+}>("consultations");

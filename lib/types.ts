@@ -53,6 +53,14 @@ export interface CartItem {
   variant?: string;
 }
 
+export interface ConsultationItem {
+  _id: string;
+  name: string;
+  phone: string;
+  flames: number;
+  createdAt: string;
+}
+
 export interface CartWithProducts {
   items: Array<CartItem & {
     index: number;

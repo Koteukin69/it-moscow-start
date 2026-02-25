@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -139,6 +139,8 @@ export function OrbAnimation({
   const propsRef = useRef({ speed, paused, saturate, blurMin, blurMax });
   propsRef.current = { speed, paused, saturate, blurMin, blurMax };
 
+  const drawFnRef = useRef<(() => void) | null>(null);
+
   const blobDefs = customBlobs && customBlobs.length > 0
     ? customBlobs
     : PRESETS[preset] ?? PRESETS.cyan;
@@ -157,6 +159,14 @@ export function OrbAnimation({
       b.radius = def.radius * short;
     });
   }, [blobDefs]);
+
+  // Restart RAF loop when unpaused
+  useEffect(() => {
+    if (!paused && drawFnRef.current && stateRef.current) {
+      cancelAnimationFrame(animRef.current);
+      animRef.current = requestAnimationFrame(drawFnRef.current);
+    }
+  }, [paused]);
 
   // Main loop — runs once
   useEffect(() => {
@@ -208,6 +218,11 @@ export function OrbAnimation({
       const s = stateRef.current!;
       const p = propsRef.current;
 
+      if (s.W === 0 || s.H === 0) {
+        animRef.current = requestAnimationFrame(draw);
+        return;
+      }
+
       if (!p.paused) s.t += p.speed;
 
       const cx = s.W / 2;
@@ -219,7 +234,7 @@ export function OrbAnimation({
       for (let i = 0; i < s.blobs.length; i++) {
         const b = s.blobs[i];
         const layer = s.layers[i];
-        if (!layer) continue;
+        if (!layer || layer.width === 0 || layer.height === 0) continue;
 
         b.color = lerpColor(b.color, b.targetColor, 0.04);
         b.alpha = lerp(b.alpha, b.targetAlpha, 0.04);
@@ -254,8 +269,14 @@ export function OrbAnimation({
       }
 
       ctx.globalCompositeOperation = "source-over";
-      animRef.current = requestAnimationFrame(draw);
+
+      // When paused, draw one frame then stop to avoid wasting CPU/GPU
+      if (!p.paused) {
+        animRef.current = requestAnimationFrame(draw);
+      }
     };
+
+    drawFnRef.current = draw;
 
     const observer = new ResizeObserver(() => {
       ({ W, H } = resize());
@@ -276,6 +297,11 @@ export function OrbAnimation({
         b.oy = def.oy * newShort;
         b.radius = def.radius * newShort;
       });
+      // When paused, trigger a single redraw after resize
+      if (propsRef.current.paused) {
+        cancelAnimationFrame(animRef.current);
+        animRef.current = requestAnimationFrame(draw);
+      }
     });
     observer.observe(container);
 

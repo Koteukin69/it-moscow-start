@@ -27,7 +27,7 @@ const displayCourses: CourseEntry[] = [
     schedule: "среда, пятница",
     time: "17:00–17:45",
     age: "12–18 лет",
-    price: 150,
+    price: 4850,
     icon: Gamepad2,
     image: "/courses/GameStart.png",
     orb: "neon",
@@ -39,7 +39,7 @@ const displayCourses: CourseEntry[] = [
     schedule: "вторник, среда",
     time: "17:00–17:45",
     age: "12–18 лет",
-    price: 120,
+    price: 4850,
     icon: Network,
     image: "/courses/System.png",
     orb: "cyan",
@@ -51,7 +51,7 @@ const displayCourses: CourseEntry[] = [
     schedule: "понедельник, вторник",
     time: "16:20–17:05",
     age: "12–18 лет",
-    price: 100,
+    price: 4850,
     icon: Palette,
     image: "/courses/Visual_Thinking.png",
     orb: "sunset",
@@ -63,7 +63,7 @@ const displayCourses: CourseEntry[] = [
     schedule: "понедельник, среда",
     time: "17:00–17:45",
     age: "12–18 лет",
-    price: 130,
+    price: 4850,
     icon: Globe,
     image: "/courses/Web.png",
     orb: "cyan",
@@ -75,7 +75,7 @@ const displayCourses: CourseEntry[] = [
     schedule: "вторник, четверг",
     time: "17:30–18:15",
     age: "9–11 лет",
-    price: 140,
+    price: 4850,
     icon: Code,
     image: "/courses/Python.png",
     orb: "aurora",
@@ -87,7 +87,7 @@ const displayCourses: CourseEntry[] = [
     schedule: "понедельник, среда",
     time: "17:00–17:45",
     age: "12–18 лет",
-    price: 110,
+    price: 4850,
     icon: Camera,
     image: "/courses/Composition.png",
     orb: "sunset",
@@ -99,10 +99,10 @@ export default function ParentCourses() {
     <section id="courses" className="mx-auto max-w-6xl px-10 py-20 sm:px-20">
       <div className="mb-12 flex flex-col gap-3 text-center">
         <h2 className="text-2xl font-bold sm:text-3xl">
-          Курсы Digital Art Academy
+          Курсы IT.Москва School
         </h2>
         <p className="mx-auto max-w-3xl text-muted-foreground">
-          Попробуй себя в IT до поступления. Заработай первые it.coin и начни карьеру прямо сейчас!
+          Пусть ваш ребёнок попробует себя в IT до поступления. Заработает первые it.coin на сайте и начнёт карьеру прямо сейчас!
         </p>
       </div>
 

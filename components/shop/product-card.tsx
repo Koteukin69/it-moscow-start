@@ -3,6 +3,7 @@
 import {Card, CardContent} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
 import {Badge} from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator"
 import {Coins, Plus, Minus} from "lucide-react";
 import ImageCarousel from "./image-carousel";
 
@@ -42,26 +43,27 @@ export default function ProductCard({product, cartQuantity, onAdd, onIncrement, 
     <Card
       className={`bg-background/70 overflow-hidden transition-all hover:shadow-lg ${outOfStock ? "opacity-50 pointer-events-none" : "cursor-pointer hover:scale-[1.02]"}`}
     >
-      <div className="relative" onClick={onClick}>
+      <div className="relative flex flex-col items-end" onClick={onClick}>
+        {product.isNew && <Badge variant={"default"} className="shrink-0 text-[10px] mr-5 h-5 -mb-5 bg-green-400">NEW</Badge>}
         <ImageCarousel images={product.images} alt={product.name} className="aspect-square"/>
         {outOfStock && (
           <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
-            <span className="text-sm font-medium text-muted-foreground">Нет в наличии</span>
+            <span className="text-xs sm:text-sm font-medium text-muted-foreground">Нет в наличии</span>
           </div>
         )}
       </div>
-      <CardContent className="p-4 space-y-3">
+      <CardContent className="p-3 space-y-5">
         <div onClick={onClick}>
-          <div className="flex items-center gap-1.5">
-            <h3 className="font-medium truncate">{product.name}</h3>
-            {product.isNew && <Badge variant="secondary" className="shrink-0 text-[10px] px-1.5 py-0">NEW</Badge>}
+          <div className="flex items-center gap-1">
+            <h3 className="font-medium text-sm sm:text-base truncate">{product.name}</h3>
           </div>
-          <p className="text-sm text-muted-foreground truncate mt-1">{product.description}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground truncate mt-0.5">{product.description}</p>
         </div>
+        <Separator/>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
             <Coins size={14} className="text-yellow-500"/>
-            <span className="font-semibold">{product.price}</span>
+            <span className="font-semibold text-sm sm:text-base">{product.price}</span>
           </div>
           {!outOfStock && (
             cartQuantity > 0 ? (
@@ -69,20 +71,20 @@ export default function ProductCard({product, cartQuantity, onAdd, onIncrement, 
                 <Button variant="outline" size="icon-xs" onClick={e => { e.stopPropagation(); onDecrement(); }}>
                   <Minus size={12}/>
                 </Button>
-                <span className="w-6 text-center text-sm font-medium">{cartQuantity}</span>
+                <span className="w-5 text-center text-xs sm:text-sm font-medium">{cartQuantity}</span>
                 <Button variant="outline" size="icon-xs" onClick={e => { e.stopPropagation(); onIncrement(); }}>
                   <Plus size={12}/>
                 </Button>
               </div>
             ) : (
               <Button
-                size="sm"
+                size="xs"
                 variant="outline"
                 className="gap-1"
                 onClick={e => { e.stopPropagation(); onAdd(); }}
               >
-                <Plus size={14}/>
-                В корзину
+                <Plus size={12}/>
+                <span className="hidden sm:inline">В корзину</span>
               </Button>
             )
           )}

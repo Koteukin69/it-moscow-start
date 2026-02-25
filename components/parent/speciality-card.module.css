@@ -1,0 +1,15 @@
+.innerSquare {
+    border-radius: 5px;
+    height: 100%;
+    width: 100%;
+}
+
+.rainbowGradient {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    border-radius: 5px;
+    box-shadow: inset 0 0 12px 12px var(--background);
+    background: linear-gradient(to bottom, #f0f2, #f0f4, #00f8);
+}

@@ -231,12 +231,19 @@ export default function ProfileCard({name: initialName, phone: initialPhone, ver
                 </div>
                 <span className="text-3xl font-bold tabular-nums">{coins}</span>
               </div>
-              <Button variant="outline" className="w-full rounded-xl gap-2 mt-auto" asChild>
-                <Link href="/shop">
-                  Потратить в магазине
-                  <ChevronRight size={16}/>
-                </Link>
-              </Button>
+              <div className="flex flex-col w-full gap-2">
+                <Button variant="default" className="w-full rounded-xl gap-2 mt-auto" asChild>
+                  <Link href="/game">
+                    Играть
+                  </Link>
+                </Button>
+                <Button variant="outline" className="w-full rounded-xl gap-2 mt-auto" asChild>
+                  <Link href="/shop">
+                    Потратить в магазине
+                    <ChevronRight size={16}/>
+                  </Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
@@ -258,7 +265,7 @@ export default function ProfileCard({name: initialName, phone: initialPhone, ver
               ) : (
                 <p className="text-sm text-muted-foreground">Узнай, какое IT-направление тебе подходит</p>
               )}
-              <Button variant="outline" className="w-full rounded-xl gap-2 mt-1" asChild>
+              <Button variant="outline" className="w-full rounded-xl gap-2 mt-auto" asChild>
                 <Link href="/quiz">
                   {quizResult ? "Пройти заново" : "Пройти тест"}
                   <ChevronRight size={16}/>

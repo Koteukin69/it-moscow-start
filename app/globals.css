@@ -49,9 +49,6 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 }
-@theme {
-  --drop-shadow-glow: 0 35px 35px rgba(0, 0, 0, 0.25);
-}
 
 :root {
   --radius: 0.625rem;
@@ -133,3 +130,6 @@
 
 @keyframes chatFadeIn { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
 @keyframes chatDotBounce { 0%,60%,100% { transform:translateY(0) } 30% { transform:translateY(-5px) } }
+
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }

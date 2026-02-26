@@ -9,6 +9,11 @@ const specialtyConfig: Record<string, {
   orb: OrbAnimationProps["preset"];
 }> = {
   web: {src: "/portrait-student-1.png", align: "right", icons: ["Code", "Globe", "LayoutTemplate", "Monitor"], orb: "cyan"},
+  software: {src: "/portrait-student-2.png", align: "right", icons: ["Terminal", "Code2", "Layers", "Package"], orb: "aurora"},
+  techsupport: {src: "/portrait-natural-2.png", align: "right", icons: ["Wrench", "Monitor", "HardDrive", "Activity"], orb: "sunset"},
+  ai: {src: "/portrait-female-1.png", align: "left", icons: ["BrainCircuit", "Sparkles", "Database", "TrendingUp"], orb: "cyan"},
+  bim: {src: "/portrait-student-1.png", align: "right", icons: ["Building2", "Layers3", "PenTool", "Ruler"], orb: "neon"},
+  telecomsecurity: {src: "/portrait-natural-1.png", align: "right", icons: ["ShieldCheck", "Radio", "Lock", "Wifi"], orb: "aurora"},
   security: {src: "/portrait-natural-1.png", align: "right", icons: ["Shield", "Lock", "Eye", "KeyRound"], orb: "neon"},
   gamedev: {src: "/portrait-student-2.png", align: "right", icons: ["Gamepad2", "Swords", "MonitorPlay", "Box"], orb: "aurora"},
   systems: {src: "/portrait-natural-2.png", align: "right", icons: ["Cpu", "HardDrive", "Server", "MemoryStick"], orb: "sunset"},
@@ -26,7 +31,7 @@ export default function ParentDirections() {
           Какое направление выбрать ребёнку?
         </h2>
         <p className="mx-auto max-w-3xl text-muted-foreground">
-          8 востребованных IT-специальностей с трудоустройством в ведущие компании страны
+          13 востребованных IT-специальностей с трудоустройством в ведущие компании страны
         </p>
       </div>
 

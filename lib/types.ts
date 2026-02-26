@@ -57,6 +57,9 @@ export interface ConsultationItem {
   _id: string;
   name: string;
   phone: string;
+  childName: string;
+  specialty: string;
+  grade: string;
   flames: number;
   createdAt: string;
 }

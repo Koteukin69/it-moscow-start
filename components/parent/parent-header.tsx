@@ -20,7 +20,7 @@ export default function ParentHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
       <div className="flex h-18 w-full items-center justify-between px-6 sm:px-10">
-        <Button variant="ghost" size="sm" className="gap-1" asChild>
+        <Button variant="ghost" size="default" className="gap-1 sm:text-md" asChild>
           <Link href="/">
             <ArrowLeft size={16}/>
             Вернуться
@@ -29,7 +29,7 @@ export default function ParentHeader() {
 
         <nav className="hidden gap-1 md:flex">
           {navLinks.map((link) => (
-            <Button key={link.href} variant="ghost" size="sm" className="text-sm" asChild>
+            <Button key={link.href} variant="ghost" className="text-md" asChild>
               <a href={link.href}>{link.label}</a>
             </Button>
           ))}
@@ -57,8 +57,8 @@ export default function ParentHeader() {
             <Button
               key={link.href}
               variant="ghost"
-              size="sm"
-              className="justify-start text-muted-foreground"
+              size={"sm"}
+              className="justify-start text-muted-foreground "
               asChild
               onClick={() => setOpen(false)}
             >

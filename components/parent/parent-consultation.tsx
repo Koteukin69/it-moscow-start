@@ -5,7 +5,9 @@ import {Card, CardContent} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {Button} from "@/components/ui/button";
-import {CheckCircle, Loader2, Phone, User} from "lucide-react";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {CheckCircle, Loader2, Phone, User, Baby} from "lucide-react";
+import {specialties} from "@/lib/guide-data";
 
 type FormState = "idle" | "loading" | "success" | "error";
 
@@ -29,9 +31,14 @@ function formatPhone(raw: string): string {
   return `+7 (${d.slice(1, 4)}) ${d.slice(4, 7)}-${d.slice(7, 9)}-${d.slice(9, 11)}`;
 }
 
+const GRADES = ["8", "9", "10", "11", "Другой"];
+
 export default function ParentConsultation() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [childName, setChildName] = useState("");
+  const [specialty, setSpecialty] = useState("");
+  const [grade, setGrade] = useState("");
   const [formState, setFormState] = useState<FormState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -54,7 +61,7 @@ export default function ParentConsultation() {
       const res = await fetch("/api/consultations", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({name: name.trim(), phone: normalizedPhone}),
+        body: JSON.stringify({name: name.trim(), phone: normalizedPhone, childName: childName.trim(), specialty, grade}),
       });
 
       const data = await res.json();
@@ -89,6 +96,9 @@ export default function ParentConsultation() {
                 setFormState("idle");
                 setName("");
                 setPhone("");
+                setChildName("");
+                setSpecialty("");
+                setGrade("");
               }}
             >
               Отправить ещё одну заявку
@@ -105,13 +115,15 @@ export default function ParentConsultation() {
         <h2 className="text-2xl font-bold sm:text-3xl">
           Запишитесь на консультацию
         </h2>
-        <p className="max-w-xl text-muted-foreground">
-          Оставьте контакты, и наш специалист приёмной комиссии ответит на все ваши вопросы
-        </p>
       </div>
 
-      <Card className="mx-auto max-w-lg">
-        <CardContent className="pt-6">
+      <Card className="mx-auto max-w-lg py-8">
+        <CardContent className={"flex flex-col items-center"}>
+          <p className="max-w-xl text-muted-foreground text-center lg:w-[80%]">
+            Оставьте контакты, и наш специалист приёмной комиссии ответит на все ваши вопросы
+          </p>
+        </CardContent>
+        <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
               <Label htmlFor="consultation-name">ФИО</Label>
@@ -147,13 +159,66 @@ export default function ParentConsultation() {
               </div>
             </div>
 
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="consultation-child-name">Имя ребёнка</Label>
+              <div className="relative">
+                <Baby className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"/>
+                <Input
+                  id="consultation-child-name"
+                  type="text"
+                  placeholder="Иван"
+                  value={childName}
+                  onChange={e => setChildName(e.target.value)}
+                  className="pl-9"
+                  required
+                  disabled={formState === "loading"}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label>Специальность</Label>
+              <Select value={specialty} onValueChange={setSpecialty} disabled={formState === "loading"}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Выберите специальность"/>
+                </SelectTrigger>
+                <SelectContent>
+                  {specialties.map(s => (
+                    <SelectItem key={s.id} value={s.title}>{s.title}</SelectItem>
+                  ))}
+                  <SelectItem value="Ещё не определился">Ещё не определился</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label>В каком классе учится ребёнок</Label>
+              <Select value={grade} onValueChange={setGrade} disabled={formState === "loading"}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Выберите класс"/>
+                </SelectTrigger>
+                <SelectContent>
+                  {GRADES.map(g => (
+                    <SelectItem key={g} value={g}>{g}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {formState === "error" && (
               <p className="text-sm text-destructive">{errorMessage}</p>
             )}
 
             <Button
               type="submit"
-              disabled={formState === "loading" || !name.trim() || phone.replace(/\D/g, "").length < 11}
+              disabled={
+                formState === "loading" ||
+                !name.trim() ||
+                phone.replace(/\D/g, "").length < 11 ||
+                !childName.trim() ||
+                !specialty ||
+                !grade
+              }
               className="w-full"
             >
               {formState === "loading" ? (

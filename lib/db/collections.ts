@@ -60,6 +60,9 @@ export const cartsCollection = getCollection<{
 export const consultationsCollection = getCollection<{
   name: string;
   phone: string;
+  childName: string;
+  specialty: string;
+  grade: string;
   flames: number;
   createdAt: Date;
 }>("consultations");

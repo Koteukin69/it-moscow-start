@@ -20,15 +20,15 @@ export default function ParentHero() {
         alt="IT.Москва"
         width={183}
         height={99}
-        className="h-16 w-auto sm:h-20 hidden lg:inline-block"
+        className="h-16 w-auto sm:h-20 lg:h-30 hidden lg:inline-block"
         priority
       />
 
       <div className="flex max-w-2xl flex-col gap-4">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
           Москва ждёт твой деплой!
         </h1>
-        <p className="text-lg text-muted-foreground sm:text-xl">
+        <p className="text-lg text-muted-foreground sm:text-xl lg:text-2xl">
           Запускай карьеру здесь!
         </p>
       </div>

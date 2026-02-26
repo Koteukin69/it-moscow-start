@@ -82,6 +82,19 @@ export default function ConsultationsTab() {
       ),
     },
     {
+      header: "Ребёнок",
+      cell: (c) => <span>{c.childName}</span>,
+    },
+    {
+      header: "Специальность",
+      cell: (c) => <span className="text-muted-foreground">{c.specialty}</span>,
+    },
+    {
+      header: "Класс",
+      className: "w-20",
+      cell: (c) => <span className="text-muted-foreground">{c.grade}</span>,
+    },
+    {
       header: "Попытки",
       className: "w-28",
       cell: (c) => <FlameIndicator count={c.flames}/>,

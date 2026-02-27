@@ -15,6 +15,7 @@ export default function ParentVideo() {
           title="Видео-экскурсия по IT.Москва"
           allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock"
           allowFullScreen
+          loading="eager"
           className="h-full w-full"
         />
       </div>

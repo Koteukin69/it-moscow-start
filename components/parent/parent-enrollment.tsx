@@ -1,6 +1,6 @@
 import {Button} from "@/components/ui/button";
 import {Card, CardContent} from "@/components/ui/card";
-import {FileText, GraduationCap, ClipboardCheck, Send} from "lucide-react";
+import {FileText, GraduationCap, ClipboardCheck, Send, Flag} from "lucide-react";
 import Link from "next/link";
 
 type Step = {
@@ -53,7 +53,30 @@ const socials = [
 
 export default function ParentEnrollment() {
   return (
-    <section id="enrollment" className="mx-auto max-w-6xl px-10 py-20 sm:px-20">
+    <section id="enrollment" className="relative overflow-hidden mx-auto max-w-6xl px-10 py-20 sm:px-20">
+      <svg
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        className="pointer-events-none absolute inset-0 z-[-1] hidden h-full w-full sm:block"
+        aria-hidden="true"
+      >
+        <path
+          d="M -2 75 C 15 35, 22 85, 34 55 C 46 25, 54 80, 67 50 C 79 20, 88 65, 95 30"
+          fill="none"
+          stroke="#3b82f6"
+          strokeWidth="1.5"
+          strokeDasharray="6 4"
+          opacity={0.35}
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+      <div
+        className="pointer-events-none absolute z-[1] hidden sm:block"
+        style={{ left: "95%", top: "30%", transform: "translate(-20%, -100%)" }}
+        aria-hidden="true"
+      >
+        <Flag className="size-6 text-blue-500 opacity-70" />
+      </div>
       <div className="mb-12 flex flex-col gap-3 text-center">
         <h2 className="text-2xl font-bold sm:text-3xl">
           Поступление в IT.Москва начнётся 26 июня!

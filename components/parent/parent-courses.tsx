@@ -106,11 +106,11 @@ export default function ParentCourses() {
         </p>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="flex flex-row flex-nowrap gap-4 overflow-x-auto pb-2">
         {displayCourses.map((course) => {
           const Icon = course.icon;
           return (
-            <Card key={course.id} className="flex flex-col overflow-hidden">
+            <Card key={course.id} className="flex flex-col overflow-hidden w-3xs sm:w-xs shrink-0">
               <CourseCardVisual image={course.image} alt={course.title} orbPreset={course.orb}/>
               <CardContent className="flex flex-1 flex-col gap-3 p-5">
                 <div className="flex items-center gap-2.5">
@@ -150,14 +150,6 @@ export default function ParentCourses() {
           );
         })}
       </div>
-
-      {/*
-      <div className="mt-8 text-center">
-        <Button variant="outline" size="lg" asChild>
-          <Link href="/courses">Все курсы</Link>
-        </Button>
-      </div>
-      */}
     </section>
   );
 }

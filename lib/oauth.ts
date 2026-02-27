@@ -5,15 +5,25 @@ const OAUTH_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "dev-secret-key-for-local-development-only"
 );
 
-const VK_CLIENT_ID = process.env.VK_CLIENT_ID!;
-const VK_CLIENT_SECRET = process.env.VK_CLIENT_SECRET!;
+function getSiteUrl(): string {
+  return (process.env.SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+}
 
-const YANDEX_CLIENT_ID = process.env.YANDEX_CLIENT_ID!;
-const YANDEX_CLIENT_SECRET = process.env.YANDEX_CLIENT_SECRET!;
+function getVKConfig() {
+  return {
+    clientId: process.env.VK_CLIENT_ID!,
+    clientSecret: process.env.VK_CLIENT_SECRET!,
+    redirectUri: `${getSiteUrl()}/api/auth/vk/callback`,
+  };
+}
 
-const SITE_URL = process.env.SITE_URL || "http://localhost:3000";
-const VK_REDIRECT_URI = `${SITE_URL}/api/auth/vk/callback`;
-const YANDEX_REDIRECT_URI = `${SITE_URL}/api/auth/yandex/callback`;
+function getYandexConfig() {
+  return {
+    clientId: process.env.YANDEX_CLIENT_ID!,
+    clientSecret: process.env.YANDEX_CLIENT_SECRET!,
+    redirectUri: `${getSiteUrl()}/api/auth/yandex/callback`,
+  };
+}
 
 export type OAuthMode = "login" | "link";
 
@@ -89,10 +99,11 @@ export function clearOAuthStateCookie(response: NextResponse): void {
 }
 
 export function getVKAuthorizationURL(state: string, codeChallenge: string): string {
+  const { clientId, redirectUri } = getVKConfig();
   const params = new URLSearchParams({
     response_type: "code",
-    client_id: VK_CLIENT_ID,
-    redirect_uri: VK_REDIRECT_URI,
+    client_id: clientId,
+    redirect_uri: redirectUri,
     state,
     code_challenge: codeChallenge,
     code_challenge_method: "S256",
@@ -106,12 +117,13 @@ export async function exchangeVKCode(
   codeVerifier: string,
   deviceId: string,
 ): Promise<{access_token: string; user_id: number}> {
+  const { clientId, clientSecret, redirectUri } = getVKConfig();
   const body = new URLSearchParams({
     grant_type: "authorization_code",
     code,
-    redirect_uri: VK_REDIRECT_URI,
-    client_id: VK_CLIENT_ID,
-    client_secret: VK_CLIENT_SECRET,
+    redirect_uri: redirectUri,
+    client_id: clientId,
+    client_secret: clientSecret,
     code_verifier: codeVerifier,
     device_id: deviceId,
   });
@@ -133,9 +145,10 @@ export async function getVKUserInfo(accessToken: string): Promise<{
   lastName: string;
   phone?: string;
 }> {
+  const { clientId } = getVKConfig();
   const body = new URLSearchParams({
     access_token: accessToken,
-    client_id: VK_CLIENT_ID,
+    client_id: clientId,
   });
 
   const res = await fetch("https://id.vk.com/oauth2/user_info", {
@@ -156,10 +169,11 @@ export async function getVKUserInfo(accessToken: string): Promise<{
 }
 
 export function getYandexAuthorizationURL(state: string): string {
+  const { clientId, redirectUri } = getYandexConfig();
   const params = new URLSearchParams({
     response_type: "code",
-    client_id: YANDEX_CLIENT_ID,
-    redirect_uri: YANDEX_REDIRECT_URI,
+    client_id: clientId,
+    redirect_uri: redirectUri,
     state,
     force_confirm: "yes",
   });
@@ -167,11 +181,12 @@ export function getYandexAuthorizationURL(state: string): string {
 }
 
 export async function exchangeYandexCode(code: string): Promise<{access_token: string}> {
+  const { clientId, clientSecret } = getYandexConfig();
   const body = new URLSearchParams({
     grant_type: "authorization_code",
     code,
-    client_id: YANDEX_CLIENT_ID,
-    client_secret: YANDEX_CLIENT_SECRET,
+    client_id: clientId,
+    client_secret: clientSecret,
   });
 
   const res = await fetch("https://oauth.yandex.ru/token", {

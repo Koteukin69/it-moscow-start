@@ -10,6 +10,7 @@ import ParentCourses from "@/components/parent/parent-courses";
 import ParentFaq from "@/components/parent/parent-faq";
 import ParentConsultation from "@/components/parent/parent-consultation";
 import ParentConsultationBanner from "@/components/parent/parent-consultation-banner";
+import ParentNews from "@/components/parent/parent-news";
 import ParentFooter from "@/components/parent/parent-footer";
 
 export default function Parent() {
@@ -26,6 +27,7 @@ export default function Parent() {
       <ParentCourses/>
       <ParentFaq/>
       <ParentConsultation/>
+      <ParentNews/>
       <ParentFooter/>
       <ParentConsultationBanner/>
     </div>

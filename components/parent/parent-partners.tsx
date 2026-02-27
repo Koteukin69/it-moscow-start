@@ -28,7 +28,7 @@ export default function ParentPartners() {
         {partners.map((partner) => (
           <div
             key={partner.name}
-            className="relative aspect-square opacity-70 transition-all hover:opacity-100 hover:grayscale-0 w-25"
+            className="relative aspect-square [@media(hover:hover)]:opacity-70 transition-all hover:opacity-100 hover:grayscale-0 w-25"
           >
             <Image
               src={partner.logo}

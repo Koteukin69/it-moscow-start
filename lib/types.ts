@@ -1,8 +1,14 @@
 export interface JWTPayload {
   name: string;
   userId: string;
-  phone?: string;
   verified: boolean;
+}
+
+export interface OAuthProviderData {
+  provider: "vk" | "yandex";
+  providerUserId: string;
+  phone?: string;
+  linkedAt: Date;
 }
 
 export interface QuizResult {

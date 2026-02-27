@@ -151,7 +151,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       }
     }
 
-    const phone = req.headers.get("x-user-phone") || null;
+    const phone = user?.oauthProviders?.find(p => p.phone)?.phone ?? null;
     const now = new Date();
     let decodedName: string;
     try { decodedName = decodeURIComponent(userName); } catch { decodedName = userName; }

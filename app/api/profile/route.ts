@@ -1,7 +1,6 @@
 import {NextRequest, NextResponse} from "next/server";
-import {phoneRegex} from "@/lib/validator";
 import {usersCollection} from "@/lib/db/collections";
-import {verifyToken, createToken} from "@/lib/auth";
+import {verifyToken, createToken, AUTH_COOKIE_OPTIONS} from "@/lib/auth";
 import {ObjectId} from "mongodb";
 import type {JWTPayload} from "@/lib/types";
 
@@ -17,14 +16,23 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
       if (!value || typeof value !== "string" || !value.trim()) {
         return NextResponse.json({error: "Имя не может быть пустым"}, {status: 422});
       }
-    } else if (field === "phone") {
-      if (typeof value !== "string") {
-        return NextResponse.json({error: "Некорректный формат"}, {status: 422});
-      }
-      if (value !== "" && !phoneRegex.test(value.replace(/[\s\-()]+/g, ""))) {
-        return NextResponse.json({error: "Введите корректный номер телефона"}, {status: 422});
-      }
-    } else if (field === "avatar") {
+
+      const collection = await usersCollection;
+      const trimmed = value.trim();
+      await collection.updateOne(
+        {_id: new ObjectId(payload.userId)},
+        {$set: {name: trimmed}}
+      );
+
+      const newPayload: JWTPayload = {...payload, name: trimmed};
+      const newToken = await createToken(newPayload);
+
+      const response = NextResponse.json({success: true, value: trimmed});
+      response.cookies.set("auth-token", newToken, AUTH_COOKIE_OPTIONS);
+      return response;
+    }
+
+    if (field === "avatar") {
       const allowed = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
       if (typeof value !== "string" || !allowed.includes(value)) {
         return NextResponse.json({error: "Некорректный аватар"}, {status: 422});
@@ -37,37 +45,9 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
       );
 
       return NextResponse.json({success: true, value});
-    } else {
-      return NextResponse.json({error: "Неизвестное поле"}, {status: 422});
     }
 
-    const collection = await usersCollection;
-    const updateValue = field === "name" ? value.trim() : (value === "" ? undefined : value.replace(/[\s\-()]+/g, ""));
-
-    await collection.updateOne(
-      {_id: new ObjectId(payload.userId)},
-      field === "phone" && updateValue === undefined
-        ? {$unset: {phone: ""}}
-        : {$set: {[field]: updateValue}}
-    );
-
-    const newPayload: JWTPayload = {
-      ...payload,
-      [field]: field === "phone" ? updateValue : updateValue,
-    };
-
-    const newToken = await createToken(newPayload);
-
-    const response = NextResponse.json({success: true, value: updateValue});
-
-    response.cookies.set("auth-token", newToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24,
-    });
-
-    return response;
+    return NextResponse.json({error: "Неизвестное поле"}, {status: 422});
   } catch (error) {
     console.error(error);
     return NextResponse.json({error: "Внутренняя ошибка сервера"}, {status: 500});

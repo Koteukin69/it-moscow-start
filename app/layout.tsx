@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
+import Metrika from "@/components/metrika";
 
 const montserrat = Montserrat({
   variable: "--montserrat",
@@ -20,11 +21,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" suppressHydrationWarning>
-      <head>
-      </head>
       <body
         className={`${montserrat.variable} antialiased`}
       >
+        <Metrika />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

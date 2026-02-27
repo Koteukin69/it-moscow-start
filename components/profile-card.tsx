@@ -7,19 +7,17 @@ import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Badge} from "@/components/ui/badge";
 import {Popover, PopoverTrigger, PopoverContent} from "@/components/ui/popover";
-import {Pencil, Check, X, Loader2, Coins, LogOut, Phone, BadgeCheck, Brain, ChevronRight, ShoppingBag} from "lucide-react";
+import {Pencil, Check, X, Loader2, Coins, LogOut, BadgeCheck, Brain, ChevronRight, ShoppingBag, Link2, Unlink} from "lucide-react";
 import type {UserOrder} from "@/app/profile/page";
 import type {QuizResult} from "@/lib/types";
-import {phoneRegex} from "@/lib/validator";
 import OrbAnimation from "@/components/orb";
 import Image from "next/image";
 import Link from "next/link";
 import {cn} from "@/lib/utils";
 
-type EditField = "name" | "phone";
 type EditStatus = "editing" | "loading" | "success" | "error";
 
-function useInlineEdit(initialValue: string, field: EditField, onSaved: (value: string) => void) {
+function useInlineEdit(initialValue: string, field: "name", onSaved: (value: string) => void) {
   const [active, setActive] = useState(false);
   const [value, setValue] = useState(initialValue);
   const [status, setStatus] = useState<EditStatus>("editing");
@@ -29,9 +27,7 @@ function useInlineEdit(initialValue: string, field: EditField, onSaved: (value: 
     if (active && status === "editing") inputRef.current?.focus();
   }, [active, status]);
 
-  const isValid = field === "name"
-    ? value.trim().length > 0
-    : value === "" || phoneRegex.test(value.replace(/[\s\-()]+/g, ""));
+  const isValid = value.trim().length > 0;
 
   const startEdit = useCallback(() => {
     setValue(initialValue);
@@ -83,31 +79,53 @@ function getInitials(name: string): string {
 
 const AVATAR_IDS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
+interface OAuthProviderInfo {
+  provider: "vk" | "yandex";
+  linkedAt: string;
+}
+
 interface ProfileCardProps {
   name: string;
-  phone?: string;
   verified: boolean;
   coins: number;
   avatar?: string;
   quizResult?: QuizResult;
   orders?: UserOrder[];
+  oauthProviders: OAuthProviderInfo[];
 }
 
-export default function ProfileCard({name: initialName, phone: initialPhone, verified, coins, avatar: initialAvatar, quizResult, orders = []}: ProfileCardProps) {
+const PROVIDER_META = {
+  vk: {
+    label: "ВКонтакте",
+    bg: "bg-[#0077FF]",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="size-4">
+        <path d="m9.489.004.729-.003h3.564l.73.003.914.01.433.007.418.011.403.014.388.016.374.021.36.025.345.03.333.033c1.74.196 2.933.616 3.833 1.516.9.9 1.32 2.092 1.516 3.833l.034.333.029.346.025.36.02.373.025.588.012.41.013.644.009.915.004.98-.001 3.313-.003.73-.01.914-.007.433-.011.418-.014.403-.016.388-.021.374-.025.36-.03.345-.033.333c-.196 1.74-.616 2.933-1.516 3.833-.9.9-2.092 1.32-3.833 1.516l-.333.034-.346.029-.36.025-.373.02-.588.025-.41.012-.644.013-.915.009-.98.004-3.313-.001-.73-.003-.914-.01-.433-.007-.418-.011-.403-.014-.388-.016-.374-.021-.36-.025-.345-.03-.333-.033c-1.74-.196-2.933-.616-3.833-1.516-.9-.9-1.32-2.092-1.516-3.833l-.034-.333-.029-.346-.025-.36-.02-.373-.025-.588-.012-.41-.013-.644-.009-.915-.004-.98.001-3.313.003-.73.01-.914.007-.433.011-.418.014-.403.016-.388.021-.374.025-.36.03-.345.033-.333c.196-1.74.616-2.933 1.516-3.833.9-.9 2.092-1.32 3.833-1.516l.333-.034.346-.029.36-.025.373-.02.588-.025.41-.012.644-.013.915-.009ZM6.79 7.3H4.05c.13 6.24 3.25 9.99 8.72 9.99h.31v-3.57c2.01.2 3.53 1.67 4.14 3.57h2.84c-.78-2.84-2.83-4.41-4.11-5.01 1.28-.74 3.08-2.54 3.51-4.98h-2.58c-.56 1.98-2.22 3.78-3.8 3.95V7.3H10.5v6.92c-1.6-.4-3.62-2.34-3.71-6.92Z"/>
+      </svg>
+    ),
+  },
+  yandex: {
+    label: "Яндекс",
+    bg: "bg-[#FC3F1D]",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="size-4">
+        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm1.2 5.4h-1.44c-2.16 0-4.32 1.2-4.32 3.96 0 1.68.84 2.88 2.28 3.72l-2.64 4.92h2.16l2.4-4.56h.12V18h1.92V5.4h-.48zm-.48 6.36h-.24c-1.2 0-2.4-.72-2.4-2.4 0-1.68 1.08-2.4 2.4-2.4h.24v4.8z"/>
+      </svg>
+    ),
+  },
+} as const;
+
+export default function ProfileCard({name: initialName, verified, coins, avatar: initialAvatar, quizResult, orders = [], oauthProviders: initialProviders}: ProfileCardProps) {
   const router = useRouter();
   const [displayName, setDisplayName] = useState(initialName);
-  const [displayPhone, setDisplayPhone] = useState(initialPhone);
   const [displayAvatar, setDisplayAvatar] = useState(initialAvatar);
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [avatarSaving, setAvatarSaving] = useState<string | null>(null);
+  const [providers, setProviders] = useState(initialProviders);
+  const [unlinking, setUnlinking] = useState<string | null>(null);
 
   const nameEdit = useInlineEdit(displayName, "name", (v) => {
     setDisplayName(v);
-    router.refresh();
-  });
-
-  const phoneEdit = useInlineEdit(displayPhone ?? "", "phone", (v) => {
-    setDisplayPhone(v || undefined);
     router.refresh();
   });
 
@@ -131,6 +149,23 @@ export default function ProfileCard({name: initialName, phone: initialPhone, ver
     } catch { /* ignore */ }
     setAvatarSaving(null);
   };
+
+  const handleUnlink = async (provider: "vk" | "yandex") => {
+    setUnlinking(provider);
+    try {
+      const res = await fetch("/api/auth/unlink", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({provider}),
+      });
+      if (res.ok) {
+        setProviders(prev => prev.filter(p => p.provider !== provider));
+      }
+    } catch { /* ignore */ }
+    setUnlinking(null);
+  };
+
+  const linkedProviders = new Set(providers.map(p => p.provider));
 
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center px-6 sm:px-10 py-16 overflow-y-auto">
@@ -205,8 +240,6 @@ export default function ProfileCard({name: initialName, phone: initialPhone, ver
                   {verified ? "Подтверждён" : "Не подтверждён"}
                 </Badge>
               </div>
-
-              <InlinePhoneField displayValue={displayPhone} edit={phoneEdit}/>
             </div>
 
             <Button
@@ -218,6 +251,55 @@ export default function ProfileCard({name: initialName, phone: initialPhone, ver
               <LogOut size={14}/>
               <span className="hidden sm:inline">Выйти</span>
             </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-background/70 border-border/40 py-0">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Link2 size={18}/>
+              <span className="text-sm font-medium">Привязанные аккаунты</span>
+            </div>
+            {(["vk", "yandex"] as const).map(provider => {
+              const meta = PROVIDER_META[provider];
+              const isLinked = linkedProviders.has(provider);
+              const isUnlinking = unlinking === provider;
+
+              return (
+                <div key={provider} className="flex items-center justify-between rounded-lg border p-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className={cn("flex items-center justify-center w-8 h-8 rounded-full text-white", meta.bg)}>
+                      {meta.icon}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{meta.label}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {isLinked ? "Привязан" : "Не привязан"}
+                      </p>
+                    </div>
+                  </div>
+                  {isLinked ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5"
+                      disabled={providers.length <= 1 || isUnlinking}
+                      onClick={() => handleUnlink(provider)}
+                    >
+                      {isUnlinking ? <Loader2 size={14} className="animate-spin"/> : <Unlink size={14}/>}
+                      Отвязать
+                    </Button>
+                  ) : (
+                    <Button variant="outline" size="sm" className="gap-1.5" asChild>
+                      <a href={`/api/auth/${provider}?mode=link`}>
+                        <Link2 size={14}/>
+                        Привязать
+                      </a>
+                    </Button>
+                  )}
+                </div>
+              );
+            })}
           </CardContent>
         </Card>
 
@@ -361,7 +443,7 @@ function OrderRow({order}: {order: UserOrder}) {
           <span className="text-xs font-mono text-muted-foreground">#{order.orderNumber}</span>
           <span className="text-sm font-medium truncate">{order.productName}</span>
           {order.variant && <span className="text-xs text-muted-foreground">({order.variant})</span>}
-          {order.quantity > 1 && <span className="text-xs text-muted-foreground">×{order.quantity}</span>}
+          {order.quantity > 1 && <span className="text-xs text-muted-foreground">&times;{order.quantity}</span>}
         </div>
         <div className="flex items-center gap-2 mt-1">
           <Badge variant={st.variant} className="text-[10px] h-5">{st.label}</Badge>
@@ -378,52 +460,5 @@ function OrderRow({order}: {order: UserOrder}) {
         )}>{order.pickupCode}</div>
       </div>
     </div>
-  );
-}
-
-function InlinePhoneField({displayValue, edit}: {displayValue?: string; edit: ReturnType<typeof useInlineEdit>}) {
-  if (!edit.active) {
-    return (
-      <button onClick={edit.startEdit} className="group flex items-center gap-1.5 text-muted-foreground cursor-pointer">
-        <Phone size={14} className="shrink-0"/>
-        <span className="text-sm">{displayValue ?? "Не указан"}</span>
-        <Pencil size={12} className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"/>
-      </button>
-    );
-  }
-
-  return (
-    <span className="flex gap-1.5 items-center animate-[chatFadeIn_0.2s_ease_both]">
-      <Phone size={14} className="text-muted-foreground shrink-0"/>
-      {edit.status === "error" ? (
-        <>
-          <span className="text-sm text-destructive">Ошибка</span>
-          <Button variant="ghost" size="icon-xs" className="text-destructive" onClick={edit.dismiss}>
-            <X size={12}/>
-          </Button>
-        </>
-      ) : (
-        <>
-          <Input
-            ref={edit.inputRef}
-            className="h-7 text-sm rounded-lg w-40"
-            value={edit.value}
-            onChange={(e) => edit.setValue(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && edit.isValid && edit.submit()}
-            placeholder="+79123456789"
-            disabled={edit.status === "loading" || edit.status === "success"}
-          />
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            className={edit.status === "success" ? "text-primary" : ""}
-            onClick={edit.submit}
-            disabled={!edit.isValid || edit.status === "loading" || edit.status === "success"}
-          >
-            {edit.status === "loading" ? <Loader2 size={12} className="animate-spin"/> : <Check size={12}/>}
-          </Button>
-        </>
-      )}
-    </span>
   );
 }

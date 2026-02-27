@@ -12,11 +12,18 @@ const SECRET_KEY: Uint8Array<ArrayBuffer> = new TextEncoder().encode(
   jwtSecret || 'dev-secret-key-for-local-development-only'
 );
 
+export const AUTH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: isProd,
+  sameSite: 'lax' as const,
+  maxAge: 60 * 60 * 24 * 90,
+};
+
 export async function createToken(payload: JWTPayload | Record<string, unknown>): Promise<string> {
   return await new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime('24h')
+    .setExpirationTime('90d')
     .sign(SECRET_KEY);
 }
 

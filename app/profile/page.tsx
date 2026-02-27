@@ -24,7 +24,6 @@ export default async function Profile() {
   if (!userId) redirect("/");
 
   const name = decodeURIComponent(h.get("x-user-name") ?? "");
-  const phone = h.get("x-user-phone") || undefined;
   const verified = h.get("x-user-verified") === "true";
 
   const [users, quizCollection, ordersCol] = await Promise.all([usersCollection, quizResultsCollection, ordersCollection]);
@@ -36,6 +35,10 @@ export default async function Profile() {
 
   const coins = userDoc?.coins ?? 0;
   const avatar = userDoc?.avatar;
+  const oauthProviders = (userDoc?.oauthProviders ?? []).map(p => ({
+    provider: p.provider,
+    linkedAt: p.linkedAt instanceof Date ? p.linkedAt.toISOString() : String(p.linkedAt),
+  }));
   const quizResult: QuizResult | undefined = quizDoc
     ? {directions: quizDoc.directions, top: quizDoc.top, completedAt: quizDoc.completedAt.toISOString()}
     : undefined;
@@ -53,6 +56,14 @@ export default async function Profile() {
 
   return <>
     <Back/>
-    <ProfileCard name={name} phone={phone} verified={verified} coins={coins} avatar={avatar} quizResult={quizResult} orders={orders}/>
+    <ProfileCard
+      name={name}
+      verified={verified}
+      coins={coins}
+      avatar={avatar}
+      quizResult={quizResult}
+      orders={orders}
+      oauthProviders={oauthProviders}
+    />
   </>;
 }

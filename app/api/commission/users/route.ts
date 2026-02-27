@@ -10,10 +10,15 @@ export async function GET(): Promise<NextResponse> {
 
     const result = users.map(u => {
       const quiz = quizMap.get(u._id.toString());
+      const phones = (u.oauthProviders ?? [])
+        .map(p => p.phone)
+        .filter((p): p is string => Boolean(p));
+
       return {
         _id: u._id.toString(),
         name: u.name,
-        phone: u.phone || null,
+        phones,
+        providers: (u.oauthProviders ?? []).map(p => p.provider),
         coins: u.coins ?? 0,
         quiz: quiz
           ? {directions: quiz.directions, top: quiz.top, completedAt: quiz.completedAt.toISOString()}

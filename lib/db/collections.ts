@@ -1,6 +1,12 @@
 import {getCollection} from "@/lib/db/mongodb";
+import type {OAuthProviderData} from "@/lib/types";
 
-export const usersCollection = getCollection<{name: string, phone?: string, coins: number, avatar?: string}>("users");
+export const usersCollection = getCollection<{
+  name: string,
+  coins: number,
+  avatar?: string,
+  oauthProviders?: OAuthProviderData[],
+}>("users");
 
 export const quizResultsCollection = getCollection<{
   userId: string;

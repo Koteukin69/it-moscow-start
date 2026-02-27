@@ -33,7 +33,6 @@ export async function proxy(request: NextRequest) {
   if (applicant) {
     requestHeaders.set('x-user-id', applicant.userId);
     requestHeaders.set('x-user-name', encodeURIComponent(applicant.name));
-    if (applicant.phone) requestHeaders.set('x-user-phone', applicant.phone);
     requestHeaders.set('x-user-verified', applicant.verified.toString());
   }
 

@@ -9,21 +9,15 @@ export async function PUT(req: NextRequest, {params}: {params: Promise<{id: stri
       return NextResponse.json({error: "Неверный ID"}, {status: 400});
     }
 
-    const {name, phone, coins} = await req.json();
+    const {name, coins} = await req.json();
     if (!name) {
       return NextResponse.json({error: "Имя обязательно"}, {status: 400});
     }
 
-    const update: Record<string, unknown> = {
-      name: String(name),
-      phone: phone ? String(phone) : undefined,
-      coins: Number(coins) || 0,
-    };
-
     const collection = await usersCollection;
     const result = await collection.findOneAndUpdate(
       {_id: new ObjectId(id)},
-      {$set: update},
+      {$set: {name: String(name), coins: Number(coins) || 0}},
       {returnDocument: "after"},
     );
 
@@ -31,9 +25,19 @@ export async function PUT(req: NextRequest, {params}: {params: Promise<{id: stri
       return NextResponse.json({error: "Пользователь не найден"}, {status: 404});
     }
 
+    const phones = (result.oauthProviders ?? [])
+      .map(p => p.phone)
+      .filter((p): p is string => Boolean(p));
+
     return NextResponse.json({
       success: true,
-      user: {_id: result._id.toString(), name: result.name, phone: result.phone || null, coins: result.coins ?? 0},
+      user: {
+        _id: result._id.toString(),
+        name: result.name,
+        phones,
+        providers: (result.oauthProviders ?? []).map(p => p.provider),
+        coins: result.coins ?? 0,
+      },
     });
   } catch {
     return NextResponse.json({error: "Ошибка сервера"}, {status: 500});

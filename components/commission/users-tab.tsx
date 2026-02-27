@@ -13,7 +13,8 @@ import DataTable, {type Column} from "./data-table";
 interface UserData {
   _id: string;
   name: string;
-  phone: string | null;
+  phones: string[];
+  providers: string[];
   quiz: {
     directions: Record<string, number>;
     top: string[];
@@ -22,7 +23,7 @@ interface UserData {
   coins: number;
 }
 
-type SortField = "name" | "phone" | "quizResult" | "quizDate" | "quizCoin";
+type SortField = "name" | "phones" | "quizResult" | "quizDate" | "quizCoin";
 type SortDir = "asc" | "desc";
 
 export default function UsersTab() {
@@ -33,7 +34,7 @@ export default function UsersTab() {
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
-  const [editForm, setEditForm] = useState({name: "", phone: "", coins: ""});
+  const [editForm, setEditForm] = useState({name: "", coins: ""});
   const [saving, setSaving] = useState(false);
 
   const fetchUsers = async () => {
@@ -57,7 +58,7 @@ export default function UsersTab() {
     if (!q) return users;
     return users.filter(u =>
       u.name.toLowerCase().includes(q) ||
-      (u.phone && u.phone.includes(q)) ||
+      u.phones.some(p => p.includes(q)) ||
       (u.quiz?.top?.[0]?.toLowerCase().includes(q))
     );
   }, [users, search]);
@@ -68,8 +69,8 @@ export default function UsersTab() {
       switch (sortField) {
         case "name":
           return dir * a.name.localeCompare(b.name, "ru");
-        case "phone":
-          return dir * (a.phone || "").localeCompare(b.phone || "");
+        case "phones":
+          return dir * (a.phones[0] || "").localeCompare(b.phones[0] || "");
         case "quizResult":
           return dir * (a.quiz?.top?.[0] || "").localeCompare(b.quiz?.top?.[0] || "");
         case "quizDate":
@@ -81,7 +82,7 @@ export default function UsersTab() {
   }, [filtered, sortField, sortDir]);
 
   const openEdit = (u: UserData) => {
-    setEditForm({name: u.name, phone: u.phone || "", coins: u.coins.toString()});
+    setEditForm({name: u.name, coins: u.coins.toString()});
     setEditingUser(u);
   };
 
@@ -92,7 +93,7 @@ export default function UsersTab() {
       const res = await fetch(`/api/commission/users/${editingUser._id}`, {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({name: editForm.name, phone: editForm.phone || null, coins: Number(editForm.coins) || 0}),
+        body: JSON.stringify({name: editForm.name, coins: Number(editForm.coins) || 0}),
       });
       if (res.ok) {
         const data = await res.json();
@@ -130,11 +131,29 @@ export default function UsersTab() {
     },
     {
       header: (
-        <button onClick={() => toggleSort("phone")} className="flex items-center gap-1 font-medium">
-          Телефон <SortIcon field="phone"/>
+        <button onClick={() => toggleSort("phones")} className="flex items-center gap-1 font-medium">
+          Телефон <SortIcon field="phones"/>
         </button>
       ),
-      cell: (u) => <span className="text-muted-foreground">{u.phone || <span className="text-muted-foreground/50">&mdash;</span>}</span>,
+      cell: (u) => u.phones.length > 0
+        ? <span className="text-muted-foreground">{u.phones.join(", ")}</span>
+        : <span className="text-muted-foreground/50">&mdash;</span>,
+    },
+    {
+      header: "Привязки",
+      cell: (u) => (
+        <div className="flex gap-1">
+          {u.providers.includes("vk") && (
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">VK</Badge>
+          )}
+          {u.providers.includes("yandex") && (
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">YA</Badge>
+          )}
+          {u.providers.length === 0 && (
+            <span className="text-muted-foreground/50">&mdash;</span>
+          )}
+        </div>
+      ),
     },
     {
       header: (
@@ -223,10 +242,13 @@ export default function UsersTab() {
                   <Label>Имя</Label>
                   <Input value={editForm.name} onChange={e => setEditForm(f => ({...f, name: e.target.value}))}/>
                 </div>
-                <div className="space-y-2">
-                  <Label>Телефон</Label>
-                  <Input value={editForm.phone} onChange={e => setEditForm(f => ({...f, phone: e.target.value}))} placeholder="+7..."/>
-                </div>
+                {editingUser.phones.length > 0 && (
+                  <div className="space-y-1">
+                    <Label>Телефон(ы)</Label>
+                    <p className="text-sm text-muted-foreground">{editingUser.phones.join(", ")}</p>
+                    <p className="text-xs text-muted-foreground/60">Берётся из привязанных аккаунтов</p>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label>Монеты</Label>
                   <Input type="number" min="0" value={editForm.coins} onChange={e => setEditForm(f => ({...f, coins: e.target.value}))}/>

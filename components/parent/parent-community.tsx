@@ -7,8 +7,8 @@ export default function ParentCommunity() {
   return (
     <section className="mx-auto max-w-6xl px-10 py-20 sm:px-20 flex flex-col items-center">
       <Card className="overflow-hidden bg-gradient-to-br from-primary/10 via-background to-primary/5 w-fit">
-        <CardContent className="flex flex-row gap-8 sm:items-center sm:justify-between sm:gap-12">
-          <div className="flex flex-col gap-8 items-start">
+        <CardContent className="flex flex-row gap-8 sm:items-center sm:justify-between sm:gap-12 h-fit">
+            <div className="flex flex-col gap-8 items-start">
             <div className="flex flex-col gap-8">
               <h2 className="text-2xl font-bold sm:text-3xl">
                 Поступи в IT.Москва
@@ -42,7 +42,9 @@ export default function ParentCommunity() {
                 </Link>
               </div>
             </div>
-            {/*<Image src={""} alt={""} width={798} height={559}/>*/}
+          </div>
+          <div className="self-stretch hidden lg:flex items-center">
+            <Image className={"rounded-sm h-full w-auto object-cover mix-blend-multiply dark:mix-blend-screen"} src={"/community.png"} width={798} height={559} alt={""}/>
           </div>
         </CardContent>
       </Card>

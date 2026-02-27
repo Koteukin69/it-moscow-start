@@ -89,11 +89,11 @@ export default function ParentNews() {
                   <img
                     src={post.image}
                     alt=""
-                    className="w-full aspect-video object-cover"
+                    className="w-full aspect-square object-cover"
                   />
                 )}
                 {!post.image && (
-                  <div className="w-full aspect-video bg-primary/10 flex items-center justify-center">
+                  <div className="w-full aspect-square bg-primary/10 flex items-center justify-center">
                     <Newspaper className="size-10 text-primary/40"/>
                   </div>
                 )}

@@ -1,9 +1,10 @@
 import {NextRequest, NextResponse} from "next/server";
 import {EncryptJWT, jwtDecrypt} from "jose";
+import {createHash} from "crypto";
 
-const OAUTH_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "dev-secret-key-for-local-development-only"
-);
+const OAUTH_SECRET = createHash("sha256")
+  .update(process.env.JWT_SECRET || "dev-secret-key-for-local-development-only")
+  .digest();
 
 function getSiteUrl(): string {
   return (process.env.SITE_URL || "http://localhost:3000").replace(/\/$/, "");

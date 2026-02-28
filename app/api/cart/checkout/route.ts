@@ -1,9 +1,10 @@
 import {NextRequest, NextResponse} from "next/server";
 import {cartsCollection, productsCollection, usersCollection, ordersCollection, countersCollection} from "@/lib/db/collections";
 import {ObjectId} from "mongodb";
+import { randomInt } from 'crypto';
 
 function generatePickupCode(): string {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  return String(randomInt(100000, 1000000));
 }
 
 async function getNextOrderNumber(): Promise<number> {

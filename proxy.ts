@@ -10,35 +10,34 @@ export async function proxy(request: NextRequest) {
   const applicant = authToken ? await verifyToken(authToken) ?? undefined : undefined;
   const commission = commissionToken ? await verifyToken(commissionToken) !== null : false;
 
-  const isApplicantRoute = pathname.startsWith("/profile") || pathname.startsWith("/quiz") || pathname.startsWith("/guide") || pathname.startsWith("/game") || pathname.startsWith("/shop");
+  const isApplicantRoute =
+    pathname.startsWith("/profile") ||
+    pathname.startsWith("/quiz") ||
+    pathname.startsWith("/game");
 
-  if (isApplicantRoute && !applicant) {
+  if (isApplicantRoute && !applicant)
     return NextResponse.redirect(new URL('/applicant', request.url));
-  }
 
-  if (pathname.startsWith("/commission/dashboard") && !commission) {
+  if (pathname.startsWith("/commission/dashboard") && !commission)
     return NextResponse.redirect(new URL('/commission', request.url));
-  }
 
-  if (pathname.startsWith("/api/commission/") && !pathname.startsWith("/api/commission/login") && !commission) {
+  if (pathname.startsWith("/api/commission/") &&
+     !pathname.startsWith("/api/commission/login") && !commission)
     return NextResponse.json({error: "Unauthorized"}, {status: 401});
-  }
 
-  if ((pathname.startsWith("/api/shop") || pathname.startsWith("/api/cart") || pathname.startsWith("/api/orders")) && !applicant) {
+  if ((pathname.startsWith("/api/cart") ||
+       pathname.startsWith("/api/orders")) && (!applicant || !applicant.hasPhone))
     return NextResponse.json({error: "Unauthorized"}, {status: 401});
-  }
 
   const requestHeaders = new Headers(request.headers);
 
   if (applicant) {
     requestHeaders.set('x-user-id', applicant.userId);
     requestHeaders.set('x-user-name', encodeURIComponent(applicant.name));
-    requestHeaders.set('x-user-verified', applicant.verified.toString());
+    requestHeaders.set('x-user-has-phone', applicant.hasPhone.toString());
   }
 
-  if (commission) {
-    requestHeaders.set('x-commission', 'true');
-  }
+  if (commission) requestHeaders.set('x-commission', 'true');
 
   return NextResponse.next({
     request: { headers: requestHeaders },

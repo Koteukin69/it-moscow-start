@@ -66,7 +66,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       const newToken = await createToken({
         userId: payload.userId,
         name: payload.name,
-        verified: true,
+        hasPhone: payload.hasPhone || !!yandexUser.phone,
       } satisfies JWTPayload);
 
       const response = NextResponse.redirect(new URL("/profile", req.url));
@@ -84,7 +84,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       const token = await createToken({
         userId: existingUser._id.toString(),
         name: existingUser.name,
-        verified: true,
+        hasPhone: existingUser.oauthProviders?.some((p: {phone?: string}) => !!p.phone) ?? false,
       } satisfies JWTPayload);
 
       const response = NextResponse.redirect(new URL("/applicant", req.url));
@@ -110,7 +110,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const token = await createToken({
       userId: insertResult.insertedId.toString(),
       name,
-      verified: true,
+      hasPhone: !!yandexUser.phone,
     } satisfies JWTPayload);
 
     const response = NextResponse.redirect(new URL("/applicant", req.url));

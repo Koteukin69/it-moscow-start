@@ -1,7 +1,8 @@
 import {NextRequest, NextResponse} from "next/server";
-import {verifyToken} from "@/lib/auth";
+import {verifyToken, createToken, AUTH_COOKIE_OPTIONS} from "@/lib/auth";
 import {usersCollection} from "@/lib/db/collections";
 import {ObjectId} from "mongodb";
+import type {JWTPayload} from "@/lib/types";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
@@ -23,10 +24,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     const providers = user.oauthProviders ?? [];
-    if (providers.length <= 1) {
-      return NextResponse.json({error: "Нельзя отвязать последний аккаунт"}, {status: 422});
-    }
-
     const hasProvider = providers.some((p) => p.provider === provider);
     if (!hasProvider) {
       return NextResponse.json({error: "Аккаунт не привязан"}, {status: 422});
@@ -37,7 +34,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       {$pull: {oauthProviders: {provider}}},
     );
 
-    return NextResponse.json({success: true});
+    const remaining = providers.filter((p) => p.provider !== provider);
+    const newToken = await createToken({
+      userId: payload.userId,
+      name: payload.name,
+      hasPhone: remaining.some((p) => !!p.phone),
+    } satisfies JWTPayload);
+
+    const response = NextResponse.json({success: true});
+    response.cookies.set("auth-token", newToken, AUTH_COOKIE_OPTIONS);
+    return response;
   } catch (error) {
     console.error(error);
     return NextResponse.json({error: "Внутренняя ошибка сервера"}, {status: 500});

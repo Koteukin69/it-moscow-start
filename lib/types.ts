@@ -1,7 +1,7 @@
 export interface JWTPayload {
   name: string;
   userId: string;
-  verified: boolean;
+  hasPhone: boolean;
 }
 
 export interface OAuthProviderData {

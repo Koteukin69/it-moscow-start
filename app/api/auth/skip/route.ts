@@ -20,7 +20,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const token = await createToken({
       userId: result.insertedId.toString(),
       name: name.trim(),
-      verified: false,
+      hasPhone: false,
     } satisfies JWTPayload);
 
     const response = NextResponse.json({success: true});

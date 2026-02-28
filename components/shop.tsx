@@ -294,7 +294,6 @@ export default function Shop({initialCoins, initialCart}: ShopProps) {
           <OrbAnimation scaleMode="max"/>
         </div>
       </div>
-
       <header className="sticky top-0 w-full border-b border-border/40 bg-background/80 backdrop-blur-md z-1  ">
         <div className="flex h-18 items-center justify-between gap-5 px-6 sm:px-10 max-w-7xl mx-auto">
           <Button variant="ghost" size="sm" className="gap-1 shrink-0" asChild>
@@ -303,7 +302,6 @@ export default function Shop({initialCoins, initialCart}: ShopProps) {
               <span className="hidden sm:inline">Вернуться</span>
             </Link>
           </Button>
-
           <div className="flex flex-1 items-center gap-2 min-w-0">
             <div className="relative flex-1 w-full">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"/>

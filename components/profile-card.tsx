@@ -86,7 +86,7 @@ interface OAuthProviderInfo {
 
 interface ProfileCardProps {
   name: string;
-  verified: boolean;
+  hasPhone: boolean;
   coins: number;
   avatar?: string;
   quizResult?: QuizResult;
@@ -111,7 +111,7 @@ const PROVIDER_META = {
   },
 } as const;
 
-export default function ProfileCard({name: initialName, verified, coins, avatar: initialAvatar, quizResult, orders = [], oauthProviders: initialProviders}: ProfileCardProps) {
+export default function ProfileCard({name: initialName, hasPhone, coins, avatar: initialAvatar, quizResult, orders = [], oauthProviders: initialProviders}: ProfileCardProps) {
   const router = useRouter();
   const [displayName, setDisplayName] = useState(initialName);
   const [displayAvatar, setDisplayAvatar] = useState(initialAvatar);
@@ -231,9 +231,9 @@ export default function ProfileCard({name: initialName, verified, coins, avatar:
             <div className="flex-1 min-w-0 flex flex-col gap-2 items-center sm:items-start w-full">
               <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-start">
                 <InlineNameField displayValue={displayName} edit={nameEdit}/>
-                <Badge variant={verified ? "default" : "secondary"} className="gap-1 shrink-0">
+                <Badge variant={hasPhone ? "default" : "secondary"} className="gap-1 shrink-0">
                   <BadgeCheck size={12}/>
-                  {verified ? "Подтверждён" : "Не подтверждён"}
+                  {hasPhone ? "Подтверждён" : "Не подтверждён"}
                 </Badge>
               </div>
             </div>

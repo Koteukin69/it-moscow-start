@@ -279,7 +279,7 @@ export default function ProfileCard({name: initialName, hasPhone, coins, avatar:
                       variant="outline"
                       size="sm"
                       className="gap-1.5"
-                      disabled={providers.length <= 1 || isUnlinking}
+                      disabled={isUnlinking}
                       onClick={() => handleUnlink(provider)}
                     >
                       {isUnlinking ? <Loader2 size={14} className="animate-spin"/> : <Unlink size={14}/>}

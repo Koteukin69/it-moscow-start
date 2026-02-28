@@ -10,6 +10,15 @@ export async function proxy(request: NextRequest) {
   const applicant = authToken ? await verifyToken(authToken) ?? undefined : undefined;
   const commission = commissionToken ? await verifyToken(commissionToken) !== null : false;
 
+  function deleteAndRedirect(cookie: string) {
+    const res = NextResponse.redirect(new URL('/', request.url));
+    res.cookies.delete(cookie);
+    return res;
+  }
+
+  if (authToken && !applicant) return deleteAndRedirect('auth-token');
+  if (commissionToken && !commission) return deleteAndRedirect('commission-token');
+
   const isApplicantRoute =
     pathname.startsWith("/profile") ||
     pathname.startsWith("/quiz") ||
@@ -34,7 +43,7 @@ export async function proxy(request: NextRequest) {
   if (applicant) {
     requestHeaders.set('x-user-id', applicant.userId);
     requestHeaders.set('x-user-name', encodeURIComponent(applicant.name));
-    requestHeaders.set('x-user-has-phone', applicant.hasPhone.toString());
+    requestHeaders.set('x-user-has-phone', (applicant.hasPhone ?? false).toString());
   }
 
   if (commission) requestHeaders.set('x-commission', 'true');

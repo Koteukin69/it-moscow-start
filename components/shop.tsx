@@ -295,7 +295,7 @@ export default function Shop({initialCoins, initialCart}: ShopProps) {
         </div>
       </div>
 
-      <header className="sticky top-0 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
+      <header className="sticky top-0 w-full border-b border-border/40 bg-background/80 backdrop-blur-md z-1  ">
         <div className="flex h-18 items-center justify-between gap-5 px-6 sm:px-10 max-w-7xl mx-auto">
           <Button variant="ghost" size="sm" className="gap-1 shrink-0" asChild>
             <Link href="/profile">

@@ -50,7 +50,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const result = await users.findOneAndUpdate(
       {_id: objectId},
-      {$inc: {coins: amount}},
+      {$inc: {coins: amount}, $unset: {gameSession: ""}},
       {returnDocument: "after"},
     );
 

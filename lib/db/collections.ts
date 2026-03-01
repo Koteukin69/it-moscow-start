@@ -6,6 +6,7 @@ export const usersCollection = getCollection<{
   coins: number,
   avatar?: string,
   oauthProviders?: OAuthProviderData[],
+  gameSession?: { seed: number, createdAt: Date },
 }>("users");
 
 export const quizResultsCollection = getCollection<{

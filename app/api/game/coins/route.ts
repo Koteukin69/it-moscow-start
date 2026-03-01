@@ -1,10 +1,13 @@
 import {NextRequest, NextResponse} from "next/server";
 import {usersCollection} from "@/lib/db/collections";
+import {computeGameHash} from "@/lib/game/hash";
 import {ObjectId} from "mongodb";
 import {z} from "zod";
 
 const coinsSchema = z.object({
   amount: z.number().int().min(1).max(500),
+  seed: z.number().int(),
+  args: z.string(),
 });
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
@@ -29,8 +32,21 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const {amount} = validated.data;
+    const {amount, seed, args} = validated.data;
     const users = await usersCollection;
+
+    const user = await users.findOne({_id: objectId}, {projection: {gameSession: 1}});
+    if (!user) {
+      return NextResponse.json({error: "Пользователь не найден"}, {status: 404});
+    }
+
+    if (!user.gameSession || user.gameSession.seed !== seed) {
+      return NextResponse.json({error: "Неверный seed"}, {status: 422});
+    }
+
+    if (args !== computeGameHash(amount, seed)) {
+      return NextResponse.json({error: "Неверный args"}, {status: 422});
+    }
 
     const result = await users.findOneAndUpdate(
       {_id: objectId},

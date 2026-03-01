@@ -28,7 +28,6 @@ export default function Game({ userId, isMobile }: { userId: string; isMobile: b
   }, [isFullscreen]);
 
   useEffect(() => {
-    if (!isMobile) return;
     const onChange = () => {
       const active = !!(
         document.fullscreenElement ?? (document as any).webkitFullscreenElement
@@ -45,14 +44,12 @@ export default function Game({ userId, isMobile }: { userId: string; isMobile: b
 
   return (
     <div ref={containerRef} className="relative w-screen h-dvh bg-background">
-      {isMobile && (
-        <button
-          onClick={toggleFullscreen}
-          className="absolute right-4 bottom-4 z-3 rounded-xl bg-black/50 p-2.5 text-white backdrop-blur-sm active:scale-90 transition-transform"
-        >
-          {isFullscreen ? <Minimize size={22} /> : <Maximize size={22} />}
-        </button>
-      )}
+      <button
+        onClick={toggleFullscreen}
+        className="absolute right-4 bottom-4 z-3 rounded-xl bg-black/50 p-2.5 text-white backdrop-blur-sm active:scale-90 transition-transform"
+      >
+        {isFullscreen ? <Minimize size={22} /> : <Maximize size={22} />}
+      </button>
       <Link
         href="/applicant"
         className="absolute left-4 top-4 z-1 rounded-xl bg-black/50 p-2.5 text-white backdrop-blur-sm active:scale-90 transition-transform"

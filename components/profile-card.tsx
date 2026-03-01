@@ -171,7 +171,7 @@ export default function ProfileCard({name: initialName, hasPhone, coins, avatar:
         </div>
       </div>
 
-      <div className="w-full max-w-2xl flex flex-col gap-4">
+      <div className="w-full max-w-2xl flex flex-col gap-2">
         <Card className="bg-background/70 border-border/40">
           <CardContent className="flex flex-col sm:flex-row items-center gap-5 p-6">
             <Popover open={avatarOpen} onOpenChange={setAvatarOpen}>
@@ -299,7 +299,7 @@ export default function ProfileCard({name: initialName, hasPhone, coins, avatar:
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <Card className="bg-background/70 border-border/40 transition-all hover:shadow-lg h-full py-0">
             <CardContent className="p-4 flex flex-col h-full gap-3">
               <div className="flex items-center justify-between">

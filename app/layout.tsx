@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import Metrika from "@/components/metrika";
+import CookieConsent from "@/components/cookie-consent";
 
 const montserrat = Montserrat({
   variable: "--montserrat",
@@ -32,6 +33,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <CookieConsent />
         </ThemeProvider>
       </body>
     </html>

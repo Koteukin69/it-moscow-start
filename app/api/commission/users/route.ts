@@ -8,11 +8,18 @@ export async function GET(): Promise<NextResponse> {
 
     const quizMap = new Map(quizResults.map(q => [q.userId, q]));
 
-    const result = users.map(u => {
+    const hiddenPhones = new Set(
+    (process.env.COMMISSION_HIDDEN_PHONES ?? "")
+      .split(",")
+      .map(p => p.trim())
+      .filter(Boolean)
+  );
+
+  const result = users.map(u => {
       const quiz = quizMap.get(u._id.toString());
       const phones = (u.oauthProviders ?? [])
         .map(p => p.phone)
-        .filter((p): p is string => Boolean(p));
+        .filter((p): p is string => p !== undefined && !hiddenPhones.has(p));
 
       return {
         _id: u._id.toString(),

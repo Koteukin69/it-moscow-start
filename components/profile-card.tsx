@@ -309,14 +309,14 @@ export default function ProfileCard({name: initialName, hasPhone, coins, avatar:
                 </div>
                 <span className="text-3xl font-bold tabular-nums">{coins}</span>
               </div>
-              <div className="flex flex-col w-full gap-2">
+              <div className="flex flex-col w-full gap-2 mt-auto">
                 <Button variant="default" className="w-full rounded-xl gap-2 mt-auto" asChild>
                   <Link href="/game">
                     Играть
                   </Link>
                 </Button>
-                <Button variant="outline" className="w-full rounded-xl mt-auto justify-between" disabled>
-                  Потратить в магазине
+                <Button variant="outline" className="w-full rounded-xl mt-auto justify-center" disabled>
+                  <span className={"mx-auto"}>Потратить в магазине</span>
                   <Badge className="bg-green-300 pointer-events-none text-[10px] px-1.5 py-0.5 -mr-2">скоро</Badge>
                 </Button>
                 {/*

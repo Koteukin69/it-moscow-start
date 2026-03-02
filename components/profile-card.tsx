@@ -163,7 +163,7 @@ export default function ProfileCard({name: initialName, coins, avatar: initialAv
   const linkedProviders = new Set(providers.map(p => p.provider));
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center px-6 sm:px-10 py-16 overflow-y-auto">
+    <div className="min-h-dvh flex flex-col items-center justify-center px-6 sm:px-10 py-20 overflow-y-auto">
       <div className="overflow-hidden fixed inset-0 -z-1 flex items-center justify-center">
         <div className="w-full h-full">
           <OrbAnimation scaleMode="max"/>
@@ -171,82 +171,68 @@ export default function ProfileCard({name: initialName, coins, avatar: initialAv
       </div>
 
       <div className="w-full max-w-2xl flex flex-col gap-2">
-        <Card className="bg-background/70 border-border/40">
-          <CardContent className="flex flex-col sm:flex-row items-center gap-5 p-6">
-            <Popover open={avatarOpen} onOpenChange={setAvatarOpen}>
-              <PopoverTrigger asChild>
-                <button className="group relative shrink-0 w-20 h-20 rounded-full overflow-hidden cursor-pointer">
-                  {displayAvatar ? (
-                    <Image
-                      src={`/avatars/${displayAvatar}.png`}
-                      alt="Аватар"
-                      width={80}
-                      height={80}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-linear-to-br from-primary/80 to-primary/30 flex items-center justify-center text-2xl font-bold text-primary-foreground select-none">
-                      {getInitials(displayName) || "?"}
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                    <Pencil size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity"/>
-                  </div>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent align="start" className="w-auto p-3">
-                <p className="text-sm font-medium mb-2">Выберите аватар</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {AVATAR_IDS.map(id => (
-                    <button
-                      key={id}
-                      onClick={() => handleAvatarSelect(id)}
-                      disabled={avatarSaving !== null}
-                      className={cn(
-                        "relative w-16 h-16 rounded-full overflow-hidden cursor-pointer transition-all hover:scale-105",
-                        "ring-2 ring-offset-2 ring-offset-popover",
-                        displayAvatar === id ? "ring-primary" : "ring-transparent hover:ring-muted-foreground/30",
-                        avatarSaving === id && "opacity-60"
-                      )}
-                    >
+        <Card className="bg-background/70 border-border/40 p-6 pt-10">
+          <CardContent className="flex flex-col sm:flex-row items-center gap-5 p-0">
+            <div className="flex-1 min-w-0 flex flex-row gap-5 justify-start items-center w-full">
+              <Popover open={avatarOpen} onOpenChange={setAvatarOpen}>
+                <PopoverTrigger asChild>
+                  <button className="group relative shrink-0 w-20 h-20 rounded-full overflow-hidden cursor-pointer">
+                    {displayAvatar ? (
                       <Image
-                        src={`/avatars/${id}.png`}
-                        alt={`Аватар ${id}`}
-                        width={64}
-                        height={64}
+                        src={`/avatars/${displayAvatar}.png`}
+                        alt="Аватар"
+                        width={80}
+                        height={80}
                         className="w-full h-full object-cover"
                       />
-                      {avatarSaving === id && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                          <Loader2 size={16} className="text-white animate-spin"/>
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
-
-            <div className="flex-1 min-w-0 flex flex-col gap-2 items-center sm:items-start w-full">
+                    ) : (
+                      <div className="w-full h-full bg-linear-to-br from-primary/80 to-primary/30 flex items-center justify-center text-2xl font-bold text-primary-foreground select-none">
+                        {getInitials(displayName) || "?"}
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                      <Pencil size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity"/>
+                    </div>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-auto p-3">
+                  <p className="text-sm font-medium mb-2">Выберите аватар</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {AVATAR_IDS.map(id => (
+                      <button
+                        key={id}
+                        onClick={() => handleAvatarSelect(id)}
+                        disabled={avatarSaving !== null}
+                        className={cn(
+                          "relative w-16 h-16 rounded-full overflow-hidden cursor-pointer transition-all hover:scale-105",
+                          "ring-2 ring-offset-2 ring-offset-popover",
+                          displayAvatar === id ? "ring-primary" : "ring-transparent hover:ring-muted-foreground/30",
+                          avatarSaving === id && "opacity-60"
+                        )}
+                      >
+                        <Image
+                          src={`/avatars/${id}.png`}
+                          alt={`Аватар ${id}`}
+                          width={64}
+                          height={64}
+                          className="w-full h-full object-cover"
+                        />
+                        {avatarSaving === id && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                            <Loader2 size={16} className="text-white animate-spin"/>
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
               <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-start">
                 <InlineNameField displayValue={displayName} edit={nameEdit}/>
               </div>
             </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
-              onClick={handleLogout}
-            >
-              <LogOut size={14}/>
-              <span>Выйти</span>
-            </Button>
           </CardContent>
-        </Card>
-
-        <Card className="bg-background/70 border-border/40 py-0">
-          <CardContent className="p-4 space-y-3">
+          <CardContent className="w-full flex flex-col gap-3 p-0">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Link2 size={18}/>
               <span className="text-sm font-medium">Привязанные аккаунты</span>
@@ -278,19 +264,30 @@ export default function ProfileCard({name: initialName, coins, avatar: initialAv
                       onClick={() => handleUnlink(provider)}
                     >
                       {isUnlinking ? <Loader2 size={14} className="animate-spin"/> : <Unlink size={14}/>}
-                      Отвязать
+                      <span className={"hidden sm:inline"}>Отвязать</span>
                     </Button>
                   ) : (
                     <Button variant="outline" size="sm" className="gap-1.5" asChild>
                       <a href={`/api/auth/${provider}?mode=link`}>
                         <Link2 size={14}/>
-                        Привязать
+                        <span className={"hidden sm:inline"}>Привязать</span>
                       </a>
                     </Button>
                   )}
                 </div>
               );
             })}
+          </CardContent>
+          <CardContent className="flex flex-col sm:flex-row items-center gap-5 p-0">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0 w-full"
+              onClick={handleLogout}
+            >
+              <LogOut size={14}/>
+              <span>Выйти</span>
+            </Button>
           </CardContent>
         </Card>
 

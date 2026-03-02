@@ -43,7 +43,7 @@ async function getEnrichedCart(userId: string) {
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const userId = req.headers.get("x-user-id");
-    if (!userId) return NextResponse.json({error: "Unauthorized"}, {status: 401});
+    if (!userId) return NextResponse.json({error: "Ошибка аккаунта"}, {status: 401});
 
     const cart = await getEnrichedCart(userId);
     return NextResponse.json(cart);
@@ -55,7 +55,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const userId = req.headers.get("x-user-id");
-    if (!userId) return NextResponse.json({error: "Unauthorized"}, {status: 401});
+    if (!userId) return NextResponse.json({error: "Ошибка аккаунта"}, {status: 401});
 
     const {productId, variant} = await req.json();
     if (!productId || typeof productId !== "string" || !ObjectId.isValid(productId)) {
@@ -127,7 +127,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 export async function PATCH(req: NextRequest): Promise<NextResponse> {
   try {
     const userId = req.headers.get("x-user-id");
-    if (!userId) return NextResponse.json({error: "Unauthorized"}, {status: 401});
+    if (!userId) return NextResponse.json({error: "Ошибка аккаунта"}, {status: 401});
 
     const {index, quantity, newVariant} = await req.json();
     if (typeof index !== "number" || index < 0) {
@@ -160,7 +160,7 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
 export async function DELETE(req: NextRequest): Promise<NextResponse> {
   try {
     const userId = req.headers.get("x-user-id");
-    if (!userId) return NextResponse.json({error: "Unauthorized"}, {status: 401});
+    if (!userId) return NextResponse.json({error: "Ошибка аккаунта"}, {status: 401});
 
     const body = await req.json();
     const carts = await cartsCollection;

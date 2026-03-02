@@ -24,7 +24,6 @@ export default async function Profile() {
   if (!userId) redirect("/");
 
   const name = decodeURIComponent(h.get("x-user-name") ?? "");
-  const hasPhone = h.get("x-user-has-phone") === "true";
 
   const [users, quizCollection, ordersCol] = await Promise.all([usersCollection, quizResultsCollection, ordersCollection]);
   const [userDoc, quizDoc, orderDocs] = await Promise.all([
@@ -58,7 +57,6 @@ export default async function Profile() {
     <Back/>
     <ProfileCard
       name={name}
-      hasPhone={hasPhone}
       coins={coins}
       avatar={avatar}
       quizResult={quizResult}

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const userId = req.headers.get("x-user-id");
     const userName = req.headers.get("x-user-name");
     if (!userId || !userName) {
-      return NextResponse.json({error: "Unauthorized"}, {status: 401});
+      return NextResponse.json({error: "Ошибка аккаунта"}, {status: 401});
     }
 
     const [carts, products, users, orders] = await Promise.all([

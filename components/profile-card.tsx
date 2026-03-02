@@ -315,12 +315,15 @@ export default function ProfileCard({name: initialName, hasPhone, coins, avatar:
                     Играть
                   </Link>
                 </Button>
+                <Button variant="outline" className="w-full rounded-xl gap-2 mt-auto" disabled>Потратить в магазине</Button>
+                {/*
                 <Button variant="outline" className="w-full rounded-xl gap-2 mt-auto" asChild>
                   <Link href="/shop">
                     Потратить в магазине
                     <ChevronRight size={16}/>
                   </Link>
                 </Button>
+                */}
               </div>
             </CardContent>
           </Card>

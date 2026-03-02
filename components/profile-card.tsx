@@ -315,7 +315,10 @@ export default function ProfileCard({name: initialName, hasPhone, coins, avatar:
                     Играть
                   </Link>
                 </Button>
-                <Button variant="outline" className="w-full rounded-xl gap-2 mt-auto" disabled>Потратить в магазине</Button>
+                <Button variant="outline" className="w-full rounded-xl mt-auto justify-between" disabled>
+                  Потратить в магазине
+                  <Badge className="bg-green-300 pointer-events-none text-[10px] px-1.5 py-0.5 -mr-2">скоро</Badge>
+                </Button>
                 {/*
                 <Button variant="outline" className="w-full rounded-xl gap-2 mt-auto" asChild>
                   <Link href="/shop">

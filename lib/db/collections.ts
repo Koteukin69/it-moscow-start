@@ -73,3 +73,11 @@ export const consultationsCollection = getCollection<{
   flames: number;
   createdAt: Date;
 }>("consultations");
+
+export const popupSettingsCollection = getCollection<{
+  key: string;
+  image: string;
+  title: string;
+  subtitle: string;
+  description: string;
+}>("popupSettings");

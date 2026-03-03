@@ -2,14 +2,10 @@ import {NextRequest, NextResponse} from "next/server";
 import {writeFile, mkdir} from "fs/promises";
 import {join} from "path";
 import {randomUUID} from "crypto";
+import sharp from "sharp";
 
-const MAX_SIZE = 5 * 1024 * 1024;
-const ALLOWED_TYPES: Record<string, string> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-  "image/gif": "gif",
-};
+const MAX_SIZE = 10 * 1024 * 1024; // 10 MB — до сжатия
+const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
 const uploadDir = join(process.cwd(), "uploads");
 const ensureDir = mkdir(uploadDir, {recursive: true}).catch(() => {});
@@ -25,19 +21,23 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({error: "Файл не найден"}, {status: 400});
     }
 
-    const ext = ALLOWED_TYPES[file.type];
-    if (!ext) {
+    if (!ALLOWED_TYPES.has(file.type)) {
       return NextResponse.json({error: "Допустимы только изображения (JPEG, PNG, WebP, GIF)"}, {status: 422});
     }
 
     if (file.size > MAX_SIZE) {
-      return NextResponse.json({error: "Максимальный размер файла — 5 МБ"}, {status: 422});
+      return NextResponse.json({error: "Максимальный размер файла — 10 МБ"}, {status: 422});
     }
 
-    const filename = `${randomUUID()}.${ext}`;
+    const buffer = Buffer.from(await file.arrayBuffer());
 
-    const data = new Uint8Array(await file.arrayBuffer());
-    await writeFile(join(uploadDir, filename), data);
+    const compressed = await sharp(buffer)
+      .resize(1200, 1200, {fit: "inside", withoutEnlargement: true})
+      .webp({quality: 82})
+      .toBuffer();
+
+    const filename = `${randomUUID()}.webp`;
+    await writeFile(join(uploadDir, filename), compressed);
 
     return NextResponse.json({url: `/uploads/${filename}`});
   } catch (error) {

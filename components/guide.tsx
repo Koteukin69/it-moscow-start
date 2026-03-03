@@ -56,18 +56,18 @@ function SpecialtySteps({specialty, onBack}: {specialty: GuideSpecialty; onBack:
       </Card>
 
       <Card key={step} className="w-full bg-background/70 animate-[chatFadeIn_0.3s_ease_both]">
-        <CardHeader>
-          <h2 className="text-base font-semibold">{section.title}</h2>
+        <CardHeader className="pb-2">
+          <h2 className="text-lg font-bold">{section.title}</h2>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           {typeof section.content === "string" ? (
-            <p className="text-sm text-muted-foreground leading-relaxed">{section.content}</p>
+            <p className="text-base text-muted-foreground leading-relaxed">{section.content}</p>
           ) : (
             <div className="flex flex-col gap-2">
               {section.content.map((item, idx) => (
                 <span
                   key={item}
-                  className="text-sm text-muted-foreground animate-[chatFadeIn_0.3s_ease_both]"
+                  className="text-base text-muted-foreground animate-[chatFadeIn_0.3s_ease_both]"
                   style={{animationDelay: `${idx * 0.08}s`}}
                 >
                   • {item}
@@ -122,7 +122,7 @@ export default function Guide() {
   ) : (
     <Card className="w-full max-w-md bg-background/70 animate-[chatFadeIn_0.3s_ease_both]">
       <CardHeader>
-        <h1 className="text-xl font-semibold text-center">Гид по профессиям</h1>
+        <h1 className="text-xl font-semibold text-center">Гид по специальностям/профессиям</h1>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <p className="text-sm text-muted-foreground text-center">

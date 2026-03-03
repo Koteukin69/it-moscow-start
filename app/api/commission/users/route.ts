@@ -22,7 +22,7 @@ export async function GET(): Promise<NextResponse> {
         .filter((p): p is string => p !== undefined && !hiddenPhones.has(p));
 
       return {
-        _id: u._id.toString(),
+        _id: u._id.toString(),  
         name: u.name,
         phones,
         providers: (u.oauthProviders ?? []).map(p => p.provider),

@@ -9,6 +9,7 @@ import ActionButtons from "@/components/action_buttons";
 import Link from "next/link";
 import {Button} from "@/components/ui/button";
 import {Send} from "lucide-react";
+import Image from "next/image";
 
 interface ApplicantChatProps {
   user: { name: string } | null;
@@ -33,9 +34,7 @@ function AuthCard({onSkip}: { onSkip: () => void }) {
           className="w-full gap-2 bg-[#FC3F1D] hover:bg-[#E0380F] text-white"
           onClick={() => { window.location.href = "/api/auth/yandex?mode=login"; }}
         >
-          <svg viewBox="0 0 24 24" fill="currentColor" className="size-4">
-            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm1.2 5.4h-1.44c-2.16 0-4.32 1.2-4.32 3.96 0 1.68.84 2.88 2.28 3.72l-2.64 4.92h2.16l2.4-4.56h.12V18h1.92V5.4h-.48zm-.48 6.36h-.24c-1.2 0-2.4-.72-2.4-2.4 0-1.68 1.08-2.4 2.4-2.4h.24v4.8z"/>
-          </svg>
+          <Image className={"size-4"} src={"/partners/yandex.svg"} width={100} height={100} alt={"yandex"}/>
           Яндекс
         </Button>
       </div>

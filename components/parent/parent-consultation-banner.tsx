@@ -3,8 +3,23 @@
 import {useState, useEffect} from "react";
 import Image from "next/image";
 
+interface PopupSettings {
+  image: string;
+  title: string;
+  subtitle: string;
+  description: string;
+}
+
+const DEFAULT_SETTINGS: PopupSettings = {
+  image: "/popup.png",
+  title: "Задай вопрос",
+  subtitle: "специалисту приёмной комиссии",
+  description: "Запишитесь на бесплатную консультацию\nи узнайте все о поступлении",
+};
+
 export default function ParentConsultationBanner() {
   const [visible, setVisible] = useState(false);
+  const [settings, setSettings] = useState<PopupSettings>(DEFAULT_SETTINGS);
 
   function close() {
     setVisible(false);
@@ -12,6 +27,13 @@ export default function ParentConsultationBanner() {
   }
 
   useEffect(() => {
+    fetch("/api/commission/popup")
+      .then(r => r.json())
+      .then(data => {
+        if (data.title) setSettings(data);
+      })
+      .catch(() => {});
+
     const timer = setTimeout(() => setVisible(true), 10 * 1000);
     return () => clearTimeout(timer);
   }, []);
@@ -20,17 +42,15 @@ export default function ParentConsultationBanner() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-      <div
-        className="relative w-full max-w-3xl rounded-2xl overflow-hidden bg-background"
-        style={{minHeight: 280}}
-      >
+      <div className="relative w-full max-w-5xl rounded-2xl overflow-hidden bg-background lg:min-h-[360px]">
 
+        {/* Desktop image — right side, absolutely positioned */}
         <div
           className="absolute top-0 right-0 bottom-0 hidden lg:block"
-          style={{left: '58%', zIndex: 1}}
+          style={{left: '55%', zIndex: 1}}
         >
           <Image
-            src="/popup.png"
+            src={settings.image}
             alt="Специалист приёмной комиссии"
             fill
             className="object-cover object-top"
@@ -38,23 +58,32 @@ export default function ParentConsultationBanner() {
           />
         </div>
 
-        <div className="absolute inset-0 bg-[#111] lg:hidden" style={{zIndex: 3}}/>
+        {/* Mobile image — square, top of popup, in normal flow */}
+        <div className="block lg:hidden w-full aspect-square relative">
+          <Image
+            src={settings.image}
+            alt="Специалист приёмной комиссии"
+            fill
+            className="object-cover object-top"
+            priority
+          />
+        </div>
 
-        <div className="relative flex" style={{minHeight: 280, zIndex: 10}}>
-          <div className="flex flex-col justify-between gap-5 px-8 py-8 w-full lg:w-[52%]">
+        {/* Content */}
+        <div className="relative flex lg:min-h-[360px]" style={{zIndex: 10}}>
+          <div className="flex flex-col gap-5 px-8 py-8 w-full lg:w-[55%] bg-background lg:justify-between">
 
             <div className="flex flex-col gap-1">
               <h2 className="text-xl lg:text-3xl font-extrabold text-white leading-tight">
-                Задай вопрос
+                {settings.title}
               </h2>
               <p className="text-sm lg:text-base font-semibold text-white/90">
-                специалисту приёмной комиссии
+                {settings.subtitle}
               </p>
             </div>
 
-            <p className="md text-white/70 leading-snug">
-              Запишитесь на бесплатную консультацию<br/>
-              и узнайте все о поступлении
+            <p className="text-white/70 leading-snug whitespace-pre-line">
+              {settings.description}
             </p>
 
             <div className="flex gap-3 flex-wrap">
@@ -73,7 +102,8 @@ export default function ParentConsultationBanner() {
               </button>
             </div>
 
-            <div className="flex items-center gap-3">
+            {/* FAQ link — desktop only */}
+            <div className="hidden lg:flex items-center gap-3">
               <p className="text-xs text-white/40 leading-snug">
                 Так же вы можете прочитать раздел FAQ,<br/>
                 там есть ответы на популярные вопросы

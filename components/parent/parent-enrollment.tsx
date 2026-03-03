@@ -14,16 +14,29 @@ const steps: Step[] = [
     icon: FileText,
     title: "Подай заявление на mos.ru",
     description: (
-      <ul className="space-y-1 text-left text-sm text-muted-foreground">
-        <li>
-          <span className="font-medium text-foreground">Выпускник 9 класса московской школы:</span>{" "}
-          с 26 июня по 26 июля
-        </li>
-        <li>
-          <span className="font-medium text-foreground">Выпускник 9 класса областной / региональной школы или 11 класса:</span>{" "}
-          с 26 июня по 15 августа
-        </li>
-      </ul>
+      <div className="space-y-2 text-left text-sm text-muted-foreground">
+        <ul className="space-y-1">
+          <li>
+            <span className="font-medium text-foreground">Выпускник 9 класса московской школы 2026, 2025 гг:</span>{" "}
+            с 26 июня по 26 июля
+          </li>
+          <li>
+            <span className="font-medium text-foreground">Остальные категории:</span>{" "}
+            с 26 июня по 15 августа
+          </li>
+        </ul>
+        <p>
+          Подача заявлений осуществляется через портал{" "}
+          <Link
+            href="https://mos.ru"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            мос.ру
+          </Link>
+        </p>
+      </div>
     ),
   },
   {
@@ -89,7 +102,7 @@ export default function ParentEnrollment() {
           >
             8(499) 612-14-98
           </Link>{" "}
-          и запишись на адресное сопровождение
+          и запишись на адресное сопровождение, индивидуальную консультацию и день открытых дверей!
         </p>
       </div>
 

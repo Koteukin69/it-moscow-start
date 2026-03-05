@@ -8,6 +8,7 @@ interface PopupSettings {
   title: string;
   subtitle: string;
   description: string;
+  buttonUrl: string;
 }
 
 const DEFAULT_SETTINGS: PopupSettings = {
@@ -15,6 +16,7 @@ const DEFAULT_SETTINGS: PopupSettings = {
   title: "Задай вопрос",
   subtitle: "специалисту приёмной комиссии",
   description: "Запишитесь на бесплатную консультацию\nи узнайте все о поступлении",
+  buttonUrl: "#consultation",
 };
 
 function loadSettings(callback: () => void, onData?: (s: PopupSettings) => void) {
@@ -101,7 +103,7 @@ export default function ParentConsultationBanner() {
 
             <div className="flex gap-3 flex-wrap">
               <a
-                href="#consultation"
+                href={settings.buttonUrl || "#consultation"}
                 onClick={close}
                 className="inline-flex items-center justify-center rounded-full bg-white text-black font-semibold text-sm lg:text-lg px-6 py-2.5 transition-opacity hover:opacity-90 shadow-[-100px_0px_0px_0px_#ffffff20]"
               >

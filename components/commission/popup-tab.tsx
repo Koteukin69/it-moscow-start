@@ -13,6 +13,7 @@ interface PopupSettings {
   title: string;
   subtitle: string;
   description: string;
+  buttonUrl: string;
 }
 
 const DEFAULT_SETTINGS: PopupSettings = {
@@ -20,6 +21,7 @@ const DEFAULT_SETTINGS: PopupSettings = {
   title: "Задай вопрос",
   subtitle: "специалисту приёмной комиссии",
   description: "Запишитесь на бесплатную консультацию\nи узнайте все о поступлении",
+  buttonUrl: "#consultation",
 };
 
 export default function PopupTab() {
@@ -96,6 +98,15 @@ export default function PopupTab() {
               value={form.description}
               onChange={e => setForm(f => ({...f, description: e.target.value}))}
               rows={3}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Ссылка кнопки «Записаться»</Label>
+            <Input
+              placeholder="#consultation"
+              value={form.buttonUrl}
+              onChange={e => setForm(f => ({...f, buttonUrl: e.target.value}))}
             />
           </div>
 

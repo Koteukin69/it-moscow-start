@@ -1,10 +1,11 @@
 import Back from "@/components/back";
 import FaqPage from "@/components/faq";
-import {applicantFaq} from "@/lib/faq";
+import {getFaq} from "@/lib/faq";
 
-export default function FAQ() {
+export default async function FAQ() {
+  const faq = await getFaq();
   return (<div>
     <Back/>
-    <FaqPage questions={applicantFaq} />
+    <FaqPage questions={faq} />
   </div>);
 }

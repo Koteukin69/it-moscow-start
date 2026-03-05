@@ -17,7 +17,9 @@ export default async function ParentFaq() {
               {item.question}
             </AccordionTrigger>
             <AccordionContent className="text-muted-foreground">
-              {item.answer}
+              {item.answer.split("\n").map((line, i) => (
+                <p key={i}>{line}</p>
+              ))}
             </AccordionContent>
           </AccordionItem>
         ))}

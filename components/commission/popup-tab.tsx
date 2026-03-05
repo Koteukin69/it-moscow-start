@@ -81,7 +81,7 @@ export default function PopupTab() {
           </div>
 
           <div className="space-y-2">
-            <Label>Подзаголовок</Label>
+            <Label>Подзаголовок <span className="text-muted-foreground font-normal text-xs">(необязательно)</span></Label>
             <Input
               placeholder="специалисту приёмной комиссии"
               value={form.subtitle}

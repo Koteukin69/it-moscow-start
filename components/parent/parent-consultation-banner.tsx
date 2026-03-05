@@ -27,14 +27,18 @@ export default function ParentConsultationBanner() {
   }
 
   useEffect(() => {
-    fetch("/api/commission/popup")
+    let timer: ReturnType<typeof setTimeout>;
+
+    fetch("/api/commission/popup", {cache: "no-store"})
       .then(r => r.json())
       .then(data => {
         if (data.title) setSettings(data);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        timer = setTimeout(() => setVisible(true), 10 * 1000);
+      });
 
-    const timer = setTimeout(() => setVisible(true), 10 * 1000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -77,9 +81,11 @@ export default function ParentConsultationBanner() {
               <h2 className="text-xl lg:text-3xl font-extrabold text-white leading-tight">
                 {settings.title}
               </h2>
-              <p className="text-sm lg:text-base font-semibold text-white/90">
-                {settings.subtitle}
-              </p>
+              {settings.subtitle && (
+                <p className="text-sm lg:text-base font-semibold text-white/90">
+                  {settings.subtitle}
+                </p>
+              )}
             </div>
 
             <p className="text-white/70 leading-snug whitespace-pre-line">

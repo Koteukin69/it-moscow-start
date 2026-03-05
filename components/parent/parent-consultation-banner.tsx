@@ -17,27 +17,34 @@ const DEFAULT_SETTINGS: PopupSettings = {
   description: "Запишитесь на бесплатную консультацию\nи узнайте все о поступлении",
 };
 
+function loadSettings(callback: () => void, onData?: (s: PopupSettings) => void) {
+  fetch(`/api/popup?_=${Date.now()}`, {cache: "no-store"})
+    .then(r => r.json())
+    .then(data => {
+      if (data.title) onData?.(data);
+    })
+    .catch(() => {})
+    .finally(callback);
+}
+
 export default function ParentConsultationBanner() {
   const [visible, setVisible] = useState(false);
   const [settings, setSettings] = useState<PopupSettings>(DEFAULT_SETTINGS);
 
   function close() {
     setVisible(false);
-    setTimeout(() => setVisible(true), 2 * 60 * 1000);
+    setTimeout(() => {
+      loadSettings(() => setVisible(true), setSettings);
+    }, 2 * 60 * 1000);
   }
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
 
-    fetch("/api/commission/popup", {cache: "no-store"})
-      .then(r => r.json())
-      .then(data => {
-        if (data.title) setSettings(data);
-      })
-      .catch(() => {})
-      .finally(() => {
-        timer = setTimeout(() => setVisible(true), 10 * 1000);
-      });
+    loadSettings(
+      () => { timer = setTimeout(() => setVisible(true), 10 * 1000); },
+      setSettings,
+    );
 
     return () => clearTimeout(timer);
   }, []);

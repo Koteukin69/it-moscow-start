@@ -29,7 +29,7 @@ export default function PopupTab() {
   const [form, setForm] = useState<PopupSettings>(DEFAULT_SETTINGS);
 
   useEffect(() => {
-    fetch("/api/commission/popup")
+    fetch("/api/popup")
       .then(r => r.json())
       .then(data => {
         if (data.title) setForm(data);
@@ -42,7 +42,7 @@ export default function PopupTab() {
     setSaving(true);
     setSaved(false);
     try {
-      const res = await fetch("/api/commission/popup", {
+      const res = await fetch("/api/popup", {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(form),

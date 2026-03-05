@@ -80,6 +80,7 @@ export const popupSettingsCollection = getCollection<{
   title: string;
   subtitle: string;
   description: string;
+  buttonUrl?: string;
 }>("popupSettings");
 
 export const faqCollection = getCollection<{

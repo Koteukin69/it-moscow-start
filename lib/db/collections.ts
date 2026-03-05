@@ -81,3 +81,8 @@ export const popupSettingsCollection = getCollection<{
   subtitle: string;
   description: string;
 }>("popupSettings");
+
+export const faqCollection = getCollection<{
+  question: string;
+  answer: string;
+}>("faq");

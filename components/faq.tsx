@@ -13,7 +13,11 @@ export default function FAQ({questions}: {questions: {question: string, answer: 
       <div className={"w-full max-w-100 aspect-square"}>
         <Orb/>
       </div>
-      <div className={"text-center min-h-30 max-w-sm font-semibold"}>{answer}</div>
+      <div className={"text-center min-h-30 max-w-sm font-semibold"}>
+        {answer.split("\n").map((line, i) => (
+          <p key={i}>{line}</p>
+        ))}
+      </div>
     </div>
     <div className={"flex max-w-sm sm:max-w-md flex-col justify-center gap-3 pr-10 md:pr-20 h-fit py-20"}>
       {questions.map((question, index) => (

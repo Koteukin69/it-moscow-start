@@ -7,6 +7,19 @@ import {
 import {Button} from "@/components/ui/button";
 import {CalendarDays} from "lucide-react";
 
+const HTTPS_URL_SPLIT_REGEX = /(https:\/\/[^\s]+)/g;
+
+function renderLineWithLinks(line: string): React.ReactNode {
+  const parts = line.split(HTTPS_URL_SPLIT_REGEX);
+  return parts.map((part, i) =>
+    part.startsWith("https://") ? (
+      <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-primary underline break-all">
+        {part}
+      </a>
+    ) : part
+  );
+}
+
 interface EventData {
   _id: string;
   name: string;
@@ -51,9 +64,8 @@ export default function EventDetailDialog({event, open, onOpenChange}: EventDeta
                 </div>
               )}
               {event.description.split("\n").map((line, i) => (
-                <p key={i} className="text-sm text-muted-foreground">{line}</p>
+                <p key={i} className="text-sm text-muted-foreground">{renderLineWithLinks(line)}</p>
               ))}
-              <p className="text-sm text-muted-foreground">{event.description}</p>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <CalendarDays size={14}/>
                 <span>{formatEventDate(event.date)}</span>

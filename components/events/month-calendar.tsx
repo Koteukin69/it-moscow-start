@@ -1,6 +1,6 @@
 'use client';
 
-import {useState, useMemo} from "react";
+import React, {useState, useMemo} from "react";
 import {
   startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   eachDayOfInterval, format, isSameDay, isSameMonth,
@@ -27,12 +27,24 @@ interface MonthCalendarProps {
 
 const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
-function getDayGradient(date: Date): string {
-  const seed = date.getDate() * 31 + date.getMonth() * 373 + date.getFullYear();
-  const hue1 = seed % 360;
-  const hue2 = (seed * 7 + 120) % 360;
-  const angle = (seed * 13) % 180;
-  return `linear-gradient(${angle}deg, hsl(${hue1}, 70%, 40%), hsl(${hue2}, 60%, 50%))`;
+function getMultiEventStyle(events: EventData[]): React.CSSProperties {
+  const images = events.map(e => e.image).filter(Boolean).slice(0, 3) as string[];
+
+  if (images.length === 0) {
+    return {};
+  }
+
+  const count = images.length;
+  const width = 100 / count;
+
+  return {
+    backgroundImage: images.map(src => `url(${src})`).join(", "),
+    backgroundSize: images.map(() => `${width}% 100%`).join(", "),
+    backgroundPosition: images.map((_, i) =>
+      count === 1 ? "0% 0%" : `${(i / (count - 1)) * 100}% 0%`
+    ).join(", "),
+    backgroundRepeat: "no-repeat",
+  };
 }
 
 export default function MonthCalendar({events, onDayClick}: MonthCalendarProps) {
@@ -120,12 +132,13 @@ export default function MonthCalendar({events, onDayClick}: MonthCalendarProps) 
                 !hasEvents && "cursor-default",
                 !hasEvents && inMonth && "hover:bg-accent/30",
                 singleEvent && !singleImage && "bg-primary/20",
+                multiEvents && "bg-primary/20",
               )}
               style={
                 singleImage
                   ? {backgroundImage: `url(${dayEvents[0].image})`, backgroundSize: "cover", backgroundPosition: "center"}
                   : multiEvents
-                    ? {backgroundImage: getDayGradient(day)}
+                    ? getMultiEventStyle(dayEvents)
                     : undefined
               }
               onClick={() => hasEvents && onDayClick(day, dayEvents)}

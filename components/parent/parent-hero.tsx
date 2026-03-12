@@ -31,6 +31,9 @@ export default function ParentHero() {
         <p className="text-lg text-muted-foreground sm:text-xl lg:text-2xl">
           Запускай карьеру здесь!
         </p>
+        <a href={"tel:84996121498"} className="text-lg text-red-500 font-bold sm:text-xl lg:text-2xl hover:underline">
+          8 (499) 612-14-98
+        </a>
       </div>
 
       <Button variant="ghost" size="icon" className="animate-bounce" asChild>

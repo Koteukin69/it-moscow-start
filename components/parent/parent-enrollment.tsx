@@ -100,7 +100,7 @@ export default function ParentEnrollment() {
             href="tel:84996121498"
             className="font-large text-red-500 font-bold underline-offset-4 hover:underline"
           >
-            8(499) 612-14-98
+            8 (499) 612-14-98
           </Link>{" "}
           и запишись на адресное сопровождение, индивидуальную консультацию и день открытых дверей!
         </p>

@@ -16,14 +16,17 @@ export async function PUT(req: NextRequest, {params}: {params: Promise<{id: stri
 
     const collection = await eventsCollection;
     const baseSet = {name: String(name), date: String(date), image: String(image), description: String(description)};
-    const updateDoc = registrationUrl
-      ? {$set: {...baseSet, registrationUrl: String(registrationUrl)}}
-      : {$set: baseSet, $unset: {registrationUrl: ""}};
-    const result = await collection.findOneAndUpdate(
-      {_id: new ObjectId(id)},
-      updateDoc,
-      {returnDocument: "after"},
-    );
+    const result = await (registrationUrl
+      ? collection.findOneAndUpdate(
+          {_id: new ObjectId(id)},
+          {$set: {...baseSet, registrationUrl: String(registrationUrl)}},
+          {returnDocument: "after"},
+        )
+      : collection.findOneAndUpdate(
+          {_id: new ObjectId(id)},
+          {$set: baseSet, $unset: {registrationUrl: 1 as const}},
+          {returnDocument: "after"},
+        ));
 
     if (!result) {
       return NextResponse.json({error: "Мероприятие не найдено"}, {status: 404});

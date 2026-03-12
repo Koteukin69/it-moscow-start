@@ -11,14 +11,7 @@ import {Button} from "@/components/ui/button";
 import {Badge} from "@/components/ui/badge";
 import {ChevronLeft, ChevronRight} from "lucide-react";
 import {cn} from "@/lib/utils";
-
-interface EventData {
-  _id: string;
-  name: string;
-  date: string;
-  image: string | null;
-  description: string;
-}
+import {type EventData} from "@/lib/types";
 
 interface MonthCalendarProps {
   events: EventData[];

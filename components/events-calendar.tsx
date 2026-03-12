@@ -8,15 +8,7 @@ import MonthCalendar from "@/components/events/month-calendar";
 import VkFeed from "@/components/events/vk-feed";
 import EventDetailDialog from "@/components/events/event-detail-dialog";
 import EventListDialog from "@/components/events/event-list-dialog";
-
-interface EventData {
-  _id: string;
-  name: string;
-  date: string;
-  image: string | null;
-  description: string;
-  registrationUrl: string | null;
-}
+import {type EventData} from "@/lib/types";
 
 export default function EventsCalendar() {
   const [events, setEvents] = useState<EventData[]>([]);

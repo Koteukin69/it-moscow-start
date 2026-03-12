@@ -11,15 +11,7 @@ import {formatDate} from "@/lib/utils";
 import DataTable, {type Column} from "./data-table";
 import ImageUpload from "./image-upload";
 import DeleteButton from "./delete-button";
-
-interface EventData {
-  _id: string;
-  name: string;
-  date: string;
-  image: string | null;
-  description: string;
-  registrationUrl: string | null;
-}
+import {type EventData} from "@/lib/types";
 
 export default function EventsTab() {
   const [events, setEvents] = useState<EventData[]>([]);

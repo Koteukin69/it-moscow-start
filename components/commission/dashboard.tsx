@@ -3,7 +3,7 @@
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Button} from "@/components/ui/button";
 import {useRouter} from "next/navigation";
-import {LogOut, Users, CalendarDays, ShoppingBag, ClipboardList, MessageSquare, Megaphone, HelpCircle} from "lucide-react";
+import {LogOut, Users, CalendarDays, ShoppingBag, ClipboardList, MessageSquare, Megaphone, HelpCircle, BookOpen} from "lucide-react";
 import UsersTab from "./users-tab";
 import EventsTab from "./events-tab";
 import ProductsTab from "./products-tab";
@@ -11,6 +11,7 @@ import OrdersTab from "./orders-tab";
 import ConsultationsTab from "./consultations-tab";
 import PopupTab from "./popup-tab";
 import FaqTab from "./faq-tab";
+import SpecialtiesTab from "./specialties-tab";
 import OrbAnimation from "@/components/orb";
 import Image from "next/image";
 
@@ -74,6 +75,10 @@ export default function CommissionDashboard() {
               <HelpCircle size={16}/>
               <span className="hidden sm:inline">FAQ</span>
             </TabsTrigger>
+            <TabsTrigger value="specialties" className="gap-1.5">
+              <BookOpen size={16}/>
+              <span className="hidden sm:inline">Специальности</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="users" className="mt-6">
@@ -96,6 +101,9 @@ export default function CommissionDashboard() {
           </TabsContent>
           <TabsContent value="faq" className="mt-6">
             <FaqTab/>
+          </TabsContent>
+          <TabsContent value="specialties" className="mt-6">
+            <SpecialtiesTab/>
           </TabsContent>
         </Tabs>
       </main>

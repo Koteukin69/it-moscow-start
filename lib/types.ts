@@ -17,6 +17,21 @@ export interface QuizResult {
   completedAt: string;
 }
 
+export interface SpecialtyData {
+  id: string;
+  code: string;
+  title: string;
+  description: string;
+  relevance: string;
+  curriculum: string[];
+  targetAudience: string[];
+  careers: string[];
+  image: string;
+  icons: string[];
+  orb: "cyan" | "aurora" | "sunset" | "neon";
+  budgetPlaces: number | null;
+}
+
 export interface EventItem {
   _id?: string;
   name: string;

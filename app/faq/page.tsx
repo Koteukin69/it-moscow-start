@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import Back from "@/components/back";
 import FaqPage from "@/components/faq";
 import {getFaq} from "@/lib/faq";

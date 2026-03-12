@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import ParentHeader from "@/components/parent/parent-header";
 import ParentHero from "@/components/parent/parent-hero";
 import ParentDirections from "@/components/parent/parent-directions";

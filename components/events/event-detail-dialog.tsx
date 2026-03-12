@@ -50,6 +50,9 @@ export default function EventDetailDialog({event, open, onOpenChange}: EventDeta
                   />
                 </div>
               )}
+              {event.description.split("\n").map((line, i) => (
+                <p key={i} className="text-sm text-muted-foreground">{line}</p>
+              ))}
               <p className="text-sm text-muted-foreground">{event.description}</p>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <CalendarDays size={14}/>

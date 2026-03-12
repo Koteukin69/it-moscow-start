@@ -98,7 +98,7 @@ export default function ParentEnrollment() {
           Будь одним из первых — позвони в Приёмную комиссию по номеру{" "}
           <Link
             href="tel:84996121498"
-            className="font-medium text-foreground underline-offset-4 hover:underline"
+            className="font-large text-red-500 font-bold underline-offset-4 hover:underline"
           >
             8(499) 612-14-98
           </Link>{" "}

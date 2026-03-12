@@ -15,9 +15,13 @@ export async function PUT(req: NextRequest, {params}: {params: Promise<{id: stri
     }
 
     const collection = await eventsCollection;
+    const baseSet = {name: String(name), date: String(date), image: String(image), description: String(description)};
+    const updateDoc = registrationUrl
+      ? {$set: {...baseSet, registrationUrl: String(registrationUrl)}}
+      : {$set: baseSet, $unset: {registrationUrl: ""}};
     const result = await collection.findOneAndUpdate(
       {_id: new ObjectId(id)},
-      {$set: {name: String(name), date: String(date), image: String(image), description: String(description), registrationUrl: registrationUrl ? String(registrationUrl) : null}},
+      updateDoc,
       {returnDocument: "after"},
     );
 

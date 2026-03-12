@@ -25,6 +25,15 @@ export interface EventItem {
   description: string;
 }
 
+export interface EventData {
+  _id: string;
+  name: string;
+  date: string;
+  image: string | null;
+  description: string;
+  registrationUrl: string | null;
+}
+
 export interface ProductItem {
   _id?: string;
   name: string;

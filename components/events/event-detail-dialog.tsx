@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
 import {CalendarDays} from "lucide-react";
+import {type EventData} from "@/lib/types";
 
 const HTTPS_URL_SPLIT_REGEX = /(https:\/\/[^\s]+)/g;
 
@@ -18,15 +19,6 @@ function renderLineWithLinks(line: string): React.ReactNode {
       </a>
     ) : part
   );
-}
-
-interface EventData {
-  _id: string;
-  name: string;
-  date: string;
-  image: string | null;
-  description: string;
-  registrationUrl: string | null;
 }
 
 function formatEventDate(dateStr: string): string {

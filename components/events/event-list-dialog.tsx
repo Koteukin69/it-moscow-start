@@ -9,14 +9,7 @@ import {
 import {Card, CardContent} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
 import {CalendarDays} from "lucide-react";
-
-interface EventData {
-  _id: string;
-  name: string;
-  date: string;
-  image: string | null;
-  description: string;
-}
+import {type EventData} from "@/lib/types";
 
 interface EventListDialogProps {
   events: EventData[];

@@ -26,6 +26,7 @@ interface EventData {
   date: string;
   image: string | null;
   description: string;
+  registrationUrl: string | null;
 }
 
 function formatEventDate(dateStr: string): string {
@@ -72,6 +73,13 @@ export default function EventDetailDialog({event, open, onOpenChange}: EventDeta
               </div>
             </div>
             <DialogFooter>
+              {event.registrationUrl && (
+                <Button asChild>
+                  <a href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
+                    Зарегистрироваться
+                  </a>
+                </Button>
+              )}
               <DialogClose asChild>
                 <Button variant="outline">Закрыть</Button>
               </DialogClose>

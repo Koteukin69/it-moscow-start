@@ -10,6 +10,7 @@ export async function GET(): Promise<NextResponse> {
       date: e.date,
       image: e.image || null,
       description: e.description,
+      registrationUrl: e.registrationUrl || null,
     }));
     return NextResponse.json({events: result});
   } catch {
@@ -19,7 +20,7 @@ export async function GET(): Promise<NextResponse> {
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const {name, date, image, description} = await req.json();
+    const {name, date, image, description, registrationUrl} = await req.json();
 
     if (!name || !date || !description || !image) {
       return NextResponse.json({error: "Заполните обязательные поля"}, {status: 400});
@@ -31,6 +32,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       date: String(date),
       image: String(image),
       description: String(description),
+      ...(registrationUrl ? {registrationUrl: String(registrationUrl)} : {}),
     });
 
     return NextResponse.json({
@@ -41,6 +43,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         date,
         image: image || null,
         description,
+        registrationUrl: registrationUrl || null,
       },
     });
   } catch {

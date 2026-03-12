@@ -81,6 +81,8 @@ export const popupSettingsCollection = getCollection<{
   subtitle: string;
   description: string;
   buttonUrl?: string;
+  delaySeconds?: number;
+  repeatDelaySeconds?: number;
 }>("popupSettings");
 
 export const faqCollection = getCollection<{

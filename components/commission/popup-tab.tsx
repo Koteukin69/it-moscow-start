@@ -14,6 +14,8 @@ interface PopupSettings {
   subtitle: string;
   description: string;
   buttonUrl: string;
+  delaySeconds: number;
+  repeatDelaySeconds: number;
 }
 
 const DEFAULT_SETTINGS: PopupSettings = {
@@ -22,6 +24,8 @@ const DEFAULT_SETTINGS: PopupSettings = {
   subtitle: "специалисту приёмной комиссии",
   description: "Запишитесь на бесплатную консультацию\nи узнайте все о поступлении",
   buttonUrl: "#consultation",
+  delaySeconds: 10,
+  repeatDelaySeconds: 120,
 };
 
 export default function PopupTab() {
@@ -107,6 +111,32 @@ export default function PopupTab() {
               placeholder="#consultation"
               value={form.buttonUrl}
               onChange={e => setForm(f => ({...f, buttonUrl: e.target.value}))}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>
+              Задержка перед первым показом{" "}
+              <span className="text-muted-foreground font-normal text-xs">(секунды)</span>
+            </Label>
+            <Input
+              type="number"
+              min={1}
+              value={form.delaySeconds}
+              onChange={e => setForm(f => ({...f, delaySeconds: Number(e.target.value)}))}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>
+              Задержка повторного показа после закрытия{" "}
+              <span className="text-muted-foreground font-normal text-xs">(секунды)</span>
+            </Label>
+            <Input
+              type="number"
+              min={1}
+              value={form.repeatDelaySeconds}
+              onChange={e => setForm(f => ({...f, repeatDelaySeconds: Number(e.target.value)}))}
             />
           </div>
 

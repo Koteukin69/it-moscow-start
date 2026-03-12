@@ -90,3 +90,18 @@ export const faqCollection = getCollection<{
   question: string;
   answer: string;
 }>("faq");
+
+export const specialtiesCollection = getCollection<{
+  id: string;
+  code: string;
+  title: string;
+  description: string;
+  relevance: string;
+  curriculum: string[];
+  targetAudience: string[];
+  careers: string[];
+  image: string;
+  icons: string[];
+  orb: string;
+  budgetPlaces: number | null;
+}>("specialties");

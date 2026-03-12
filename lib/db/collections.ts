@@ -21,6 +21,7 @@ export const eventsCollection = getCollection<{
   date: string;
   image?: string;
   description: string;
+  registrationUrl?: string;
 }>("events");
 
 export const productsCollection = getCollection<{

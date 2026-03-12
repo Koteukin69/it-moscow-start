@@ -15,6 +15,7 @@ interface EventData {
   date: string;
   image: string | null;
   description: string;
+  registrationUrl: string | null;
 }
 
 export default function EventsCalendar() {

@@ -18,6 +18,7 @@ interface EventData {
   date: string;
   image: string | null;
   description: string;
+  registrationUrl: string | null;
 }
 
 export default function EventsTab() {
@@ -27,9 +28,9 @@ export default function EventsTab() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [form, setForm] = useState({name: "", date: "", image: "", description: ""});
+  const [form, setForm] = useState({name: "", date: "", image: "", description: "", registrationUrl: ""});
   const [editingEvent, setEditingEvent] = useState<EventData | null>(null);
-  const [editForm, setEditForm] = useState({name: "", date: "", image: "", description: ""});
+  const [editForm, setEditForm] = useState({name: "", date: "", image: "", description: "", registrationUrl: ""});
   const [saving, setSaving] = useState(false);
 
   const fetchEvents = async () => {
@@ -55,12 +56,12 @@ export default function EventsTab() {
       const res = await fetch("/api/commission/events", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(form),
+        body: JSON.stringify({name: form.name, date: form.date, image: form.image, description: form.description, registrationUrl: form.registrationUrl}),
       });
       if (res.ok) {
         const data = await res.json();
         setEvents(prev => [data.event, ...prev]);
-        setForm({name: "", date: "", image: "", description: ""});
+        setForm({name: "", date: "", image: "", description: "", registrationUrl: ""});
         setDialogOpen(false);
       }
     } catch { /* ignore */ }
@@ -68,7 +69,7 @@ export default function EventsTab() {
   };
 
   const openEdit = (event: EventData) => {
-    setEditForm({name: event.name, date: event.date, image: event.image || "", description: event.description});
+    setEditForm({name: event.name, date: event.date, image: event.image || "", description: event.description, registrationUrl: event.registrationUrl || ""});
     setEditingEvent(event);
   };
 
@@ -79,7 +80,7 @@ export default function EventsTab() {
       const res = await fetch(`/api/commission/events/${editingEvent._id}`, {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(editForm),
+        body: JSON.stringify({name: editForm.name, date: editForm.date, image: editForm.image, description: editForm.description, registrationUrl: editForm.registrationUrl}),
       });
       if (res.ok) {
         const data = await res.json();
@@ -170,6 +171,14 @@ export default function EventsTab() {
                     rows={3}
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label>Ссылка для регистрации</Label>
+                  <Input
+                    placeholder="https://..."
+                    value={form.registrationUrl}
+                    onChange={e => setForm(f => ({...f, registrationUrl: e.target.value}))}
+                  />
+                </div>
                 <ImageUpload value={form.image} onChange={url => setForm(f => ({...f, image: url}))}/>
               </div>
               <DialogFooter>
@@ -223,6 +232,14 @@ export default function EventsTab() {
                 <div className="space-y-2">
                   <Label>Описание</Label>
                   <Textarea value={editForm.description} onChange={e => setEditForm(f => ({...f, description: e.target.value}))} rows={3}/>
+                </div>
+                <div className="space-y-2">
+                  <Label>Ссылка для регистрации</Label>
+                  <Input
+                    placeholder="https://..."
+                    value={editForm.registrationUrl}
+                    onChange={e => setEditForm(f => ({...f, registrationUrl: e.target.value}))}
+                  />
                 </div>
                 <ImageUpload value={editForm.image} onChange={url => setEditForm(f => ({...f, image: url}))}/>
               </div>

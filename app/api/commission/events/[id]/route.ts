@@ -9,7 +9,7 @@ export async function PUT(req: NextRequest, {params}: {params: Promise<{id: stri
       return NextResponse.json({error: "Неверный ID"}, {status: 400});
     }
 
-    const {name, date, image, description} = await req.json();
+    const {name, date, image, description, registrationUrl} = await req.json();
     if (!name || !date || !description || !image) {
       return NextResponse.json({error: "Заполните обязательные поля"}, {status: 400});
     }
@@ -17,7 +17,7 @@ export async function PUT(req: NextRequest, {params}: {params: Promise<{id: stri
     const collection = await eventsCollection;
     const result = await collection.findOneAndUpdate(
       {_id: new ObjectId(id)},
-      {$set: {name: String(name), date: String(date), image: String(image), description: String(description)}},
+      {$set: {name: String(name), date: String(date), image: String(image), description: String(description), registrationUrl: registrationUrl ? String(registrationUrl) : null}},
       {returnDocument: "after"},
     );
 
@@ -27,7 +27,7 @@ export async function PUT(req: NextRequest, {params}: {params: Promise<{id: stri
 
     return NextResponse.json({
       success: true,
-      event: {_id: result._id.toString(), name: result.name, date: result.date, image: result.image || null, description: result.description},
+      event: {_id: result._id.toString(), name: result.name, date: result.date, image: result.image || null, description: result.description, registrationUrl: result.registrationUrl || null},
     });
   } catch {
     return NextResponse.json({error: "Ошибка сервера"}, {status: 500});

@@ -10,6 +10,7 @@ export async function GET(): Promise<NextResponse> {
       date: e.date,
       image: e.image || null,
       description: e.description,
+      registrationUrl: e.registrationUrl || null,
     }));
     return NextResponse.json({events: result});
   } catch {

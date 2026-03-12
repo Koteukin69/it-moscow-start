@@ -66,7 +66,7 @@ export default function EventDetailDialog({event, open, onOpenChange}: EventDeta
             </div>
             <DialogFooter>
               {event.registrationUrl && (
-                <Button asChild>
+                <Button asChild className={"mr-auto"}>
                   <a href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
                     Зарегистрироваться
                   </a>

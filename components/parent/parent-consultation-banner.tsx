@@ -9,7 +9,12 @@ interface PopupSettings {
   subtitle: string;
   description: string;
   buttonUrl: string;
+  delaySeconds: number;
+  repeatDelaySeconds: number;
 }
+
+const DEFAULT_DELAY_SECONDS = 10;
+const DEFAULT_REPEAT_DELAY_SECONDS = 120;
 
 const DEFAULT_SETTINGS: PopupSettings = {
   image: "/popup.png",
@@ -17,16 +22,13 @@ const DEFAULT_SETTINGS: PopupSettings = {
   subtitle: "специалисту приёмной комиссии",
   description: "Запишитесь на бесплатную консультацию\nи узнайте все о поступлении",
   buttonUrl: "#consultation",
+  delaySeconds: DEFAULT_DELAY_SECONDS,
+  repeatDelaySeconds: DEFAULT_REPEAT_DELAY_SECONDS,
 };
 
-function loadSettings(callback: () => void, onData?: (s: PopupSettings) => void) {
-  fetch(`/api/popup?_=${Date.now()}`, {cache: "no-store"})
-    .then(r => r.json())
-    .then(data => {
-      if (data.title) onData?.(data);
-    })
-    .catch(() => {})
-    .finally(callback);
+async function fetchPopupSettings(): Promise<PopupSettings> {
+  const r = await fetch(`/api/popup?_=${Date.now()}`, {cache: "no-store"});
+  return r.json();
 }
 
 export default function ParentConsultationBanner() {
@@ -35,18 +37,27 @@ export default function ParentConsultationBanner() {
 
   function close() {
     setVisible(false);
-    setTimeout(() => {
-      loadSettings(() => setVisible(true), setSettings);
-    }, 2 * 60 * 1000);
+    fetchPopupSettings()
+      .then(data => {
+        if (data.title) setSettings(data);
+        setTimeout(() => setVisible(true), (data.repeatDelaySeconds ?? DEFAULT_REPEAT_DELAY_SECONDS) * 1000);
+      })
+      .catch(() => {
+        setTimeout(() => setVisible(true), DEFAULT_REPEAT_DELAY_SECONDS * 1000);
+      });
   }
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
 
-    loadSettings(
-      () => { timer = setTimeout(() => setVisible(true), 10 * 1000); },
-      setSettings,
-    );
+    fetchPopupSettings()
+      .then(data => {
+        if (data.title) setSettings(data);
+        timer = setTimeout(() => setVisible(true), (data.delaySeconds ?? DEFAULT_DELAY_SECONDS) * 1000);
+      })
+      .catch(() => {
+        timer = setTimeout(() => setVisible(true), DEFAULT_DELAY_SECONDS * 1000);
+      });
 
     return () => clearTimeout(timer);
   }, []);

@@ -27,24 +27,22 @@ interface MonthCalendarProps {
 
 const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
-function getMultiEventStyle(events: EventData[]): React.CSSProperties {
+function getEventImageLayers(events: EventData[]): {src: string; mask: string}[] {
   const images = events.map(e => e.image).filter(Boolean).slice(0, 3) as string[];
+  if (images.length === 0) return [];
 
-  if (images.length === 0) {
-    return {};
+  if (images.length === 2) {
+    return [
+      {src: images[0], mask: "linear-gradient(to right, black 30%, transparent 70%)"},
+      {src: images[1], mask: "linear-gradient(to left, black 30%, transparent 70%)"},
+    ];
   }
 
-  const count = images.length;
-  const width = 100 / count;
-
-  return {
-    backgroundImage: images.map(src => `url(${src})`).join(", "),
-    backgroundSize: images.map(() => `${width}% 100%`).join(", "),
-    backgroundPosition: images.map((_, i) =>
-      count === 1 ? "0% 0%" : `${(i / (count - 1)) * 100}% 0%`
-    ).join(", "),
-    backgroundRepeat: "no-repeat",
-  };
+  return [
+    {src: images[0], mask: "linear-gradient(to right, black 10%, transparent 50%)"},
+    {src: images[1], mask: "linear-gradient(to right, transparent 10%, black 33%, black 66%, transparent 90%)"},
+    {src: images[2], mask: "linear-gradient(to left, black 10%, transparent 50%)"},
+  ];
 }
 
 export default function MonthCalendar({events, onDayClick}: MonthCalendarProps) {
@@ -137,14 +135,25 @@ export default function MonthCalendar({events, onDayClick}: MonthCalendarProps) 
               style={
                 singleImage
                   ? {backgroundImage: `url(${dayEvents[0].image})`, backgroundSize: "cover", backgroundPosition: "center"}
-                  : multiEvents
-                    ? getMultiEventStyle(dayEvents)
-                    : undefined
+                  : undefined
               }
               onClick={() => hasEvents && onDayClick(day, dayEvents)}
               disabled={!hasEvents || !inMonth}
               aria-label={`${format(day, "d MMMM", {locale: ru})}${hasEvents ? `, ${dayEvents.length} мероприятий` : ""}`}
             >
+              {multiEvents && getEventImageLayers(dayEvents).map(({src, mask}, i) => (
+                <div
+                  key={i}
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: `url(${src})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    maskImage: mask,
+                    WebkitMaskImage: mask,
+                  }}
+                />
+              ))}
               {hasEvents && (
                 <div className="absolute inset-0 bg-black/30"/>
               )}

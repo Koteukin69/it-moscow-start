@@ -8,12 +8,12 @@ export default function FAQ({questions}: {questions: {question: string, answer: 
   const [answer, setAnswer] = useState<string>("Выбери вопрос — я отвечу!");
   const [intervalValue, setIntervalValue] = useState<NodeJS.Timeout>();
 
-  return <div className={"flex flex-col md:flex-row justify-center min-h-dvh items-center"}>
-    <div className={"flex w-full flex-col justify-center items-center"}>
+  return <div className={"flex flex-col md:flex-row justify-center min-h-dvh"}>
+    <div className={"flex w-full flex-col justify-center items-center h-dvh"}>
       <div className={"w-full max-w-100 aspect-square"}>
         <Orb/>
       </div>
-      <div className={"text-center min-h-30 max-w-sm font-semibold"}>
+      <div className={"text-justify min-h-30 max-w-sm font-semibold"}>
         {answer.split("\n").map((line, i) => (
           <p key={i}>{line}</p>
         ))}

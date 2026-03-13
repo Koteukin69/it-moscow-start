@@ -17,6 +17,11 @@ export interface QuizResult {
   completedAt: string;
 }
 
+export interface BudgetPlaceEntry {
+  label: string;
+  count: number;
+}
+
 export interface SpecialtyData {
   id: string;
   code: string;
@@ -29,7 +34,7 @@ export interface SpecialtyData {
   image: string;
   icons: string[];
   orb: "cyan" | "aurora" | "sunset" | "neon";
-  budgetPlaces: number | null;
+  budgetPlaces: BudgetPlaceEntry[] | null;
 }
 
 export interface EventItem {

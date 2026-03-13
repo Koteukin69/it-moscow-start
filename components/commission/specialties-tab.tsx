@@ -7,10 +7,10 @@ import {Textarea} from "@/components/ui/textarea";
 import {Label} from "@/components/ui/label";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose} from "@/components/ui/dialog";
-import {RefreshCw, Loader2, BookOpen, Pencil} from "lucide-react";
+import {RefreshCw, Loader2, BookOpen, Pencil, Plus, Minus} from "lucide-react";
 import DataTable, {type Column} from "./data-table";
 import ImageUpload from "./image-upload";
-import type {SpecialtyData} from "@/lib/types";
+import type {SpecialtyData, BudgetPlaceEntry} from "@/lib/types";
 
 const ORB_OPTIONS: {value: SpecialtyData["orb"]; label: string}[] = [
   {value: "cyan", label: "Cyan"},
@@ -18,6 +18,8 @@ const ORB_OPTIONS: {value: SpecialtyData["orb"]; label: string}[] = [
   {value: "sunset", label: "Sunset"},
   {value: "neon", label: "Neon"},
 ];
+
+type BudgetPlaceField = {label: string; count: string};
 
 type EditForm = {
   code: string;
@@ -30,7 +32,7 @@ type EditForm = {
   image: string;
   icons: string;
   orb: SpecialtyData["orb"];
-  budgetPlaces: string;
+  budgetPlaces: BudgetPlaceField[];
 };
 
 function specialtyToForm(s: SpecialtyData): EditForm {
@@ -45,11 +47,16 @@ function specialtyToForm(s: SpecialtyData): EditForm {
     image: s.image,
     icons: s.icons.join(", "),
     orb: s.orb,
-    budgetPlaces: s.budgetPlaces !== null ? String(s.budgetPlaces) : "",
+    budgetPlaces: s.budgetPlaces !== null
+      ? s.budgetPlaces.map(e => ({label: e.label, count: String(e.count)}))
+      : [],
   };
 }
 
 function formToPayload(id: string, f: EditForm) {
+  const budgetPlaces: BudgetPlaceEntry[] = f.budgetPlaces
+    .filter(e => e.count.trim() !== "")
+    .map(e => ({label: e.label.trim(), count: Number(e.count) || 0}));
   return {
     id,
     code: f.code,
@@ -62,15 +69,72 @@ function formToPayload(id: string, f: EditForm) {
     image: f.image,
     icons: f.icons.split(",").map(l => l.trim()).filter(Boolean),
     orb: f.orb,
-    budgetPlaces: f.budgetPlaces !== "" ? Number(f.budgetPlaces) : null,
+    budgetPlaces: budgetPlaces.length > 0 ? budgetPlaces : null,
   };
 }
 
 const EMPTY_FORM: EditForm = {
   code: "", title: "", description: "", relevance: "",
   curriculum: "", targetAudience: "", careers: "",
-  image: "", icons: "", orb: "cyan", budgetPlaces: "",
+  image: "", icons: "", orb: "cyan", budgetPlaces: [],
 };
+
+function BudgetPlacesEditor({fields, onChange}: {
+  fields: BudgetPlaceField[];
+  onChange: (fields: BudgetPlaceField[]) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <Label>Бюджетных мест</Label>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          type="button"
+          onClick={() => onChange([...fields, {label: "", count: ""}])}
+        >
+          <Plus size={14}/>
+        </Button>
+      </div>
+      {fields.length === 0 && (
+        <p className="text-xs text-muted-foreground">Не указано</p>
+      )}
+      {fields.map((field, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <Input
+            placeholder="Тип (напр. 11 класс)"
+            value={field.label}
+            onChange={e => {
+              const next = [...fields];
+              next[i] = {...next[i], label: e.target.value};
+              onChange(next);
+            }}
+          />
+          <Input
+            type="number"
+            min="0"
+            placeholder="0"
+            value={field.count}
+            onChange={e => {
+              const next = [...fields];
+              next[i] = {...next[i], count: e.target.value};
+              onChange(next);
+            }}
+            className="w-24 shrink-0"
+          />
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            type="button"
+            onClick={() => onChange(fields.filter((_, j) => j !== i))}
+          >
+            <Minus size={14}/>
+          </Button>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function SpecialtiesTab() {
   const [specialties, setSpecialties] = useState<SpecialtyData[]>([]);
@@ -132,7 +196,13 @@ export default function SpecialtiesTab() {
     },
     {
       header: "Бюдж. мест",
-      cell: (s) => <span className="text-muted-foreground">{s.budgetPlaces ?? "—"}</span>,
+      cell: (s) => (
+        <span className="text-muted-foreground">
+          {s.budgetPlaces && s.budgetPlaces.length > 0
+            ? s.budgetPlaces.map(e => e.label ? `${e.label}: ${e.count}` : String(e.count)).join(", ")
+            : "—"}
+        </span>
+      ),
     },
     {
       header: "Действия",
@@ -181,25 +251,23 @@ export default function SpecialtiesTab() {
                     <Input value={editForm.code} onChange={set("code")} className="font-mono"/>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Бюджетных мест</Label>
-                    <Input type="number" min={0} placeholder="Не указано" value={editForm.budgetPlaces} onChange={set("budgetPlaces")}/>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Цвет орба</Label>
-                    <Select value={editForm.orb} onValueChange={(v) => setEditForm(f => ({...f, orb: v as SpecialtyData["orb"]}))}>
-                      <SelectTrigger>
-                        <SelectValue/>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {ORB_OPTIONS.map(o => (
-                          <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="space-y-2">
+                  <Label>Цвет орба</Label>
+                  <Select value={editForm.orb} onValueChange={(v) => setEditForm(f => ({...f, orb: v as SpecialtyData["orb"]}))}>
+                    <SelectTrigger>
+                      <SelectValue/>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ORB_OPTIONS.map(o => (
+                        <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
+                <BudgetPlacesEditor
+                  fields={editForm.budgetPlaces}
+                  onChange={fields => setEditForm(f => ({...f, budgetPlaces: fields}))}
+                />
                 <div className="space-y-2">
                   <Label>Описание</Label>
                   <Textarea value={editForm.description} onChange={set("description")} rows={2}/>

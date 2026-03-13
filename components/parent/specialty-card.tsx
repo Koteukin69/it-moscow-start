@@ -1,7 +1,7 @@
 "use client";
 
 import {useState} from "react";
-import {X, Users, Target, Lightbulb, Heart, Star, Rocket, BookOpen, Code2, Terminal, Layers, Cpu, Wrench, type LucideIcon} from "lucide-react";
+import {X, Users, Target, Lightbulb, Heart, Star, Rocket, BookOpen, Code2, Terminal, Layers, Cpu, Wrench, GraduationCap, type LucideIcon} from "lucide-react";
 
 const audienceIcons: LucideIcon[] = [Users, Target, Lightbulb, Heart, Star, Rocket];
 const curriculumIcons: LucideIcon[] = [BookOpen, Code2, Terminal, Layers, Cpu, Wrench];
@@ -61,11 +61,6 @@ export default function SpecialtyCard({specialtyData}: {specialtyData: Specialty
               <Badge variant="outline" className="mb-2 border-white/25 font-mono text-xs text-white/60">
                 {specialtyData.code}
               </Badge>
-              {specialtyData.budgetPlaces !== null && (
-                <Badge variant="secondary" className="mb-2 ml-2 font-normal text-xs">
-                  {specialtyData.budgetPlaces} бюджетных мест
-                </Badge>
-              )}
               <DialogTitle className="text-xl font-bold leading-snug text-white">
                 {specialtyData.title}
               </DialogTitle>
@@ -81,6 +76,22 @@ export default function SpecialtyCard({specialtyData}: {specialtyData: Specialty
 
               <Separator />
 
+              {specialtyData.budgetPlaces !== null && specialtyData.budgetPlaces.length > 0 && (
+                <>
+                  <div className="flex flex-col gap-2.5 pb-1">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Бюджетных мест</span>
+                    <ul className="flex flex-col gap-2">
+                      {specialtyData.budgetPlaces.map((entry, i) => (
+                        <li key={i} className="flex items-center gap-2 text-sm">
+                          <GraduationCap className="mt-0.5 size-3.5 shrink-0 text-primary" />
+                          {entry.label ? `${entry.label}: ${entry.count}` : `${entry.count} мест`}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              )}
+              <Separator/>
               <div className="grid grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2.5">
                   <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Для кого</span>

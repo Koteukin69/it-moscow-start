@@ -1,5 +1,5 @@
 import {specialtyDefaults} from "@/lib/specialty-defaults";
-import type {SpecialtyData} from "@/lib/types";
+import type {SpecialtyData, BudgetPlaceEntry} from "@/lib/types";
 
 type DbSpecialty = {
   id: string;
@@ -13,8 +13,15 @@ type DbSpecialty = {
   image: string;
   icons: string[];
   orb: string;
-  budgetPlaces: number | null;
+  budgetPlaces: number | BudgetPlaceEntry[] | null;
 };
+
+function normalizeBudgetPlaces(raw: number | BudgetPlaceEntry[] | null): BudgetPlaceEntry[] | null {
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw === "number") return [{label: "", count: raw}];
+  if (Array.isArray(raw) && raw.length > 0) return raw;
+  return null;
+}
 
 export function mergeWithDefaults(dbDocs: DbSpecialty[]): SpecialtyData[] {
   const dbMap = new Map(dbDocs.map(d => [d.id, d]));
@@ -33,7 +40,7 @@ export function mergeWithDefaults(dbDocs: DbSpecialty[]): SpecialtyData[] {
       image: db.image,
       icons: db.icons,
       orb: db.orb as SpecialtyData["orb"],
-      budgetPlaces: db.budgetPlaces,
+      budgetPlaces: normalizeBudgetPlaces(db.budgetPlaces),
     };
   });
 }

@@ -1,7 +1,7 @@
 import {NextRequest, NextResponse} from "next/server";
 import {specialtiesCollection} from "@/lib/db/collections";
 import {specialtyDefaults} from "@/lib/specialty-defaults";
-import type {SpecialtyData} from "@/lib/types";
+import type {SpecialtyData, BudgetPlaceEntry} from "@/lib/types";
 
 const VALID_ORBS = new Set(["cyan", "aurora", "sunset", "neon"]);
 const KNOWN_IDS = new Set(specialtyDefaults.map(s => s.id));
@@ -34,7 +34,12 @@ export async function PUT(req: NextRequest, {params}: {params: Promise<{id: stri
       image: String(image),
       icons: Array.isArray(icons) ? icons.map(String) : [],
       orb: safeOrb,
-      budgetPlaces: budgetPlaces !== null && budgetPlaces !== undefined && budgetPlaces !== "" ? Number(budgetPlaces) : null,
+      budgetPlaces: Array.isArray(budgetPlaces) && budgetPlaces.length > 0
+        ? budgetPlaces.map((e: {label: unknown; count: unknown}) => ({
+            label: String(e.label ?? ""),
+            count: Number(e.count) || 0,
+          } satisfies BudgetPlaceEntry))
+        : null,
     };
 
     const collection = await specialtiesCollection;

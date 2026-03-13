@@ -103,5 +103,5 @@ export const specialtiesCollection = getCollection<{
   image: string;
   icons: string[];
   orb: string;
-  budgetPlaces: number | null;
+  budgetPlaces: number | Array<{label: string; count: number}> | null;
 }>("specialties");

@@ -9,6 +9,7 @@ import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogCl
 import {Search, ArrowUpDown, ArrowUp, ArrowDown, RefreshCw, Loader2, Users, Pencil} from "lucide-react";
 import {formatDate} from "@/lib/utils";
 import DataTable, {type Column} from "./data-table";
+import DeleteButton from "@/components/commission/delete-button";
 
 interface UserData {
   _id: string;
@@ -36,6 +37,7 @@ export default function UsersTab() {
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
   const [editForm, setEditForm] = useState({name: "", coins: ""});
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -58,7 +60,7 @@ export default function UsersTab() {
     if (!q) return users;
     return users.filter(u =>
       u.name.toLowerCase().includes(q) ||
-      u.phones.some(p => p.includes(q)) ||
+      u.phones.some(p => p?.includes(q)) ||
       (u.quiz?.top?.[0]?.toLowerCase().includes(q))
     );
   }, [users, search]);
@@ -80,6 +82,17 @@ export default function UsersTab() {
       }
     });
   }, [filtered, sortField, sortDir]);
+
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/commission/users/${id}`, {method: "DELETE"});
+      if (res.ok) {
+        setUsers(prev => prev.filter(u => u._id !== id));
+      }
+    } catch { /* ignore */ }
+    setDeletingId(null);
+  };
 
   const openEdit = (u: UserData) => {
     setEditForm({name: u.name, coins: u.coins.toString()});
@@ -190,9 +203,12 @@ export default function UsersTab() {
       header: "Действия",
       className: "w-16",
       cell: (u) => (
-        <Button variant="ghost" size="icon-sm" onClick={() => openEdit(u)} title="Редактировать">
-          <Pencil size={14}/>
-        </Button>
+        <>
+          <Button variant="ghost" size="icon-sm" onClick={() => openEdit(u)} title="Редактировать">
+            <Pencil size={14}/>
+          </Button>
+          <DeleteButton loading={deletingId === u._id} onClick={() => handleDelete(u._id)}/>
+        </>
       ),
     },
   ];

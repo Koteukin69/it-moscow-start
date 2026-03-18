@@ -1,8 +1,14 @@
 import {NextRequest, NextResponse} from "next/server";
 import {verifyToken} from "@/lib/auth";
 
+const INTERNAL_SECRET = process.env.JWT_SECRET || 'dev-secret-key-for-local-development-only';
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (pathname === '/api/auth/user-exists') {
+    return NextResponse.next();
+  }
 
   const authToken = request.cookies.get('auth-token')?.value;
   const commissionToken = request.cookies.get('commission-token')?.value;
@@ -23,6 +29,17 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/profile") ||
     pathname.startsWith("/quiz") ||
     pathname.startsWith("/game");
+
+  if (isApplicantRoute && applicant) {
+    const existsRes = await fetch(
+      new URL(`/api/auth/user-exists?id=${applicant.userId}`, request.url),
+      {headers: {"x-internal": INTERNAL_SECRET}},
+    );
+    if (existsRes.ok) {
+      const {exists} = await existsRes.json() as {exists: boolean};
+      if (!exists) return deleteAndRedirect('auth-token');
+    }
+  }
 
   if (isApplicantRoute && !applicant)
     return NextResponse.redirect(new URL('/applicant', request.url));

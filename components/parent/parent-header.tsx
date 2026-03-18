@@ -12,6 +12,7 @@ const navLinks = [
   {label: "О колледже", href: "#video"},
   {label: "Курсы", href: "#courses"},
   {label: "Контакты", href: "#footer"},
+  {label: "Мероприятия", href: "/parent/events"}
 ];
 
 export default function ParentHeader() {

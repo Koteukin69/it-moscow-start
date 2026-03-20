@@ -18,6 +18,7 @@ export async function GET(): Promise<NextResponse> {
         specialty: c.specialty,
         grade: c.grade,
         flames: c.flames,
+        sessionId: c.sessionId ?? null,
         createdAt: c.createdAt instanceof Date ? c.createdAt.toISOString() : c.createdAt,
       })),
     });

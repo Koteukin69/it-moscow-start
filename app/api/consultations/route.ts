@@ -1,5 +1,6 @@
 import {NextRequest, NextResponse} from "next/server";
 import {consultationsCollection} from "@/lib/db/collections";
+import {verifyParentToken} from "@/lib/parent-token";
 
 const phoneRegex = /^(\+7|8|7)\d{10}$/;
 
@@ -11,6 +12,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const childName = body.childName?.trim() ?? "";
     const specialty = body.specialty?.trim() ?? "";
     const grade = body.grade?.trim() ?? "";
+    const sessionToken: string = body.sessionToken ?? "";
 
     if (!name) {
       return NextResponse.json({error: "Введите ФИО"}, {status: 400});
@@ -28,6 +30,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({error: "Укажите класс"}, {status: 400});
     }
 
+    const tokenPayload = sessionToken ? await verifyParentToken(sessionToken) : null;
+    if (!tokenPayload) {
+      return NextResponse.json({error: "Недействительная сессия"}, {status: 401});
+    }
+
     const collection = await consultationsCollection;
     await collection.insertOne({
       name,
@@ -36,6 +43,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       specialty,
       grade,
       flames: 3,
+      sessionId: tokenPayload.sessionId,
       createdAt: new Date(),
     });
 

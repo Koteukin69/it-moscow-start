@@ -8,6 +8,7 @@ import {Button} from "@/components/ui/button";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {CheckCircle, Loader2, Phone, User, Baby} from "lucide-react";
 import {specialties} from "@/lib/guide-data";
+import {useParentToken} from "@/components/parent/parent-token-provider";
 
 type FormState = "idle" | "loading" | "success" | "error";
 
@@ -34,6 +35,7 @@ function formatPhone(raw: string): string {
 const GRADES = ["8", "9", "10", "11", "Другой"];
 
 export default function ParentConsultation() {
+  const {token, loading} = useParentToken();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [childName, setChildName] = useState("");
@@ -61,7 +63,7 @@ export default function ParentConsultation() {
       const res = await fetch("/api/consultations", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({name: name.trim(), phone: normalizedPhone, childName: childName.trim(), specialty, grade}),
+        body: JSON.stringify({name: name.trim(), phone: normalizedPhone, childName: childName.trim(), specialty, grade, sessionToken: token}),
       });
 
       const data = await res.json();
@@ -77,6 +79,8 @@ export default function ParentConsultation() {
       setFormState("error");
     }
   };
+
+  if (loading || !token) return null;
 
   if (formState === "success") {
     return (

@@ -2,7 +2,7 @@
 
 import {useEffect, useState, useCallback} from "react";
 import {Button} from "@/components/ui/button";
-import {RefreshCw, Loader2, PhoneCall, ThumbsUp, ThumbsDown, MessageSquareOff} from "lucide-react";
+import {RefreshCw, Loader2, PhoneCall, ThumbsUp, ThumbsDown, MessageSquareOff, Trash2} from "lucide-react";
 import {formatDate} from "@/lib/utils";
 import DataTable, {type Column} from "./data-table";
 import type {ConsultationItem} from "@/lib/types";
@@ -19,10 +19,36 @@ function FlameIndicator({count}: {count: number}) {
   );
 }
 
+interface GroupedConsultations {
+  grouped: Map<string, ConsultationItem[]>;
+  ungrouped: ConsultationItem[];
+}
+
+function groupConsultations(consultations: ConsultationItem[]): GroupedConsultations {
+  const grouped = new Map<string, ConsultationItem[]>();
+  const ungrouped: ConsultationItem[] = [];
+
+  for (const c of consultations) {
+    if (c.sessionId) {
+      const existing = grouped.get(c.sessionId);
+      if (existing) {
+        existing.push(c);
+      } else {
+        grouped.set(c.sessionId, [c]);
+      }
+    } else {
+      ungrouped.push(c);
+    }
+  }
+
+  return {grouped, ungrouped};
+}
+
 export default function ConsultationsTab() {
   const [consultations, setConsultations] = useState<ConsultationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionId, setActionId] = useState<string | null>(null);
+  const [deletingSession, setDeletingSession] = useState<string | null>(null);
 
   const fetchConsultations = useCallback(async () => {
     setLoading(true);
@@ -62,6 +88,19 @@ export default function ConsultationsTab() {
       }
     } catch { /* ignore */ }
     setActionId(null);
+  };
+
+  const handleDeleteSession = async (sessionId: string) => {
+    setDeletingSession(sessionId);
+    try {
+      const res = await fetch(`/api/commission/consultations/session/${encodeURIComponent(sessionId)}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setConsultations(prev => prev.filter(c => c.sessionId !== sessionId));
+      }
+    } catch { /* ignore */ }
+    setDeletingSession(null);
   };
 
   const columns: Column<ConsultationItem>[] = [
@@ -149,6 +188,8 @@ export default function ConsultationsTab() {
     },
   ];
 
+  const {grouped, ungrouped} = groupConsultations(consultations);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -158,14 +199,66 @@ export default function ConsultationsTab() {
         </Button>
       </div>
 
-      <DataTable
-        data={consultations}
-        columns={columns}
-        keyField="_id"
-        loading={loading}
-        emptyIcon={<MessageSquareOff size={24}/>}
-        emptyMessage="Нет активных заявок"
-      />
+      {grouped.size === 0 && ungrouped.length === 0 && (
+        <DataTable
+          data={[]}
+          columns={columns}
+          keyField="_id"
+          loading={loading}
+          emptyIcon={<MessageSquareOff size={24}/>}
+          emptyMessage="Нет активных заявок"
+        />
+      )}
+
+      {Array.from(grouped.entries()).map(([sessionId, items]) => (
+        <div key={sessionId} className="rounded-lg border">
+          <div className="flex items-center justify-between px-4 py-2.5 border-b bg-muted/40">
+            <span className="text-sm text-muted-foreground font-mono">
+              Сессия: {sessionId.slice(0, 8)}…
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-destructive hover:text-destructive gap-1.5"
+              disabled={deletingSession === sessionId}
+              onClick={() => handleDeleteSession(sessionId)}
+            >
+              {deletingSession === sessionId ? (
+                <Loader2 size={14} className="animate-spin"/>
+              ) : (
+                <Trash2 size={14}/>
+              )}
+              Удалить все
+            </Button>
+          </div>
+          <DataTable
+            data={items}
+            columns={columns}
+            keyField="_id"
+            loading={false}
+            emptyIcon={<MessageSquareOff size={24}/>}
+            emptyMessage=""
+          />
+        </div>
+      ))}
+
+      {ungrouped.length > 0 && (
+        <div className="rounded-lg border">
+          {grouped.size > 0 && (
+            <div className="px-4 py-2.5 border-b bg-muted/40">
+              <span className="text-sm text-muted-foreground">Без сессии</span>
+            </div>
+          )}
+          <DataTable
+            data={ungrouped}
+            columns={columns}
+            keyField="_id"
+            loading={loading && ungrouped.length === 0}
+            emptyIcon={<MessageSquareOff size={24}/>}
+            emptyMessage="Нет активных заявок"
+          />
+        </div>
+      )}
 
       <p className="text-sm text-muted-foreground">
         Активных заявок: {consultations.length}

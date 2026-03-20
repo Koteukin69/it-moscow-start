@@ -14,8 +14,12 @@ import ParentConsultation from "@/components/parent/parent-consultation";
 import ParentConsultationBanner from "@/components/parent/parent-consultation-banner";
 import ParentNews from "@/components/parent/parent-news";
 import ParentFooter from "@/components/parent/parent-footer";
+import ParentTokenProvider from "@/components/parent/parent-token-provider";
+import {getFaq} from "@/lib/faq";
 
-export default function Parent() {
+export default async function Parent() {
+  const faqItems = await getFaq();
+
   return (
     <div className="min-h-dvh">
       <ParentHeader/>
@@ -27,8 +31,10 @@ export default function Parent() {
       <ParentEnrollment/>
       <ParentEarnings/>
       <ParentCourses/>
-      <ParentFaq/>
-      <ParentConsultation/>
+      <ParentTokenProvider>
+        <ParentFaq faqItems={faqItems}/>
+        <ParentConsultation/>
+      </ParentTokenProvider>
       <ParentNews/>
       <ParentFooter/>
       <ParentConsultationBanner/>

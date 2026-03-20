@@ -4,7 +4,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { Maximize, Minimize, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export default function Game({ userId, isMobile }: { userId: string; isMobile: boolean }) {
+export default function Game({ userId, isMobile, ycBucketName }: { userId: string; isMobile: boolean; ycBucketName: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -57,7 +57,7 @@ export default function Game({ userId, isMobile }: { userId: string; isMobile: b
         <ArrowLeft size={22} />
       </Link>
       <iframe
-        src={`/api/game-assets/index.html?user=${userId}`}
+        src={`https://storage.yandexcloud.net/${ycBucketName}/index.html?user=${userId}`}
         className="w-full h-full border-none block bg-transparent"
       />
     </div>

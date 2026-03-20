@@ -10,10 +10,13 @@ export default async function GamePage() {
 
   if (!userId) redirect("/applicant");
 
+  const bucketName = process.env.YC_BUCKET_NAME;
+  if (!bucketName) throw new Error("YC_BUCKET_NAME is not set");
+
   const ua = h.get("user-agent") ?? "";
   const isMobile = MOBILE_UA.test(ua);
 
   return (<div className={"bg-background"}>
-    <Game userId={userId} isMobile={isMobile} />
+    <Game userId={userId} isMobile={isMobile} ycBucketName={bucketName} />
   </div>);
 }

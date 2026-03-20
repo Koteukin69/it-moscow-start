@@ -31,14 +31,8 @@ export async function GET(
     return new NextResponse("Forbidden", { status: 403 });
   }
 
-  if (!existsSync(filePath)) {
-    return new NextResponse("Not Found", { status: 404 });
-  }
-
-  let buffer = await readFile(filePath);
-  const headers: Record<string, string> = {};
-
   const ext = extname(filePath).toLowerCase();
+  const headers: Record<string, string> = {};
 
   if (ext === ".br") {
     headers["Content-Encoding"] = "br";
@@ -48,12 +42,21 @@ export async function GET(
     headers["Content-Type"] = MIME_TYPES[ext] || "application/octet-stream";
   }
 
-  if (ext === ".html") {
+  if (!existsSync(filePath)) {
     const bucketName = process.env.YC_BUCKET_NAME;
     if (!bucketName) throw new Error("YC_BUCKET_NAME is not set");
-    const html = buffer.toString("utf-8").replaceAll("YOUR_BUCKET_NAME", bucketName);
-    buffer = Buffer.from(html, "utf-8");
+
+    const ycUrl = `https://storage.yandexcloud.net/${bucketName}/${pathSegments.join("/")}`;
+    const ycResponse = await fetch(ycUrl);
+
+    if (!ycResponse.ok) {
+      return new NextResponse("Not Found", { status: 404 });
+    }
+
+    const buffer = Buffer.from(await ycResponse.arrayBuffer());
+    return new NextResponse(buffer, { headers });
   }
 
+  const buffer = await readFile(filePath);
   return new NextResponse(buffer, { headers });
 }

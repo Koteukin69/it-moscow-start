@@ -48,7 +48,7 @@ function AuthCard({onSkip}: { onSkip: () => void }) {
 
 function SocialLinks() {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border bg-card p-4 flex-1">
+    <div className="flex flex-col gap-3 rounded-2xl border bg-card p-4 max-w-sm">
       <div className="flex flex-col gap-1">
         <p className="font-semibold leading-snug">Поможем определиться с направлением</p>
         <p className="text-xs text-muted-foreground">
@@ -81,7 +81,7 @@ function SocialLinks() {
 
 function ChatConsultationRow() {
   return (
-    <div className="flex flex-col md:flex-row gap-3">
+    <div className="flex flex-row flex-wrap gap-3">
       <SocialLinks/>
       <ConsultationBannerCard/>
     </div>

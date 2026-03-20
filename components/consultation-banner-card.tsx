@@ -3,6 +3,7 @@
 import {useState, useEffect} from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PopupSettings {
   image: string;
@@ -12,16 +13,8 @@ interface PopupSettings {
   buttonUrl: string;
 }
 
-const DEFAULT_SETTINGS: PopupSettings = {
-  image: "/popup.png",
-  title: "Задай вопрос",
-  subtitle: "специалисту приёмной комиссии",
-  description: "Запишитесь на бесплатную консультацию\nи узнайте все о поступлении",
-  buttonUrl: "#consultation",
-};
-
 export default function ConsultationBannerCard() {
-  const [settings, setSettings] = useState<PopupSettings>(DEFAULT_SETTINGS);
+  const [settings, setSettings] = useState<PopupSettings>();
 
   useEffect(() => {
     fetch(`/api/popup?_=${Date.now()}`, {cache: "no-store"})
@@ -34,12 +27,11 @@ export default function ConsultationBannerCard() {
       });
   }, []);
 
-  return (
-    <div className="relative rounded-2xl overflow-hidden bg-card border md:min-h-[180px] flex-1">
+  return settings ? (
+    <div className="relative rounded-2xl overflow-hidden bg-card border md:min-h-[180px] max-w-md w-full">
 
-      {/* Desktop: image absolutely on right side */}
       <div
-        className="absolute top-0 right-0 bottom-0 hidden md:block"
+        className="absolute top-0 right-0 bottom-0"
         style={{left: "55%", zIndex: 1}}
       >
         <Image
@@ -50,26 +42,15 @@ export default function ConsultationBannerCard() {
         />
       </div>
 
-      {/* Mobile: image on top, square */}
-      <div className="block md:hidden w-full aspect-square relative">
-        <Image
-          src={settings.image}
-          alt="Специалист приёмной комиссии"
-          fill
-          className="object-cover object-top"
-        />
-      </div>
-
-      {/* Content */}
       <div className="relative flex md:min-h-[180px]" style={{zIndex: 10}}>
-        <div className="flex flex-col gap-3 px-4 py-4 w-full md:w-[55%] bg-card justify-between">
+        <div className="flex flex-col gap-2 p-4 w-[55%] bg-card justify-between">
 
           <div className="flex flex-col gap-1">
-            <h3 className="text-sm font-extrabold text-white leading-tight">
+            <p className="font-semibold leading-snug">
               {settings.title}
-            </h3>
+            </p>
             {settings.subtitle && (
-              <p className="text-xs font-semibold text-white/90">
+              <p className="text-xs text-muted-foreground">
                 {settings.subtitle}
               </p>
             )}
@@ -90,5 +71,29 @@ export default function ConsultationBannerCard() {
       </div>
 
     </div>
-  );
+  ) : <div className="relative rounded-2xl overflow-hidden bg-card border md:min-h-[180px] max-w-md w-full">
+    <div
+      className="absolute top-0 right-0 bottom-0"
+      style={{left: "55%", zIndex: 1}}
+    >
+      <Skeleton className={"w-full h-full rounded-sm"} />
+    </div>
+
+    <div className="relative flex md:min-h-[180px]" style={{zIndex: 10}}>
+      <div className="flex flex-col gap-2 p-4 w-[55%] bg-card justify-between">
+
+        <div className="flex flex-col gap-1">
+          <Skeleton className={"w-[40%] h-6 rounded-full"} />
+          <Skeleton className={"w-full h-4 rounded-full"} />
+        </div>
+
+        <Skeleton className={"w-full h-8 rounded-full"} />
+
+        <Skeleton
+          className="h-8 w-24 rounded-full"
+        />
+
+      </div>
+    </div>
+  </div>;
 }

@@ -6,6 +6,7 @@ import Nav from "@/components/nav";
 import OrbAnimation from "@/components/orb";
 import Chat, {ChatStep} from "@/components/chat";
 import ActionButtons from "@/components/action_buttons";
+import ConsultationBannerCard from "@/components/consultation-banner-card";
 import Link from "next/link";
 import {Button} from "@/components/ui/button";
 import {Send} from "lucide-react";
@@ -47,7 +48,7 @@ function AuthCard({onSkip}: { onSkip: () => void }) {
 
 function SocialLinks() {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border bg-card p-4 max-w-sm">
+    <div className="flex flex-col gap-3 rounded-2xl border bg-card p-4 flex-1">
       <div className="flex flex-col gap-1">
         <p className="font-semibold leading-snug">Поможем определиться с направлением</p>
         <p className="text-xs text-muted-foreground">
@@ -78,6 +79,15 @@ function SocialLinks() {
   );
 }
 
+function ChatConsultationRow() {
+  return (
+    <div className="flex flex-col md:flex-row gap-3">
+      <SocialLinks/>
+      <ConsultationBannerCard/>
+    </div>
+  );
+}
+
 export default function ApplicantChat({user}: ApplicantChatProps) {
   const router = useRouter();
   const [phase, setPhase] = useState<"auth" | "name">("auth");
@@ -97,7 +107,7 @@ export default function ApplicantChat({user}: ApplicantChatProps) {
     {type: "message", sender: "server", text: "Ещё раз приветствую, {name}.", delay: 500},
     {type: "message", sender: "server", text: "А теперь перейдём к возможностям.", delay: 500},
     {type: "component", render: () => <ActionButtons/>},
-    {type: "component", render: () => <SocialLinks/>},
+    {type: "component", render: () => <ChatConsultationRow/>},
   ], []);
 
   const loggedInSteps: ChatStep[] = useMemo(() => [
@@ -105,7 +115,7 @@ export default function ApplicantChat({user}: ApplicantChatProps) {
     {type: "message", sender: "server", text: `Привет, ${user?.name}!`, delay: 800},
     {type: "message", sender: "server", text: "Перейдём к возможностям.", delay: 500},
     {type: "component", render: () => <ActionButtons/>},
-    {type: "component", render: () => <SocialLinks/>},
+    {type: "component", render: () => <ChatConsultationRow/>},
   ], [user?.name]);
 
   const handleNameComplete = useCallback(async (data: Record<string, string>) => {

@@ -96,6 +96,7 @@ export interface ConsultationItem {
   specialty: string;
   grade: string;
   flames: number;
+  sessionId?: string;
   createdAt: string;
 }
 

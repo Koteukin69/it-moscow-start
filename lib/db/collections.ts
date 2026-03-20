@@ -72,8 +72,14 @@ export const consultationsCollection = getCollection<{
   specialty: string;
   grade: string;
   flames: number;
+  sessionId?: string;
   createdAt: Date;
 }>("consultations");
+
+export const parentTokenAttemptsCollection = getCollection<{
+  ip: string;
+  createdAt: Date;
+}>("parentTokenAttempts");
 
 export const popupSettingsCollection = getCollection<{
   key: string;

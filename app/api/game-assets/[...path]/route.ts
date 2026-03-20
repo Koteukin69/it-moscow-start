@@ -35,7 +35,7 @@ export async function GET(
     return new NextResponse("Not Found", { status: 404 });
   }
 
-  const buffer = await readFile(filePath);
+  let buffer = await readFile(filePath);
   const headers: Record<string, string> = {};
 
   const ext = extname(filePath).toLowerCase();
@@ -46,6 +46,13 @@ export async function GET(
     headers["Content-Type"] = MIME_TYPES[innerExt] || "application/octet-stream";
   } else {
     headers["Content-Type"] = MIME_TYPES[ext] || "application/octet-stream";
+  }
+
+  if (ext === ".html") {
+    const bucketName = process.env.YC_BUCKET_NAME;
+    if (!bucketName) throw new Error("YC_BUCKET_NAME is not set");
+    const html = buffer.toString("utf-8").replaceAll("YOUR_BUCKET_NAME", bucketName);
+    buffer = Buffer.from(html, "utf-8");
   }
 
   return new NextResponse(buffer, { headers });

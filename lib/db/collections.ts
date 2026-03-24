@@ -78,6 +78,7 @@ export const consultationsCollection = getCollection<{
 
 export const parentTokenAttemptsCollection = getCollection<{
   ip: string;
+  token: string;
   createdAt: Date;
 }>("parentTokenAttempts");
 

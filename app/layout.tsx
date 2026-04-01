@@ -74,7 +74,7 @@ export default function RootLayout({
   return (
     <html lang="ru" suppressHydrationWarning>
       <body
-        className={`${montserrat.variable} antialiased`}
+        className={`${montserrat.className} antialiased`}
       >
         <Metrika />
         <ThemeProvider

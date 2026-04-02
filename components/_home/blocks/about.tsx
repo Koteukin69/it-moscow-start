@@ -3,6 +3,7 @@
 import Title from "../components/title";
 import {ChevronLeft, ChevronRight} from "lucide-react";
 import {useState, useEffect} from "react";
+import {Separator} from "@/components/ui/separator";
 
 type Video = {src: string, title: string};
 
@@ -22,20 +23,31 @@ const VIDEOS_COUNT = DEFAULT_VIDEOS.length;
 export default function About() {
   const [videoId, setVideoId] = useState(0);
 
+  const nextVideo = () => setVideoId((videoId - 1 + VIDEOS_COUNT) % VIDEOS_COUNT)
+
+  const pastVideo = () => setVideoId((videoId + 1) % VIDEOS_COUNT)
+
   return (<>
     <Title
       title={"О колледже"}
       description={"Видео по колледжу — узнайте, как проходит обучение и чем живут наши студенты"}
     />
-    <div className="w-full flex flex-row justify-center items-center gap-2.5 max-w-5xl">
-      <ChevronLeft onClick={() => setVideoId((videoId - 1 + VIDEOS_COUNT) % VIDEOS_COUNT)} className={"cursor-pointer active:text-[#7B9EFF] z-1"} size={100}/>
-      <div className={"w-full aspect-video"}>
-        <Video video={DEFAULT_VIDEOS[videoId]}/>
+    <div className="flex flex-col items-center gap-4 w-full">
+      <div className={"flex sm:hidden flex-row justify-between w-full"}>
+        <ChevronLeft onClick={pastVideo} className={"cursor-pointer active:text-[#7B9EFF]"} size={50}/>
+        <ChevronRight onClick={nextVideo} className={"cursor-pointer active:text-[#7B9EFF]"} size={50}/>
       </div>
-      <ChevronRight onClick={() => setVideoId((videoId + 1) % VIDEOS_COUNT)} className={"cursor-pointer active:text-[#7B9EFF] z-1"} size={100}/>
+      <div className="w-full flex flex-row justify-center items-center gap-2.5 max-w-5xl">
+        <ChevronLeft onClick={pastVideo} className={"hidden sm:block cursor-pointer active:text-[#7B9EFF]"} size={100}/>
+        <div className={"w-full aspect-video"}>
+          <Video video={DEFAULT_VIDEOS[videoId]}/>
+        </div>
+        <ChevronRight onClick={nextVideo} className={"hidden sm:block cursor-pointer active:text-[#7B9EFF]"} size={100}/>
+      </div>
     </div>
   </>);
 }
+
 
 function Video({video}: {video: Video}) {
   return (<>

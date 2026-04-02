@@ -11,7 +11,7 @@ export default function DirectionCard({direction, ...props}: {direction: Directi
   const [open, setOpen] = useState(false);
 
   return (<>
-    <div onClick={() => setOpen(true)} className={"p-4 glass bg-white/10 rounded-[10px] w-xs flex flex-col gap-2.5 relative hover:scale-[105%] transition transition-transform duration-100 select-none"} {...props}>
+    <div onClick={() => setOpen(true)} className={"p-4 glass bg-white/10 rounded-[10px] max-w-xs flex flex-col gap-2.5 relative hover:scale-[105%] transition-transform duration-100 select-none"} {...props}>
       <DirectionCardImage src={direction.image} alt={direction.name} />
       <div className={"flex flex-row justify-between items-end"}>
         <div className={"text-[20px] -mb-1"}>{direction.name}</div>
@@ -25,6 +25,7 @@ export default function DirectionCard({direction, ...props}: {direction: Directi
         {direction.description?.split("\n").map((line, i) => (
           <p key={i}>{line}</p>
         ))}
+        TODO: Добавить остальной контент в DirectionsDialog
       </DialogContent>
     </Dialog>
   </>);

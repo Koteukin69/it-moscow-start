@@ -12,7 +12,7 @@ export default function Home() {
       <Header/>
       <Hero/>
       <Transition className={"bg-white text-[#7B9EFF]"}/>
-      <div id={"directions"} className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
+      <div id={"directions"} className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 lg:px-25 py-10 gap-20"}>
         <Directions/>
       </div>
       <Transition className={"bg-[#7B9EFF] text-[#3053B2]"}/>

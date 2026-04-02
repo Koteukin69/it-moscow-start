@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {useState, useEffect} from "react";
+import {Menu} from "lucide-react";
 
 const navLinks: { text: string; href: string }[] = [
   {"text": "Направления", "href": "#directions"},
@@ -22,13 +23,16 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  return (
-    <div className="fixed top-4 z-50 hidden xl:flex justify-center pointer-events-none" style={{ left: 0, right: 0, width: '100vw' }}>
+  return (<>
+    <div className={"xl:hidden"}>
+      <Menu/>
+    </div>
+    <div className={`hidden xl:flex fixed top-3 z-50 justify-center pointer-events-none`} style={{ left: 0, right: 0, width: '100vw' }}>
       <div className={`pointer-events-auto bg-white rounded-full px-7.5 py-2.5 flex flex-row gap-5 text-center transition-shadow duration-300 ${scrolled ? "shadow-md" : ""}`}>
         <NavLinks/>
       </div>
     </div>
-  )
+  </>)
 }
 
 function NavLinks() {

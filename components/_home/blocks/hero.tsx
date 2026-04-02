@@ -7,8 +7,8 @@ export default function Hero() {
     <Image src={"/name.svg"} alt={"name badge"} width={134} height={40}/>
     <Title className={"max-w-200 text-center px-10 text-[#3053B1]"} title={"МОСКВА ЖДЁТ ТВОЙ ДЕПЛОЙ!"}/>
     <div className={"flex gap-2.5"}>
-      <Button text={"Я Абитуриент"} href={"/applicant"}/>
       <Button text={"Я Студент"} href={"https://lk.itmoscow.pro"}/>
+      <Button text={"Я Абитуриент"} href={"/applicant"}/>
     </div>
   </div>)
 }

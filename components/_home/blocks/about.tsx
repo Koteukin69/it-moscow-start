@@ -2,8 +2,7 @@
 
 import Title from "../components/title";
 import {ChevronLeft, ChevronRight} from "lucide-react";
-import {useState, useEffect} from "react";
-import {Separator} from "@/components/ui/separator";
+import {useState} from "react";
 
 type Video = {src: string, title: string};
 
@@ -15,7 +14,23 @@ const DEFAULT_VIDEOS: Video[] = [
   {
     src: "https://vkvideo.ru/video_ext.php?oid=-172223119&id=456240028&hash=298a9185aefa3228&hd=3",
     title: "АНОНС ЭКОСИСТЕМЫ IT.МОСКВА"
-  }
+  },
+  {
+    src: "https://vkvideo.ru/video_ext.php?oid=-172223119&id=456240004&hash=ec18a353bac01724&hd=3",
+    title: "Видео-экскурсия по IT.Москва"
+  },
+  {
+    src: "https://vkvideo.ru/video_ext.php?oid=-172223119&id=456240028&hash=298a9185aefa3228&hd=3",
+    title: "АНОНС ЭКОСИСТЕМЫ IT.МОСКВА"
+  },
+  {
+    src: "https://vkvideo.ru/video_ext.php?oid=-172223119&id=456240004&hash=ec18a353bac01724&hd=3",
+    title: "Видео-экскурсия по IT.Москва"
+  },
+  {
+    src: "https://vkvideo.ru/video_ext.php?oid=-172223119&id=456240028&hash=298a9185aefa3228&hd=3",
+    title: "АНОНС ЭКОСИСТЕМЫ IT.МОСКВА"
+  },
 ]
 
 const VIDEOS_COUNT = DEFAULT_VIDEOS.length;
@@ -23,9 +38,8 @@ const VIDEOS_COUNT = DEFAULT_VIDEOS.length;
 export default function About() {
   const [videoId, setVideoId] = useState(0);
 
-  const nextVideo = () => setVideoId((videoId - 1 + VIDEOS_COUNT) % VIDEOS_COUNT)
-
-  const pastVideo = () => setVideoId((videoId + 1) % VIDEOS_COUNT)
+  const nextVideo = () => setVideoId((videoId + 1) % VIDEOS_COUNT);
+  const pastVideo = () => setVideoId((videoId - 1 + VIDEOS_COUNT) % VIDEOS_COUNT);
 
   return (<>
     <Title
@@ -39,8 +53,10 @@ export default function About() {
       </div>
       <div className="w-full flex flex-row justify-center items-center gap-2.5 max-w-5xl">
         <ChevronLeft onClick={pastVideo} className={"hidden sm:block cursor-pointer active:text-[#7B9EFF]"} size={100}/>
-        <div className={"w-full aspect-video"}>
-          <Video video={DEFAULT_VIDEOS[videoId]}/>
+        <div className={"relative w-full aspect-video overflow-hidden rounded-[20px]"}>
+          {DEFAULT_VIDEOS.map((video, i) =>
+            <Video video={video} key={i} offset={i - videoId} />
+          )}
         </div>
         <ChevronRight onClick={nextVideo} className={"hidden sm:block cursor-pointer active:text-[#7B9EFF]"} size={100}/>
       </div>
@@ -49,15 +65,26 @@ export default function About() {
 }
 
 
-function Video({video}: {video: Video}) {
-  return (<>
+function Video({ video, offset }: { video: Video; offset: number }) {
+  return (
     <iframe
       src={video.src}
       title={video.title}
       allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock"
       allowFullScreen
       loading="eager"
-      className="h-full w-full rounded-[20px]"
+      className={`
+        absolute inset-0 h-full w-full rounded-[20px]
+        transition-all duration-500 ease-in-out
+        ${offset === 0
+        ? 'opacity-100 pointer-events-auto'
+        : 'opacity-0 pointer-events-none'
+      }
+      `}
+      style={{
+        transform: `translateY(${offset * 100}%)`,
+        pointerEvents: offset === 0 ? 'auto' : 'none',
+      }}
     />
-  </>);
+  );
 }

@@ -4,6 +4,7 @@ import Transition from "./blocks/transition";
 import Directions from "./blocks/directions";
 import About from "./blocks/about";
 import Courses from "./blocks/courses";
+import Banner from "@/components/_home/blocks/banner";
 
 
 export default function Home() {
@@ -18,6 +19,17 @@ export default function Home() {
       <Transition className={"bg-[#7B9EFF] text-[#3053B2]"}/>
       <div id={"about"} className={"bg-[#3053B2] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
         <About/>
+      </div>
+      <div className={"bg-[#3053B2] text-white flex flex-col items-center px-5 sm:px-10 md:px-50 py-10 gap-20"}>
+        <Banner
+          title={"Поступи в IT.Москва"}
+          subtitle={"Мы подготовили для наших абитуриентов самый интересный и актуальный контент от преподавателей. Мастер-классы, онлайн-уроки, лайфхаки и важные напоминания в период поступления — всё, чтобы помочь сделать правильный выбор профессии."}
+          links={[
+            {name: "Telegram", href: ""},
+            {name: "ВКонтакте", href: ""},
+          ]}
+
+        />
       </div>
       <div id={"courses"} className={"bg-[#3053B2] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
         <Courses/>

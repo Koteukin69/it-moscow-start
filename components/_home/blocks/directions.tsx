@@ -51,7 +51,7 @@ export default function Directions() {
       title={"Какое направление выбрать ребёнку?"}
       description={"13 востребованных специальностей и профессий с трудоустройством в ведущие компании страны"}
     />
-    <Tabs className={"flex flex-col gap-4"} defaultValue={directionsNames[0]}>
+    <Tabs className={"flex flex-col gap-4 w-full items-center"} defaultValue={directionsNames[0]}>
       <DirectionsTabList tabs={directionsNames}/>
       {directions.map((item, i) => (
         <TabsContent className={"grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"} value={item.name} key={i}>

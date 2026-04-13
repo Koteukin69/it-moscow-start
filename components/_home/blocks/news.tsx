@@ -20,11 +20,11 @@ const courses:Course[] = new Array(5).fill({
   image: {src: "/courses/GameStart.png", alt: "Геймстарт"}
 });
 
-export default function Courses() {
+export default function News() {
   return (<>
     <Title
-      title={"Курсы IT.Москва School"}
-      description={"Попробуйте себя в IT до поступления. [Заработайте первые it.coin](/applicant) и начнитет карьеру прямо сейчас!"}
+      title={"Новости сообщества"}
+      description={"Следите за последними событиями и обновлениями IT.Москва в нашем сообществе [ВКонтакте](https://vk.com/it.moscowpro)"}
     />
     <div className={"w-full"}>
       <div className={"flex flex-row flex-nowrap py-2 gap-5 overflow-x-auto w-full scrollbar-thin"}>

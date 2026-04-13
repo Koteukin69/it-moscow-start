@@ -10,6 +10,7 @@ import Partners from "@/components/_home/blocks/partners";
 import Faq from "@/components/_home/blocks/faq";
 import Footer from "@/components/_home/blocks/footer";
 import News from "@/components/_home/blocks/news";
+import CommissionBanner from "@/components/_home/blocks/commission-banner";
 
 
 export default function Home() {
@@ -42,10 +43,19 @@ export default function Home() {
       <div className={"bg-[#021750] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
         <Earning/>
       </div>
+      <div className={"bg-[#021750] text-white flex flex-col items-center px-5 sm:px-10 md:px-30 lg:px-50 py-10 gap-20"}>
+        <CommissionBanner
+          title={"День открытых дверей"}
+          subtitle={"Приходи!"}
+          links={[
+            {name: "Записаться", href: "https://t.me/"},
+          ]}
+        />
+      </div>
       <div className={"bg-[#021750] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
         <Partners/>
       </div>
-      <div className={"bg-[#021750] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
+      <div id={"faq"} className={"bg-[#021750] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
         <Faq/>
       </div>
       <div className={"bg-[#021750] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>

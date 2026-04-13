@@ -50,7 +50,7 @@ export default function Earning() {
           </SelectContent>
         </Select>
       </div>
-      <div className="flex flex-row items-end h-150 w-full gap-4">
+      <div className="flex flex-row items-end h-[50dvh] w-full gap-4">
         {levels.map((level) => (
           <div
             key={level.label}

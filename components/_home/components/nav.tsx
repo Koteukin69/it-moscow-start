@@ -8,9 +8,9 @@ const navLinks: { text: string; href: string }[] = [
   {"text": "Направления", "href": "#directions"},
   {"text": "О колледже", "href": "#about"},
   {"text": "Курсы", "href": "#courses"},
-  {"text": "Поступление", "href": "#admission"},
-  {"text": "Контакты", "href": "#contacts"},
-  {"text": "Мероприятия", "href": "/"},
+  {"text": "Частые вопросы", "href": "#faq"},
+  {"text": "Форма связи", "href": "#contacts"},
+  {"text": "Мероприятия", "href": "/parent/events"},
 ]
 
 export default function Nav() {

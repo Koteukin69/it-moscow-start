@@ -40,7 +40,7 @@ export default function Nav() {
       </div>
     </div>
     <div className={`hidden xl:flex fixed top-3 z-50 justify-center pointer-events-none`} style={{ left: 0, right: 0, width: '100vw' }}>
-      <div className={`pointer-events-auto bg-white/80 glass rounded-full px-7.5 py-2.5 flex flex-row gap-5 text-center transition-shadow duration-300 ${scrolled ? "shadow-md!" : "shadow-none!"}`}>
+      <div className={`pointer-events-auto bg-white/80 glass rounded-full px-7.5 py-2.5 flex flex-row gap-5 text-center transition-shadow duration-300 ${scrolled ? "shadow-md!" : "bg-white! shadow-none!"}`}>
         <NavLinks/>
       </div>
     </div>

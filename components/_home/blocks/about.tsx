@@ -82,7 +82,7 @@ function Video({ video, offset }: { video: Video; offset: number }) {
       }
       `}
       style={{
-        transform: `translateY(${offset * 100}%)`,
+        transform: `translateX(${offset * 100}%)`,
         pointerEvents: offset === 0 ? 'auto' : 'none',
       }}
     />

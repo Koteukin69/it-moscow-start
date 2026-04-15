@@ -9,10 +9,10 @@ export default function Nav() {
       <Image className={"w-[80%] aspect-18258/9871 my-5"} src={"logo.svg"} width={18258} height={9871} alt={"logo"}/>
     </CardHeader>
     <CardContent className="flex flex-col gap-3">
-      <Button size={"lg"} variant={"outline"} asChild><a href={"https://lk.itmoscow.pro"}>Я - студент</a></Button>
+      <Button size={"lg"} variant={"outline"} asChild><a href={"/events"}>Новости и мероприятия</a></Button>
       <Button size={"lg"} variant={"outline"} asChild><a href={"/applicant"}>Я - абитуриент</a></Button>
       <Button size={"lg"} variant={"outline"} asChild><a href={"/parent"}>Я - родитель</a></Button>
-      <Button size={"lg"} variant={"outline"} asChild><a href={"/commission"}>Я - приёмная комиссия</a></Button>
+      <Button size={"lg"} variant={"outline"} asChild><a href={"https://lk.itmoscow.pro"}>Я - студент</a></Button>
     </CardContent>
   </Card>);
 }

@@ -78,7 +78,7 @@ export default function EventsCalendar() {
           <CardHeader className="shrink-0">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <CalendarDays size={18}/>
-              Новости сообщества
+              Новости колледжа
             </h2>
           </CardHeader>
           <CardContent className="flex-1 overflow-hidden">

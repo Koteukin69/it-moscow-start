@@ -7,12 +7,11 @@ import Courses from "./blocks/courses";
 import Banner from "./blocks/banner";
 import Earning from "./blocks/earning";
 import Partners from "@/components/_home/blocks/partners";
-import Faq from "@/components/_home/blocks/faq";
 import Footer from "@/components/_home/blocks/footer";
 import News from "@/components/_home/blocks/news";
 import CommissionBanner from "@/components/_home/blocks/commission-banner";
 import Orb from "@/components/orb";
-
+import {TechnologiesCarousel} from "@/components/_home/blocks/technologies-carousel";
 
 export default function Home() {
   return (<>
@@ -23,11 +22,81 @@ export default function Home() {
       <div id={"directions"} className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 lg:px-25 py-10 gap-20"}>
         <Directions/>
       </div>
-      <Transition className={"bg-[#7B9EFF] text-[#3053B2]"}/>
-      <div id={"about"} className={"bg-[#3053B2] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
+      <Transition className={"bg-[#7B9EFF] text-black"}/>
+      <div id={"about"} className={"bg-black text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
         <About/>
       </div>
-      <div className={"bg-[#3053B2] text-white flex flex-col items-center px-5 sm:px-10 md:px-30 lg:px-50 py-10 gap-20"}>
+      <div id={"tech"} className={"bg-black text-white flex flex-col items-center w-full px-10 md:px-0 py-10 gap-20"}>
+        <TechnologiesCarousel cards={[
+          {
+            id: "alice-ai",
+            name: "Поиск с Алисой AI",
+            description:
+            "Ты спрашиваешь — Поиск с Алисой AI понимает. Алиса AI анализирует сотни миллиардов страниц за доли секунды и даёт осмысленные полезные ответы. Сочетание лучших поисковых технологий и искусственного интеллекта — так работает сервис, которому каждый месяц доверяют 100 миллионов человек по всей стране.",
+            image: {
+            src: "https://yandex.ru/youngcon/static/images/2026/tech/list/search_active.png",
+            alt: "Интерфейс Поиска с Алисой AI на смартфоне",
+          },
+            color: "#FF5A3C",
+          },
+          {
+            id: "alice-devices",
+            name: "Алиса AI и умные устройства",
+            description:
+            "Алиса живёт в смартфонах, колонках и автомобилях. Управляй умным домом голосом, слушай музыку и получай ответы на любые вопросы.",
+            image: {
+            src: "https://yandex.ru/youngcon/static/images/2026/tech/list/alisa_active.png",
+            alt: "Умная колонка с Алисой",
+          },
+            color: "#3B3B3B",
+          },
+          {
+            id: "autonomous",
+            name: "Автономный транспорт и роботы",
+            description:
+            "Роботы-доставщики и беспилотные автомобили Яндекса уже работают на улицах городов. Это технологии, которые меняют логистику.",
+            image: {
+            src: "https://yandex.ru/youngcon/static/images/2026/tech/list/at_active-full_3000_crossfade_q60.webp",
+            alt: "Робот-доставщик Яндекса",
+          },
+            color: "#2D7FF9",
+          },
+          {
+            id: "scooters",
+            name: "Самокаты Яндекс Go",
+            description:
+            "В наши самокаты вложена душа инженеров Яндекса. Это полностью наша разработка: они умные, манёвренные и удобные для города.",
+            image: {
+            src: "/technologies/scooter.png",
+            alt: "Самокат Яндекс Go",
+          },
+            color: "#FFD60A",
+          },
+          {
+            id: "drive",
+            name: "Яндекс Драйв",
+            description:
+            "Драйв — технологичный каршеринг, доступный даже начинающим водителям. На Young Con автомобили Драйва станут шаттлами в будущее, в которых можно будет пройти пробное собеседование и начать свой путь в Яндексе.",
+            image: {
+            src: "/technologies/drive.png",
+            alt: "Автомобиль Яндекс Драйв",
+          },
+            color: "#6A5BFF",
+          },
+          {
+            id: "infrastructure",
+            name: "Yandex Infrastructure",
+            description:
+            "Облачная инфраструктура, на которой работают все сервисы Яндекса и тысячи внешних компаний. Масштаб, скорость и надёжность.",
+            image: {
+            src: "/technologies/infrastructure.png",
+            alt: "Серверная инфраструктура Яндекса",
+          },
+            color: "#1A1033",
+          },
+          ]}/>
+      </div>
+      <div className={"bg-black text-white flex flex-col items-center px-5 sm:px-10 md:px-30 lg:px-50 py-10 gap-20"}>
         <Banner
           title={"Поступи в IT.Москва"}
           subtitle={"Мы подготовили для наших абитуриентов самый интересный и актуальный контент от преподавателей. Мастер-классы, онлайн-уроки, лайфхаки и важные напоминания в период поступления — всё, чтобы помочь сделать правильный выбор профессии."}
@@ -37,10 +106,10 @@ export default function Home() {
           ]}
         />
       </div>
-      <div id={"courses"} className={"bg-[#3053B2] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
+      <div id={"courses"} className={"bg-black text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
         <Courses/>
       </div>
-      <Transition className={"bg-[#3053B2] text-[#021750]"}/>
+      <Transition className={"bg-black text-[#021750]"}/>
       <div className={"bg-[#021750] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
         <Earning/>
       </div>
@@ -57,7 +126,7 @@ export default function Home() {
         <Partners/>
       </div>
       <div id={"faq"} className={"bg-[#021750] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
-        <Faq/>
+        {/*<Faq/>*/}
       </div>
       <div className={"bg-[#021750] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
         <News/>

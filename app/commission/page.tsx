@@ -17,7 +17,7 @@ export default async function CommissionPage() {
   return (<>
     <div className="absolute w-full flex justify-between shrink-0 items-center gap-3 border-b border-border px-5 py-4">
       <Button variant="link" asChild><Link href="/">Вернуться</Link></Button>
-      <Image className={"max-w-10 aspect-square"} alt={"logo square"} src={"logo-square.svg"} width={64} height={64}/>
+      <Image className={"max-w-10 aspect-square"} alt={"logo square"} src={"logo.svg"} width={64} height={64}/>
     </div>
     <div className={"flex flex-col items-center justify-center h-dvh px-10 sm:px-20"}>
       <div className={"overflow-hidden absolute w-screen h-dvh -z-1 flex items-center justify-center"}>

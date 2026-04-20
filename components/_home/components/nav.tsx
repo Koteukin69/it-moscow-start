@@ -13,16 +13,8 @@ const navLinks: { text: string; href: string }[] = [
   {"text": "Мероприятия", "href": "/parent/events"},
 ]
 
-export default function Nav() {
-  const [scrolled, setScrolled] = useState(false);
+export default function Nav({scrolled}: {scrolled: boolean}) {
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 0);
-    handleScroll();
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (<>
     <div className={`fixed top-5 right-5 p-2.5 bg-white/80 glass rounded-lg xl:hidden z-50`}>
@@ -39,10 +31,8 @@ export default function Nav() {
         </div>
       </div>
     </div>
-    <div className={`hidden xl:flex fixed top-3 z-50 justify-center pointer-events-none`} style={{ left: 0, right: 0, width: '100vw' }}>
-      <div className={`pointer-events-auto bg-white/80 glass rounded-full px-7.5 py-2.5 flex flex-row gap-5 text-center transition-shadow duration-300 ${scrolled ? "shadow-md!" : "bg-white! shadow-none!"}`}>
-        <NavLinks/>
-      </div>
+    <div className={`hidden xl:flex pointer-events-auto bg-white/80 glass rounded-full px-7.5 py-2.5 flex flex-row gap-5 text-center transition-shadow duration-300 ${scrolled ? "shadow-md!" : "bg-white! shadow-none!"}`}>
+      <NavLinks/>
     </div>
   </>)
 }

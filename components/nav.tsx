@@ -6,7 +6,7 @@ export default function Nav() {
   return (
   <Card className="w-full bg-background/70 justify-center">
     <CardHeader className={"flex justify-center"}>
-      <Image className={"w-[80%] aspect-18258/9871 my-5"} src={"logo.svg"} width={18258} height={9871} alt={"logo"}/>
+      <Image className={"w-[80%] aspect-18258/9871 my-5"} src={"logo-big.svg"} width={18258} height={9871} alt={"logo"}/>
     </CardHeader>
     <CardContent className="flex flex-col gap-3">
       <Button size={"lg"} variant={"outline"} asChild><a href={"https://lk.itmoscow.pro"}>Я - студент</a></Button>

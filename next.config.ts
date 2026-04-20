@@ -20,3 +20,9 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+module.exports = {
+  images: {
+    remotePatterns: [new URL('https://yandex.ru/**')],
+  },
+}

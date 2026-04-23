@@ -175,5 +175,20 @@ html, body {
 @keyframes chatFadeIn { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
 @keyframes chatDotBounce { 0%,60%,100% { transform:translateY(0) } 30% { transform:translateY(-5px) } }
 
+@import "tailwindcss";
+
+@theme {
+  --animate-marquee: marquee 20s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% / var(--copies) - 20px));
+  }
+}
+
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }

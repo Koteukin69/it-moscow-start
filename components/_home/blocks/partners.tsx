@@ -1,5 +1,12 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Title from "@/components/_home/components/title";
 import Image from "next/image"
+
+const ITEM_WIDTH = 128;
+const GAP = 64;
+const MIN_VIEWPORT_MULTIPLIER = 2;
 
 const partners = [
   {name: "1С", logo: "/partners/1c.png"},
@@ -13,17 +20,43 @@ const partners = [
 ];
 
 export default function Partners() {
+  const [copies, setCopies] = useState(2);
+
+  useEffect(() => {
+    const calculateCopies = () => {
+      const singleCopyWidth = partners.length * ITEM_WIDTH + (partners.length - 1) * GAP;
+      const requiredWidth = window.innerWidth * MIN_VIEWPORT_MULTIPLIER;
+      const needed = Math.max(2, Math.ceil(requiredWidth / singleCopyWidth));
+      setCopies(needed);
+    };
+
+    calculateCopies();
+    window.addEventListener("resize", calculateCopies);
+    return () => window.removeEventListener("resize", calculateCopies);
+  }, []);
+
+  const duplicated = Array.from({ length: copies }, () => partners).flat();
+
   return (<>
     <Title
       title={"Партнёры — работодатели"}
       description={"Наши выпускники проходят стажировки и получают офферы от ведущих IT-компаний страны"}
     />
-    <div className={"grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-10 w-full px-10 sm:px-[71px] lg:px-[142px]"}>
-      {partners.map((partner, i) => (
-        <div className={"w-full aspect-square relative [@media(hover:hover)]:opacity-70 transition-all hover:opacity-100 hover:grayscale-0 w-25"} key={i}>
-          <Image src={partner.logo} alt={partner.name} fill />
-        </div>
-      ))}
+    <div className="w-full">
+      <div
+        className="flex flex-row w-max animate-marquee"
+        style={{ "--copies": copies, gap: `${GAP}px` } as React.CSSProperties}
+      >
+        {duplicated.map((partner, i) => (
+          <div
+            style={{width: `${ITEM_WIDTH}px`}}
+            className="aspect-square relative shrink-0 [@media(hover:hover)]:opacity-70 transition-all hover:opacity-100 hover:grayscale-0"
+            key={i}
+          >
+            <Image src={partner.logo} alt={partner.name} fill />
+          </div>
+        ))}
+      </div>
     </div>
   </>);
 }

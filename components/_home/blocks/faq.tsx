@@ -12,7 +12,7 @@ export default async function Faq() {
     />
     <Accordion type="single" collapsible className="px-71px lg:px-[142px]">
       {faqItems.map((item, i) => (
-        <AccordionItem key={i} value={`item-${i}`}>
+        <AccordionItem className="border-b-white/50" key={i} value={`item-${i}`}>
           <AccordionTrigger className="text-left text-base">
             {item.question}
           </AccordionTrigger>

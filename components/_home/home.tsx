@@ -24,11 +24,11 @@ export default function Home() {
       <div id={"directions"} className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 lg:px-25 py-10 gap-20"}>
         <Directions/>
       </div>
-      <Transition className={"bg-[#7B9EFF] text-black"}/>
-      <div id={"about"} className={"bg-black text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
+      <Transition className={"bg-[#7B9EFF] text-[#18181B]"}/>
+      <div id={"about"} className={"bg-[#18181B] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
         <About/>
       </div>
-      <div id={"about"} className={"bg-black text-white flex flex-col items-center px-5 sm:px-10 md:px-30 lg:px-50 py-10 gap-20"}>
+      <div id={"about"} className={"bg-[#18181B] text-white flex flex-col items-center px-5 sm:px-10 md:px-30 lg:px-50 py-10 gap-20"}>
         <ShowcasePanel
           title="МЕРЧ IT.Москва"
           color={"pink"}
@@ -38,7 +38,7 @@ export default function Home() {
           color={"lightblue"}
         />
       </div>
-      <div id={"tech"} className={"bg-black text-white flex flex-col items-center w-full px-10 md:px-0 py-10 gap-20 overflow-x-hidden"}>
+      <div id={"tech"} className={"bg-[#18181B] text-white flex flex-col items-center w-full px-10 md:px-0 py-10 gap-20 overflow-x-hidden"}>
         <TechnologiesCarousel cards={[
           {
             id: "alice-ai",
@@ -118,13 +118,13 @@ export default function Home() {
           ]}
         />
       </div>*/}
-      <div id={"courses"} className={"bg-black text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
+      <div id={"courses"} className={"bg-[#18181B] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
         <Courses/>
       </div>
-      <div id={"faq"} className={"bg-black text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
+      <div id={"faq"} className={"bg-[#18181B] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
         <Faq/>
       </div>
-      <Transition className={"bg-black text-[#7B9EFF]"}/>
+      <Transition className={"bg-[#18181B] text-[#7B9EFF]"}/>
       <div className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
         <Earning/>
       </div>
@@ -137,7 +137,7 @@ export default function Home() {
           ]}
         />
       </div>
-      <div className={"bg-[#7B9EFF] text-white flex flex-col items-center  r px-5 sm:px-10 md:px-25 py-10 gap-20 overflow-hidden"}>
+      <div className={"bg-[#7B9EFF] text-white flex flex-col items-center  r px-5 sm:px-10 md:px-25 py-10 gap-20 overflow-hidden  "}>
         <Partners/>
       </div>
       <div className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>

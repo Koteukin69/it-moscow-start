@@ -4,7 +4,6 @@ import Transition from "./blocks/transition";
 import Directions from "./blocks/directions";
 import About from "./blocks/about";
 import Courses from "./blocks/courses";
-import Banner from "./blocks/banner";
 import Earning from "./blocks/earning";
 import Partners from "@/components/_home/blocks/partners";
 import Footer from "@/components/_home/blocks/footer";

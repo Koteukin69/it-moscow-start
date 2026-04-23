@@ -12,6 +12,7 @@ import News from "@/components/_home/blocks/news";
 import CommissionBanner from "@/components/_home/blocks/commission-banner";
 import Orb from "@/components/orb";
 import {TechnologiesCarousel} from "@/components/_home/blocks/technologies-carousel";
+import ShowcasePanel from "@/components/_home/blocks/showcase-panel";
 
 export default function Home() {
   return (<>
@@ -26,6 +27,16 @@ export default function Home() {
       <div id={"about"} className={"bg-black text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
         <About/>
       </div>
+      <div id={"about"} className={"bg-black text-white flex flex-col items-center px-5 sm:px-10 md:px-30 lg:px-50 py-10 gap-20"}>
+        <ShowcasePanel
+        title="МЕРЧ IT.Москва"
+        color={"pink"}
+        />
+        <ShowcasePanel
+          title="ФУД-Заряд"
+          color={"lightblue"}
+        />
+      </div>
       <div id={"tech"} className={"bg-black text-white flex flex-col items-center w-full px-10 md:px-0 py-10 gap-20"}>
         <TechnologiesCarousel cards={[
           {
@@ -34,9 +45,9 @@ export default function Home() {
             description:
             "Ты спрашиваешь — Поиск с Алисой AI понимает. Алиса AI анализирует сотни миллиардов страниц за доли секунды и даёт осмысленные полезные ответы. Сочетание лучших поисковых технологий и искусственного интеллекта — так работает сервис, которому каждый месяц доверяют 100 миллионов человек по всей стране.",
             image: {
-            src: "https://yandex.ru/youngcon/static/images/2026/tech/list/search_active.png",
-            alt: "Интерфейс Поиска с Алисой AI на смартфоне",
-          },
+              src: "https://yandex.ru/youngcon/static/images/2026/tech/list/search_active.png",
+              alt: "Интерфейс Поиска с Алисой AI на смартфоне",
+            },
             color: "#FF5A3C",
           },
           {
@@ -45,9 +56,9 @@ export default function Home() {
             description:
             "Алиса живёт в смартфонах, колонках и автомобилях. Управляй умным домом голосом, слушай музыку и получай ответы на любые вопросы.",
             image: {
-            src: "https://yandex.ru/youngcon/static/images/2026/tech/list/alisa_active.png",
-            alt: "Умная колонка с Алисой",
-          },
+              src: "https://yandex.ru/youngcon/static/images/2026/tech/list/alisa_active.png",
+              alt: "Умная колонка с Алисой",
+            },
             color: "#3B3B3B",
           },
           {
@@ -56,9 +67,9 @@ export default function Home() {
             description:
             "Роботы-доставщики и беспилотные автомобили Яндекса уже работают на улицах городов. Это технологии, которые меняют логистику.",
             image: {
-            src: "https://yandex.ru/youngcon/static/images/2026/tech/list/at_active-full_3000_crossfade_q60.webp",
-            alt: "Робот-доставщик Яндекса",
-          },
+              src: "https://yandex.ru/youngcon/static/images/2026/tech/list/at_active-full_3000_crossfade_q60.webp",
+              alt: "Робот-доставщик Яндекса",
+            },
             color: "#2D7FF9",
           },
           {
@@ -67,9 +78,9 @@ export default function Home() {
             description:
             "В наши самокаты вложена душа инженеров Яндекса. Это полностью наша разработка: они умные, манёвренные и удобные для города.",
             image: {
-            src: "/technologies/scooter.png",
-            alt: "Самокат Яндекс Go",
-          },
+              src: "/technologies/scooter.png",
+              alt: "Самокат Яндекс Go",
+            },
             color: "#FFD60A",
           },
           {
@@ -78,9 +89,9 @@ export default function Home() {
             description:
             "Драйв — технологичный каршеринг, доступный даже начинающим водителям. На Young Con автомобили Драйва станут шаттлами в будущее, в которых можно будет пройти пробное собеседование и начать свой путь в Яндексе.",
             image: {
-            src: "/technologies/drive.png",
-            alt: "Автомобиль Яндекс Драйв",
-          },
+              src: "/technologies/drive.png",
+              alt: "Автомобиль Яндекс Драйв",
+            },
             color: "#6A5BFF",
           },
           {
@@ -89,9 +100,9 @@ export default function Home() {
             description:
             "Облачная инфраструктура, на которой работают все сервисы Яндекса и тысячи внешних компаний. Масштаб, скорость и надёжность.",
             image: {
-            src: "/technologies/infrastructure.png",
-            alt: "Серверная инфраструктура Яндекса",
-          },
+              src: "/technologies/infrastructure.png",
+              alt: "Серверная инфраструктура Яндекса",
+            },
             color: "#1A1033",
           },
           ]}/>

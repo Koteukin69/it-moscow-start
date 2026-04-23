@@ -1,3 +1,8 @@
+export type ImageData = {
+  src: string;
+  alt: string;
+};
+
 export interface JWTPayload {
   name: string;
   userId: string;

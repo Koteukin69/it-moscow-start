@@ -37,7 +37,7 @@ export default function Home() {
           color={"lightblue"}
         />
       </div>
-      <div id={"tech"} className={"bg-black text-white flex flex-col items-center w-full px-10 md:px-0 py-10 gap-20"}>
+      <div id={"tech"} className={"bg-black text-white flex flex-col items-center w-full px-10 md:px-0 py-10 gap-20 overflow-x-hidden"}>
         <TechnologiesCarousel cards={[
           {
             id: "alice-ai",

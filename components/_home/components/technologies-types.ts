@@ -1,7 +1,4 @@
-export type CardImage = {
-  src: string;
-  alt: string;
-};
+import {ImageData} from "@/lib/types";
 
 export type CardImagePosition = {
   objectPosition?: string;
@@ -12,7 +9,7 @@ export type Card = {
   id: string;
   name: string;
   description: string;
-  image: CardImage;
+  image: ImageData;
   color: string;
   imagePosition?: CardImagePosition;
 };

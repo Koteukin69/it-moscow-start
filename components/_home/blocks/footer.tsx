@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer id="footer" className="border-t bg-[#18181B] text-white">
+    <footer id="footer" className="border-t border-[#71717B80] bg-[#18181B] text-white">
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-10">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between md:gap-12">
           <div className="flex flex-col gap-5 min-w-0">
@@ -70,10 +70,10 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center gap-4 border-t pt-8">
-          <Image src="/logo.svg" alt="IT.Москва" width={120} height={32}/>
-          <p className="text-center text-[20px] font-medium">
-            IT.Москва — колледж информационных технологий
+        <div className="mt-12 flex flex-row justify-center items-center gap-4 border-t border-[#71717B80] pt-8">
+          <Image src="/logo-horizontal.svg" alt="IT.Москва" width={120} height={32}/>
+          <p className="text-center text-[16px] font-medium text-muted-foreground">
+            - колледж информационных технологий
           </p>
         </div>
       </div>

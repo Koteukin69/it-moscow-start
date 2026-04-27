@@ -38,9 +38,9 @@ export default function Earning() {
   return (<>
     <Title title={"Заработок в IT"} description={"Заработок будет расти вместе с опытом, а работать можно из любой точки мира!"}/>
     <div className="w-full sm:px-[71px] lg:px-[142px]">
-      <div className="absolute">
+      <div className="absolute z-1">
         <Select value={selected.toString()} onValueChange={(v) => setSelected(Number(v))}>
-          <SelectTrigger className={"[&_svg]:opacity-100! [&_svg]:text-white!"}>
+          <SelectTrigger className={"[&_svg]:opacity-100! [&_svg]:text-white! [&>span]:truncate [&>span]:block! max-w-[50dvw]"}>
             <SelectValue/>
           </SelectTrigger>
           <SelectContent side="bottom" align="start" position={"popper"} className="bg-transparent glass-dark" >
@@ -50,17 +50,17 @@ export default function Earning() {
           </SelectContent>
         </Select>
       </div>
-      <div className="flex flex-row items-end h-[50dvh] w-full gap-4">
+      <div className="flex flex-row items-end h-[50dvh] w-full gap-2 sm:gap-4">
         {levels.map((level) => (
           <div
             key={level.label}
             className="flex flex-col justify-between items-center w-full bg-white/10 glass-dark transition transition-all duration-200"
             style={{ height: `${(level.salary / max) * 100}%` }}
           >
-            <p className="text-[20px] leading-[10px] -mt-[5px] font-semibold">от {level.salary.toLocaleString("ru-RU")} ₽</p>
+            <p className="text-[14px] sm:text-[20px] leading-[10px] -mt-[5px] font-semibold text-nowrap">от {level.salary.toLocaleString("ru-RU")} ₽</p>
             <div className={"flex flex-col items-center"}>
-              <p className="font-light text-[18px]">{level.experience}</p>
-              <p className="text-[24px]">{level.label}</p>
+              <p className="font-light text-[12px] sm:text-[18px]">{level.experience}</p>
+              <p className="text-[18px] sm:text-[24px]">{level.label}</p>
             </div>
           </div>
         ))}

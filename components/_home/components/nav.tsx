@@ -17,11 +17,11 @@ export default function Nav({scrolled}: {scrolled: boolean}) {
   const [open, setOpen] = useState(false);
 
   return (<>
-    <div className={`fixed top-5 right-5 p-2.5 bg-white/80 glass rounded-lg xl:hidden z-50`}>
+    <div className={`p-2.5 bg-white/80 glass rounded-lg xl:hidden z-50`}>
       <Menu onClick={() => {setOpen(!open)}}/>
     </div>
     <div
-      className="fixed right-10 top-12.5 grid transition-[grid-template-rows] duration-300 bg-white/80 glass z-49 rounded-sm xl:hidden"
+      className="fixed right-10 top-15 grid transition-[grid-template-rows] duration-300 bg-white/80 glass z-49 rounded-sm xl:hidden"
       style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
       onClick={() => {setOpen(false)}}
     >

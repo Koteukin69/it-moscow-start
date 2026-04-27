@@ -9,7 +9,7 @@ import Partners from "@/components/_home/blocks/partners";
 import Footer from "@/components/_home/blocks/footer";
 import News from "@/components/_home/blocks/news";
 import CommissionBanner from "@/components/_home/blocks/commission-banner";
-import Orb from "@/components/orb";
+// import Orb from "@/components/orb";
 import {TechnologiesCarousel} from "@/components/_home/blocks/technologies-carousel";
 import ShowcasePanel from "@/components/_home/blocks/showcase-panel";
 import Faq from "@/components/_home/blocks/faq";
@@ -19,7 +19,6 @@ export default function Home() {
     <main className={"text-black"}>
       <Header/>
       <Hero/>
-      <Transition className={"bg-transparent text-[#7B9EFF]"}/>
       <div id={"directions"} className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 lg:px-25 py-10 gap-20"}>
         <Directions/>
       </div>
@@ -146,7 +145,7 @@ export default function Home() {
       <Transition className={"bg-[#7B9EFF] text-black"}/>
       <Footer/>
     </main>
-    <a href={"/applicant"} className={"fixed"}>
+    {/*<a href={"/applicant"} className={"fixed"}>
       <div className={"fixed bottom-10 right-10 w-16 h-16 rounded-full glass z-1"}>
         <Orb className={"overflow-visible"}
              resolution ={4}
@@ -155,6 +154,6 @@ export default function Home() {
       <div className={"fixed bottom-22 right-20 bg-white/50 text-black z-2 glass px-4 p-2 rounded-lg rounded-br-xs text-right"}>
         Я готов ответить на все твои вопросы
       </div>
-    </a>
+    </a>*/}
   </>);
 }

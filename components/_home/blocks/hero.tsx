@@ -12,7 +12,7 @@ export default function Hero() {
       <Image src={"/hero-bg.png"} alt={"hero"} fill/>
     </div>
 
-    <div className={"md:hidden h-[100dvh] bg-white relative flex flex-col"}>
+    <div className={"md:hidden h-[100dvh] bg-white relative flex flex-col pt-[20dvh]"}>
       <div className={"min-h-0 flex-1 relative"}>
         <Image src={"/hero-bg-mobile.svg"} alt={"hero-mobile"} fill/>
       </div>

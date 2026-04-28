@@ -31,7 +31,7 @@ export default function Faq({faqItems}: {faqItems: { question: string; answer: s
       <Accordion type="single" collapsible className="px-71px lg:px-[142px] w-full relative">
         {(hidden ? faqItems.slice(0, 4) : faqItems).map((item, i) => (
           <AccordionItem className="border-b-white/50" key={i} value={`item-${i}`}>
-            <AccordionTrigger className="text-left text-base text-[24px]">
+            <AccordionTrigger className="text-left text-base text-[24px] cursor-pointer">
               {item.question}
             </AccordionTrigger>
             <AccordionContent className="text-white/50 text-[20px] flex flex-col gap-2">

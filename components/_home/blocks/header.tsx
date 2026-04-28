@@ -15,8 +15,8 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  return <header className="fixed w-full top-4 px-5 sm:px-13 py-4 flex flex-row items-center justify-between z-50">
-    <Logo className={"bg-[#021750] p-2 rounded-full w-11 aspect-square glass"} />
+  return <header className="fixed w-[100vw] top-4 px-5 sm:px-13 py-4 flex flex-row items-center justify-between z-50">
+    <Logo className={"bg-[#021750] p-2 rounded-full w-11 aspect-square glass z-50"} />
     <Nav scrolled={scrolled}/>
     <ButtonLink className={"hidden xl:inline bg-[#021750]"} text={"Хочу Поступить"} href={"#admission"}/>
   </header>;

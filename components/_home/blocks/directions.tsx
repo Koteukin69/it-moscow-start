@@ -32,6 +32,6 @@ export default function Directions({directions}: {directions: Direction[]}) {
 
 function DirectionsTabList({tabs}: {tabs: string[]}) {
   return <TabsList variant={"line"}>
-    {tabs.map((tab, i) => <TabsTrigger value={tab} className="text-white/60! hover:text-white! data-[state=active]:text-white!" key={i}>{tab}</TabsTrigger>)}
+    {tabs.map((tab, i) => <TabsTrigger value={tab} className="text-white/60! hover:text-white! data-[state=active]:text-white! cursor-pointer" key={i}>{tab}</TabsTrigger>)}
   </TabsList>
 }

@@ -40,12 +40,12 @@ export default function Earning() {
     <div className="w-full sm:px-[71px] lg:px-[142px]">
       <div className="absolute z-1">
         <Select value={selected.toString()} onValueChange={(v) => setSelected(Number(v))}>
-          <SelectTrigger className={"[&_svg]:opacity-100! [&_svg]:text-white! [&>span]:truncate [&>span]:block! max-w-[50dvw]"}>
+          <SelectTrigger className={"[&_svg]:opacity-100! [&_svg]:text-white! [&>span]:truncate [&>span]:block! max-w-[50dvw] cursor-pointer"}>
             <SelectValue/>
           </SelectTrigger>
           <SelectContent side="bottom" align="start" position={"popper"} className="bg-transparent glass-dark" >
             {earnings.map((earning, i) => (
-              <SelectItem className={"hover:bg-white/10! focus:bg-white/20! [&_svg]:opacity-100! [&_svg]:text-white!"} value={i.toString()} key={i}>{earning.name}</SelectItem>
+              <SelectItem className={"hover:bg-white/10! focus:bg-white/20! [&_svg]:opacity-100! [&_svg]:text-white! cursor-pointer"} value={i.toString()} key={i}>{earning.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>

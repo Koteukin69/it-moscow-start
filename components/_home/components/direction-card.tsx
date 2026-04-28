@@ -14,7 +14,7 @@ export default function DirectionCard({direction, ...props}: {
 
   return (<>
     <div onClick={() => setOpen(true)}
-         className={"p-4 glass bg-white/10 rounded-[10px] max-w-xs flex flex-col gap-5 justify-between relative hover:scale-[105%] transition-transform duration-100 select-none"} {...props}>
+         className={"p-4 glass bg-white/10 rounded-[10px] max-w-xs flex flex-col gap-5 justify-between relative hover:scale-[105%] transition-transform duration-100 select-none cursor-pointer"} {...props}>
       <DirectionCardImage align={direction.align} src={direction.image} alt={direction.name}/>
       <div className={"flex flex-row justify-between items-end gap-2.5"}>
         <div className={"text-[20px] -mb-1 line-clamp-3 line-clamp-3"}>{direction.name}</div>

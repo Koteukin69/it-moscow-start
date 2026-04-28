@@ -116,3 +116,19 @@ export interface CartWithProducts {
     stock: number | null;
   }>;
 }
+
+export type ImageAlign = "left" | "center" | "right";
+
+export type Direction = {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  image: string;
+  budget: number | Array<{label: string; count: number}> | null;
+  for: string[];
+  become: string[];
+  program: string[];
+  category: string;
+  align: ImageAlign;
+}

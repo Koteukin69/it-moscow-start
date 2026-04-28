@@ -1,5 +1,5 @@
 import {getCollection} from "@/lib/db/mongodb";
-import type {OAuthProviderData} from "@/lib/types";
+import type {Direction, OAuthProviderData} from "@/lib/types";
 
 export const usersCollection = getCollection<{
   name: string,
@@ -112,3 +112,5 @@ export const specialtiesCollection = getCollection<{
   orb: string;
   budgetPlaces: number | Array<{label: string; count: number}> | null;
 }>("specialties");
+
+export const directionsCollection = getCollection<Direction>("directions");

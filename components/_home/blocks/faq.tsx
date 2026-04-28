@@ -45,6 +45,6 @@ export default function Faq({faqItems}: {faqItems: { question: string; answer: s
       </Accordion>
       <button className={"bg-gray-800 hover:bg-gray-800/90 active:bg-gray-700 font-semibold text-[20px] px-10 py-5 rounded-full cursor-pointer"} onClick={toggleHidden} >{hidden ? "Показать ещё" : "Скрыть"}</button>
     </div>
-    <p>Ещё остались вопросы? Заполните <Link className={"hover:underline"} href={""}>форму</Link>, и мы вам перезвоним.</p>
+    <p className={"text-[20px] text-center"}>Ещё остались вопросы? Заполните <Link className={"underline decoration-[1.5px] hover:decoration-[2px] active:opacity-50"} href={""}>форму</Link>, и мы вам перезвоним.</p>
   </>)
 }

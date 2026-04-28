@@ -5,7 +5,7 @@ const LINK_PATTERN = /\[([^\]]+)\]\(((?:https?:\/\/|\/|\.\/|\.\.\/)[^\)]+)\)/;
 export function parseInlineLinks(text: string): React.ReactNode[] {
   return text.split(LINK_PATTERN).map((part, index, parts) => {
     if (index % 3 === 0) return part;
-    if (index % 3 === 1) return <Link className={"hover:underline"} key={index} href={parts[index + 1]}>{part}</Link>;
+    if (index % 3 === 1) return <Link className={"underline decoration-[1.5px] hover:decoration-[2px] active:opacity-50"} key={index} href={parts[index + 1]}>{part}</Link>;
     return null;
   });
 }

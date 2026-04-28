@@ -14,6 +14,7 @@ import ShowcasePanel from "@/components/_home/blocks/showcase-panel";
 import Faq from "@/components/_home/blocks/faq";
 
 import {directionsCollection} from "@/lib/db/collections";
+import {getFaq} from "@/lib/faq";
 
 export default async function Home() {
   const collection = await directionsCollection;
@@ -124,7 +125,7 @@ export default async function Home() {
         <Courses/>
       </div>
       <div id={"faq"} className={"bg-[#18181B] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
-        <Faq/>
+        <Faq faqItems={await getFaq()}/>
       </div>
       <Transition className={"bg-[#18181B] text-[#7B9EFF]"}/>
       <div className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>

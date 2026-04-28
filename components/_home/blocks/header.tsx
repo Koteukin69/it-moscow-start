@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Nav from "../components/nav";
-import Button from "../components/button";
+import {ButtonLink} from "../components/buttonLink";
 import {useEffect, useState} from "react";
 
 export default function Header() {
@@ -18,7 +18,7 @@ export default function Header() {
   return <header className="fixed w-full top-4 px-5 sm:px-13 py-4 flex flex-row items-center justify-between z-50">
     <Logo className={"bg-[#021750] p-2 rounded-full w-11 aspect-square glass"} />
     <Nav scrolled={scrolled}/>
-    <Button className={"hidden xl:inline bg-[#021750]"} text={"Хочу Поступить"} href={"#admission"}/>
+    <ButtonLink className={"hidden xl:inline bg-[#021750]"} text={"Хочу Поступить"} href={"#admission"}/>
   </header>;
 }
 

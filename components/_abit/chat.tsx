@@ -119,12 +119,12 @@ export default function Chat({greeting}: {greeting: string}) {
     }, []);
   }, [messages]);
 
-  return (<div className={`absolute inset-0 bg-[#18181B] flex flex-col justify-center items-center px-6.25 py-12.5 sm:px-17.5 lg:px-25 gap-5`}>
+  return (<div className={`w-full h-dvh bg-[#18181B] flex flex-col justify-center items-center px-6.25 py-12.5 sm:px-17.5 lg:px-25 gap-5`}>
     <div className={`w-full max-w-2xl flex flex-col gap-5 px-2.5 sm:px-5 max-h-full overflow-y-auto transition-[flex-grow,margin] duration-300 ease-in-out ${started ? "flex-1 mt-10" : "flex-none"}`}>
       {started ? (
         <>
           {messageGroups.map((messageGroup, i) => (
-            <div className={`w-full flex flex-col gap-5 ${messageGroup[0].sender === "client" && "items-end"}`} key={i}>
+            <div className={`w-full flex flex-col gap-2.5 ${messageGroup[0].sender === "client" && "items-end"}`} key={i}>
               {messageGroup.map((message, j) => (
                 <MessageRender message={message} key={j} />
               ))}

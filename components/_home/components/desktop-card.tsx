@@ -12,7 +12,7 @@ type Props = {
 };
 
 export function DesktopCard({ card, titleText }: Props) {
-  const [expanded, setExpanded] = useState<boolean>(true);
+  const [expanded, setExpanded] = useState<boolean>(false);
 
   const toggle = (): void => setExpanded((prev) => !prev);
 
@@ -45,17 +45,17 @@ export function DesktopCard({ card, titleText }: Props) {
 
       <div className="absolute left-10 top-1/2 flex -translate-y-1/2 items-start gap-3">
         <div
-          className="grid overflow-hidden rounded-[28px] bg-white text-black shadow-[0_12px_40px_rgba(0,0,0,0.12)] transition-[grid-template-columns] duration-400 ease-out"
+          className="overflow-hidden rounded-[28px] bg-white text-black shadow-[0_12px_40px_rgba(0,0,0,0.12)] transition-all duration-400"
           style={{
-            gridTemplateColumns: expanded ? "1fr" : "0fr",
+            width: expanded ? "100%" : "50%",
           }}
         >
-          <div className="overflow-hidden">
-            <div className="w-[340px] p-7">
-              <h3 className="text-[26px] font-black uppercase leading-[0.95] tracking-tight">
+          <div>
+            <div className="w-full max-w-[30dvw] p-7">
+              <h3 className="text-[26px] font-black uppercase leading-[0.95] tracking-tight truncate">
                 {card.name}
               </h3>
-              <p className="mt-4 text-[14px] font-medium leading-[1.4] text-neutral-800">
+              <p className={`mt-4 text-[14px] font-medium leading-[1.4] text-neutral-800 ${expanded ? '' : 'line-clamp-2'}`}>
                 {card.description}
               </p>
             </div>

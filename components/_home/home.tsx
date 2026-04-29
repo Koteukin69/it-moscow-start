@@ -44,21 +44,21 @@ export default async function Home() {
       <div id={"tech"} className={"bg-[#18181B] text-white flex flex-col items-center w-full px-10 md:px-0 py-10 gap-20 overflow-x-hidden"}>
         <TechnologiesCarousel cards={[
           {
-            id: "alice-ai",
-            name: "Поиск с Алисой AI",
+            id: "it",
+            name: "ИТ.Москва",
             description:
-              "Ты спрашиваешь — Поиск с Алисой AI понимает. Алиса AI анализирует сотни миллиардов страниц за доли секунды и даёт осмысленные полезные ответы. Сочетание лучших поисковых технологий и искусственного интеллекта — так работает сервис, которому каждый месяц доверяют 100 миллионов человек по всей стране.",
+              "Новый флагман Москвы",
             image: {
-              src: "https://yandex.ru/youngcon/static/images/2026/tech/list/search_active.png",
+              src: "/technologies/it.png",
               alt: "Интерфейс Поиска с Алисой AI на смартфоне",
             },
             color: "#FF5A3C",
           },
           {
-            id: "alice-devices",
-            name: "Алиса AI и умные устройства",
+            id: "ya-prac",
+            name: "Я.Практикум",
             description:
-              "Алиса живёт в смартфонах, колонках и автомобилях. Управляй умным домом голосом, слушай музыку и получай ответы на любые вопросы.",
+              "Вместе с Я.Практикум",
             image: {
               src: "https://yandex.ru/youngcon/static/images/2026/tech/list/alisa_active.png",
               alt: "Умная колонка с Алисой",
@@ -66,10 +66,10 @@ export default async function Home() {
             color: "#3B3B3B",
           },
           {
-            id: "autonomous",
-            name: "Автономный транспорт и роботы",
+            id: "vk-edu",
+            name: "VK Education",
             description:
-              "Роботы-доставщики и беспилотные автомобили Яндекса уже работают на улицах городов. Это технологии, которые меняют логистику.",
+              "Бесплатные курсы от IT-гигантов",
             image: {
               src: "https://yandex.ru/youngcon/static/images/2026/tech/list/at_active-full_3000_crossfade_q60.webp",
               alt: "Робот-доставщик Яндекса",
@@ -77,10 +77,10 @@ export default async function Home() {
             color: "#2D7FF9",
           },
           {
-            id: "scooters",
-            name: "Самокаты Яндекс Go",
+            id: "tech",
+            name: "Технологии",
             description:
-              "В наши самокаты вложена душа инженеров Яндекса. Это полностью наша разработка: они умные, манёвренные и удобные для города.",
+              "Современные технологии теперь везде",
             image: {
               src: "/technologies/scooter.png",
               alt: "Самокат Яндекс Go",
@@ -88,10 +88,10 @@ export default async function Home() {
             color: "#FFD60A",
           },
           {
-            id: "drive",
-            name: "Яндекс Драйв",
+            id: "buildings",
+            name: "Корпуса",
             description:
-              "Драйв — технологичный каршеринг, доступный даже начинающим водителям. На Young Con автомобили Драйва станут шаттлами в будущее, в которых можно будет пройти пробное собеседование и начать свой путь в Яндексе.",
+              "Много разных современных строений",
             image: {
               src: "/technologies/drive.png",
               alt: "Автомобиль Яндекс Драйв",
@@ -99,10 +99,10 @@ export default async function Home() {
             color: "#6A5BFF",
           },
           {
-            id: "infrastructure",
-            name: "Yandex Infrastructure",
+            id: "ai",
+            name: "Ассистент",
             description:
-              "Облачная инфраструктура, на которой работают все сервисы Яндекса и тысячи внешних компаний. Масштаб, скорость и надёжность.",
+              "Помощь при поступлении от ИИ",
             image: {
               src: "/technologies/infrastructure.png",
               alt: "Серверная инфраструктура Яндекса",

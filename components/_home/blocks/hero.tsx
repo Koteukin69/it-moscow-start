@@ -12,7 +12,7 @@ export default function Hero() {
       <h1 className={"text-center px-10 text-[#7B9EFF] text-[48px] font-bold"}>МОСКВА ЖДЁТ ТВОЙ ДЕПЛОЙ!</h1>
       <div className={"flex gap-2.5 z-1 relative top-20"}>
         <ButtonLink text={"Я Студент"} href={"https://lk.itmoscow.pro"}/>
-        <ButtonLink text={"Я Абитуриент"} href={"/applicant"}/>
+        <ButtonLink text={"Я Абитуриент"} href={"/abit"}/>
       </div>
       <Image src={"/hero-bg.png"} alt={"hero"} fill/>
       <Matrix
@@ -26,7 +26,7 @@ export default function Hero() {
     <div className={"md:hidden h-[100dvh] bg-white relative flex flex-col pt-[20dvh] [@media(max-height:600px)]:pt-0"}>
       <div className={"absolute inset-0 flex flex-col items-center gap-2.5 z-1 pt-[15dvh] [@media(max-height:600px)]:hidden"}>
         <ButtonLink text={"Я Студент"} href={"https://lk.itmoscow.pro"}/>
-        <ButtonLink text={"Я Абитуриент"} href={"/applicant"}/>
+        <ButtonLink text={"Я Абитуриент"} href={"/abit"}/>
       </div>
       <div className={"min-h-0 flex-1 relative"}>
         <Image src={"/hero-bg-mobile.svg"} alt={"hero-mobile"} fill/>

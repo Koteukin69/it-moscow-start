@@ -70,10 +70,10 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-row justify-center items-center gap-4 border-t border-[#71717B80] pt-8">
-          <Image src="/logo-horizontal.svg" alt="IT.Москва" width={120} height={32}/>
+        <div className="mt-12 flex flex-col justify-center items-center gap-5 border-t border-[#71717B80] pt-8">
+          <Image className={"max-w-[183px] w-[50dvw]"} src="/logo-big.svg" alt="IT.Москва" width={183} height={99}/>
           <p className="text-center text-[16px] font-medium text-muted-foreground">
-            - колледж информационных технологий
+            IT.Москва — колледж информационных технологий
           </p>
         </div>
       </div>

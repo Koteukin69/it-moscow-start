@@ -11,9 +11,6 @@ type Props = {
   titleText: string;
 };
 
-const COLLAPSED_DESCRIPTION_MAX_HEIGHT = "5.5rem";
-const EXPANDED_DESCRIPTION_MAX_HEIGHT = "24rem";
-
 export function MobileCard({ card, titleText }: Props) {
   const [expanded, setExpanded] = useState<boolean>(false);
 
@@ -68,30 +65,54 @@ export function MobileCard({ card, titleText }: Props) {
   );
 }
 
-const COLLAPSED_HEIGHT = "5.5rem";
+const COLLAPSED_HEIGHT = "1rem";
 
-export function Description({ text, expanded }: { text: string; expanded: boolean }) {
-  const textRef = useRef<HTMLParagraphElement>(null);
-  const [fullHeight, setFullHeight] = useState<number | null>(null);
+export function Description({
+                              text,
+                              expanded,
+                            }: {
+  text: string;
+  expanded: boolean;
+}) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [fullHeight, setFullHeight] = useState<number>(0);
 
   useLayoutEffect(() => {
-    if (!textRef.current) return;
-    setFullHeight(Math.ceil(textRef.current.scrollHeight));
+    const el = contentRef.current;
+    if (!el) return;
+
+    const updateHeight = () => {
+      setFullHeight(Math.ceil(el.getBoundingClientRect().height));
+    };
+
+    updateHeight();
+
+    const resizeObserver = new ResizeObserver(updateHeight);
+    resizeObserver.observe(el);
+
+    document.fonts?.ready.then(updateHeight);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
   }, [text]);
 
   return (
     <div
       className="relative overflow-hidden transition-[height] duration-300 ease-out"
       style={{
-        height: expanded ? (fullHeight ? `${fullHeight}px` : "auto") : COLLAPSED_HEIGHT,
+        height: expanded
+          ? fullHeight > 0
+            ? `${fullHeight}px`
+            : "auto"
+          : COLLAPSED_HEIGHT,
       }}
     >
-      <p
-        ref={textRef}
-        className="pt-4 text-[15px] font-medium leading-[1.35] text-neutral-800"
-      >
-        {text}
-      </p>
+      <div ref={contentRef}>
+        <p className="pt-4 text-[15px] font-medium leading-[1.35] text-neutral-800">
+          {text}
+        </p>
+      </div>
 
       <div
         className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white via-white/85 to-transparent"

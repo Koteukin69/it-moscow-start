@@ -3,7 +3,6 @@
 import Title from "@/components/_home/components/title";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 import Link from "next/link";
-import {Button} from "@/components/_home/components/buttonLink";
 import {useRef, useState} from "react";
 
 export default function Faq({faqItems}: {faqItems: { question: string; answer: string }[]}) {

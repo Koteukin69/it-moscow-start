@@ -4,16 +4,23 @@ import Image from "next/image";
 import {ButtonLink} from "../components/buttonLink"
 import {ArrowDown} from "lucide-react";
 import Link from "next/link";
+import Matrix from "@/components/_home/blocks/matrix";
 
 export default function Hero() {
   return (<>
-    <div className={"hidden md:flex h-[100dvh] flex-col justify-center items-center gap-[50dvh] relative bg-white"}>
+    <div className={"hidden md:flex h-[100dvh] flex-col justify-center items-center gap-[50dvh] relative"}>
       <h1 className={"text-center px-10 text-[#7B9EFF] text-[48px] font-bold"}>МОСКВА ЖДЁТ ТВОЙ ДЕПЛОЙ!</h1>
       <div className={"flex gap-2.5 z-1 relative top-20"}>
         <ButtonLink text={"Я Студент"} href={"https://lk.itmoscow.pro"}/>
         <ButtonLink text={"Я Абитуриент"} href={"/applicant"}/>
       </div>
       <Image src={"/hero-bg.png"} alt={"hero"} fill/>
+      <Matrix
+        bgColor={"white"}
+        brightColor={"lightblue"}
+        glowColor={"transparent"}
+        dimColor={"#3053B180"}
+      />
     </div>
 
     <div className={"md:hidden h-[100dvh] bg-white relative flex flex-col pt-[20dvh] [@media(max-height:600px)]:pt-0"}>

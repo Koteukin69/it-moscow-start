@@ -34,11 +34,13 @@ export default async function Home() {
       <div id={"about"} className={"bg-[#18181B] text-white flex flex-col items-center px-5 sm:px-10 md:px-30 lg:px-50 py-10 gap-20"}>
         <ShowcasePanel
           title="МЕРЧ IT.Москва"
-          color={"pink"}
+          color={"lightblue"}
+          image={{src: "/merch-showcase.png", alt: "merch"}}
         />
         <ShowcasePanel
-          title="ФУД-Заряд"
-          color={"lightblue"}
+          title="Марочкина Баффет"
+          color={"pink"}
+          image={{src: "/buffet-showcase.png", alt: "buffet"}}
         />
       </div>
       <div id={"tech"} className={"bg-[#18181B] text-white flex flex-col items-center w-full px-10 md:px-0 py-10 gap-20 overflow-x-hidden"}>

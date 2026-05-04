@@ -7,6 +7,7 @@ import OrbAnimation from "@/components/orb";
 import Chat, {ChatStep} from "@/components/chat";
 import ActionButtons from "@/components/action_buttons";
 import ConsultationBannerCard from "@/components/consultation-banner-card";
+import AbitAiChat from "@/components/_abit/abit-ai-chat";
 import Link from "next/link";
 import {Button} from "@/components/ui/button";
 import {Send} from "lucide-react";
@@ -81,9 +82,12 @@ function SocialLinks() {
 
 function ChatConsultationRow() {
   return (
-    <div className="flex flex-row flex-wrap gap-3">
-      <SocialLinks/>
-      <ConsultationBannerCard/>
+    <div className="flex flex-col gap-3">
+      <AbitAiChat/>
+      <div className="flex flex-row flex-wrap gap-3">
+        <SocialLinks/>
+        <ConsultationBannerCard/>
+      </div>
     </div>
   );
 }

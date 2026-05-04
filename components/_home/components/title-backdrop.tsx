@@ -8,8 +8,8 @@ type Props = {
 export function TitleBackdrop({ text, variant }: Props) {
   const fontSizeClass =
     variant === "mobile"
-      ? "text-[10vw]"
-      : "text-[clamp(6rem,12vw,14rem)]";
+      ? "text-[12vw]"
+      : "text-[clamp(6rem,16vw,16rem)]";
 
   return (
     <div
@@ -18,7 +18,7 @@ export function TitleBackdrop({ text, variant }: Props) {
       aria-hidden
     >
       <span
-        className={`block whitespace-nowrap font-black uppercase tracking-[-0.02em] ${fontSizeClass} scale-y-200 h-[50%]`}
+        className={`block whitespace-nowrap font-black uppercase tracking-[-0.02em] ${fontSizeClass} scale-y-150 h-[50%]`}
         style={{ color: TITLE_OVERLAY_COLOR, transform: "translateY(-12%)" }}
       >
         {text}

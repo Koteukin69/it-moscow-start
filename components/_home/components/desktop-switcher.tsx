@@ -53,7 +53,7 @@ export function DesktopSwitcher({
                 opacity: isActive ? 1 : 0.75,
               }}
             >
-              <div className="absolute inset-0">
+              <div className="absolute inset-2">
                 <Image
                   src={card.image.src}
                   alt={card.image.alt}

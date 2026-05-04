@@ -62,10 +62,10 @@ export default async function Home() {
             description:
               "Вместе с Я.Практикум",
             image: {
-              src: "https://yandex.ru/youngcon/static/images/2026/tech/list/alisa_active.png",
-              alt: "Умная колонка с Алисой",
+              src: "/partners/yandex.svg",
+              alt: "Яндекс",
             },
-            color: "#3B3B3B",
+            color: "#d6a60A",
           },
           {
             id: "vk-edu",
@@ -73,8 +73,8 @@ export default async function Home() {
             description:
               "Бесплатные курсы от IT-гигантов",
             image: {
-              src: "https://yandex.ru/youngcon/static/images/2026/tech/list/at_active-full_3000_crossfade_q60.webp",
-              alt: "Робот-доставщик Яндекса",
+              src: "/partners/vk.svg",
+              alt: "VK",
             },
             color: "#2D7FF9",
           },
@@ -84,10 +84,10 @@ export default async function Home() {
             description:
               "Современные технологии теперь везде",
             image: {
-              src: "/technologies/scooter.png",
-              alt: "Самокат Яндекс Go",
+              src: "/technologies/tech.png",
+              alt: "Технологии",
             },
-            color: "#FFD60A",
+            color: "gray",
           },
           {
             id: "buildings",
@@ -95,8 +95,8 @@ export default async function Home() {
             description:
               "Много разных современных строений",
             image: {
-              src: "/technologies/drive.png",
-              alt: "Автомобиль Яндекс Драйв",
+              src: "/technologies/corp.png",
+              alt: "Корпуса",
             },
             color: "#6A5BFF",
           },
@@ -106,10 +106,10 @@ export default async function Home() {
             description:
               "Помощь при поступлении от ИИ",
             image: {
-              src: "/technologies/infrastructure.png",
-              alt: "Серверная инфраструктура Яндекса",
+              src: "/technologies/asist.png",
+              alt: "Асистент IT.Москвы",
             },
-            color: "#1A1033",
+            color: "#a686ba",
           },
         ]}/>
       </div>

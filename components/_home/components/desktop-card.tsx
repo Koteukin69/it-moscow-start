@@ -21,14 +21,14 @@ export function DesktopCard({ card, titleText }: Props) {
 
   return (
     <div
-      className="relative h-[50dvh] w-full overflow-hidden rounded-t-[40px]"
+      className="relative h-[50dvh] w-full rounded-t-[40px] transition duration-300"
       style={{ backgroundColor: card.color }}
     >
       <TitleBackdrop text={titleText} variant="desktop" />
 
       <div className="absolute inset-0 flex items-center justify-end pr-[3%]">
         <div
-          className="absolute -inset-20 mr-20"
+          className="absolute inset-0 mr-20 top-40 -bottom-30"
           style={{ transform: `scale(${scale})`, transformOrigin: "center right" }}
         >
           <Image

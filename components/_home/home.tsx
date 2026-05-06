@@ -15,6 +15,7 @@ import Faq from "@/components/_home/blocks/faq";
 
 import {directionsCollection} from "@/lib/db/collections";
 import {getFaq} from "@/lib/faq";
+import Events from "@/components/_home/blocks/events";
 
 export default async function Home() {
   const collection = await directionsCollection;
@@ -133,14 +134,8 @@ export default async function Home() {
       <div className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
         <Earning/>
       </div>
-      <div className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 md:px-30 lg:px-50 py-10 gap-20"}>
-        <CommissionBanner
-          title={"День открытых дверей"}
-          subtitle={"Приходи!"}
-          links={[
-            {name: "Записаться", href: "https://t.me/"},
-          ]}
-        />
+      <div className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 md:px-20 lg:px-30 py-10 gap-20"}>
+        <Events/>
       </div>
       <div className={"bg-[#7B9EFF] text-white flex flex-col items-center  r px-5 sm:px-10 md:px-25 py-10 gap-20 overflow-hidden  "}>
         <Partners/>

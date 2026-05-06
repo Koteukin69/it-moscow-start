@@ -2,6 +2,9 @@
 
 import ChatInput from "@/components/_abit/chat-input";
 import { useMemo, useState, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 
 type Message = {
   message: string;
@@ -211,11 +214,25 @@ export default function Chat({ greeting }: { greeting: string }) {
 }
 
 function MessageRender({ message }: { message: Message }) {
+  const isClient = message.sender === "client";
+
   return (
-    <div className={`flex flex-col gap-2.5 ${message.sender === "client" ? "px-4 py-2.5 bg-white/10 rounded-[10px]" : ""}`}>
-      {message.message.split("\n").map((line, k) => (
-        <p key={k}>{line}</p>
-      ))}
+    <div
+      className={[
+        "text-white/90 leading-relaxed",
+        "[&>*+*]:mt-3",
+        "[&_ul]:list-disc [&_ul]:pl-5",
+        "[&_ol]:list-decimal [&_ol]:pl-5",
+        "[&_li+li]:mt-1",
+        "[&_pre]:overflow-x-auto [&_pre]:rounded-[10px] [&_pre]:bg-black/30 [&_pre]:p-3",
+        "[&_code]:rounded [&_code]:bg-white/10 [&_code]:px-1",
+        "[&_pre_code]:bg-transparent [&_pre_code]:p-0",
+        isClient ? "px-4 py-2.5 bg-white/10 rounded-[10px]" : "",
+      ].join(" ")}
+    >
+      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+        {message.message}
+      </ReactMarkdown>
     </div>
   );
 }

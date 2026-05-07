@@ -20,7 +20,7 @@ export default function ParentHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
-      <div className="flex h-18 w-full items-center justify-between px-6 sm:px-10">
+      <div className="flex w-full items-center justify-between absolute left-8 top-8">
         <Button variant="ghost" size="default" className="gap-1 sm:text-md" asChild>
           <Link href="/">
             <ArrowLeft size={16}/>

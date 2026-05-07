@@ -5,6 +5,9 @@ import { useMemo, useState, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
+import {ArrowLeft} from "lucide-react";
+import Link from "next/link";
+import {Button} from "@/components/ui/button";
 
 type Message = {
   message: string;
@@ -174,6 +177,14 @@ export default function Chat({ greeting }: { greeting: string }) {
 
   return (
     <div className="w-full h-svh bg-[#18181B] flex flex-col justify-center items-center px-6.25 py-12.5 sm:px-17.5 lg:px-25 gap-5">
+      <div className="flex h-18 w-full items-center justify-between px-6 sm:px-10">
+        <Button variant="ghost" size="default" className="gap-1 sm:text-md" asChild>
+          <Link href="/">
+            <ArrowLeft size={16}/>
+            Вернуться
+          </Link>
+        </Button>
+      </div>
       <div className={`w-full max-w-2xl flex flex-col gap-5 px-2.5 sm:px-5 max-h-full overflow-y-auto transition-[flex-grow,margin] duration-300 ease-in-out ${started ? "flex-1 mt-10" : "flex-none"}`}>
         {started ? (
           <>

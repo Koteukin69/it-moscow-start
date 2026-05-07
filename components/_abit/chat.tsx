@@ -177,7 +177,7 @@ export default function Chat({ greeting }: { greeting: string }) {
 
   return (
     <div className="w-full h-svh bg-[#18181B] flex flex-col justify-center items-center px-6.25 py-12.5 sm:px-17.5 lg:px-25 gap-5">
-      <div className="flex h-18 w-full items-center justify-between px-6 sm:px-10">
+      <div className="flex w-full items-center justify-between absolute left-8 top-8">
         <Button variant="ghost" size="default" className="gap-1 sm:text-md" asChild>
           <Link href="/">
             <ArrowLeft size={16}/>

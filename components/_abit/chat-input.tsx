@@ -24,10 +24,10 @@ export default function ChatInput({onChange, value, onSubmit, thinking}: {onChan
       onKeyDown={value?.trim() || thinking ? handleKeyDown : undefined}
     />
     <button
-      className={`absolute right-2.5 bottom-2.5 z-1 w-7.5 aspect-square ${thinking && !value ? "bg-[#FF3204]" : "bg-[#7B9EFF]"} ${!value && "opacity-50"} rounded-[5px] ${value?.trim() || thinking ? "cursor-pointer" : ""}`}
+      className={`absolute right-2.5 bottom-2.5 z-1 w-7.5 aspect-square flex justify-center items-center ${thinking && !value ? "bg-[#FF3204]" : "bg-[#7B9EFF]"} ${!value && "opacity-50"} rounded-[5px] ${value?.trim() || thinking ? "cursor-pointer" : ""}`}
       onClick={value?.trim() || thinking ? onSubmit : undefined}
     >
-      ${thinking && !value ? <Square /> : <Play />}
+      {thinking && !value ? <Square /> : <Play />}
     </button>
   </div>);
 }

@@ -2,6 +2,7 @@
 
 import {ChangeEventHandler} from "react";
 import type { KeyboardEventHandler } from "react";
+import { Square, Play } from 'lucide-react';
 
 export default function ChatInput({onChange, value, onSubmit, thinking}: {onChange?: ChangeEventHandler<HTMLTextAreaElement, HTMLTextAreaElement> | undefined, value?: string, onSubmit?: () => void, thinking?: boolean}) {
   const handleKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
@@ -26,7 +27,7 @@ export default function ChatInput({onChange, value, onSubmit, thinking}: {onChan
       className={`absolute right-2.5 bottom-2.5 z-1 w-7.5 aspect-square ${thinking && !value ? "bg-[#FF3204]" : "bg-[#7B9EFF]"} ${!value && "opacity-50"} rounded-[5px] ${value?.trim() || thinking ? "cursor-pointer" : ""}`}
       onClick={value?.trim() || thinking ? onSubmit : undefined}
     >
-
+      ${thinking && !value ? <Square /> : <Play />}
     </button>
   </div>);
 }

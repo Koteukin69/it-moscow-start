@@ -225,7 +225,10 @@ export default function Chat({ greeting }: { greeting: string }) {
                   <div className="text-white/50">
                     {action === "thinking" ? "Думаю..." : "Остановлено."}
                   </div>
-                ))}
+              ))}
+              <div className={`${action ? "scale-80" : "scale-100"} w-25 transition-transform duration-300 aspect-square relative -ml-5`}>
+                <Orb resolution={4} blurMax={4} preset={action ? "sunset" : "cyan"}/>
+              </div>
             </>
           ) : (
             <>
@@ -243,10 +246,10 @@ export default function Chat({ greeting }: { greeting: string }) {
 
         <div className="w-full max-w-2xl flex flex-col gap-5 items-center">
           <ChatInput
-              thinking={action === "thinking"}
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              onSubmit={onSubmit}
+            thinking={action === "thinking"}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onSubmit={onSubmit}
           />
         </div>
       </div>

@@ -176,8 +176,8 @@ export default function Chat({ greeting }: { greeting: string }) {
   }), [messages]);
 
   return (
-    <div className="w-full h-svh bg-[#18181B] flex flex-col justify-center items-center px-6.25 py-12.5 sm:px-17.5 lg:px-25 gap-5">
-      <div className="flex w-full items-center justify-between absolute left-8 top-8">
+    <div className="w-full h-svh bg-[#18181B] flex flex-row justify-stretch items-center">
+      <div className="flex items-center justify-between absolute left-8 top-8 z-1 md:hidden">
         <Button variant="ghost" size="default" className="gap-1 sm:text-md" asChild>
           <Link href="/">
             <ArrowLeft size={16}/>
@@ -185,40 +185,63 @@ export default function Chat({ greeting }: { greeting: string }) {
           </Link>
         </Button>
       </div>
-      <div className={`w-full max-w-2xl flex flex-col gap-5 px-2.5 sm:px-5 max-h-full overflow-y-auto transition-[flex-grow,margin] duration-300 ease-in-out ${started ? "flex-1 mt-10" : "flex-none"}`}>
-        {started ? (
-          <>
-            {messageGroups.map((messageGroup, i) => (
-              <div className={`w-full flex flex-col gap-2.5 ${messageGroup[0].sender === "client" ? "items-end" : ""}`} key={i}>
-                {messageGroup.map((message, j) => (
-                  <MessageRender message={message} key={j} />
-                ))}
-              </div>
-            ))}
-
-            {action &&
-              (answerStream ? (
-                <MessageRender message={{ message: answerStream, sender: "server" }} />
-              ) : (
-                <div className="text-white/50">
-                  {action === "thinking" ? "Думаю..." : "Остановлено."}
-                </div>
-              ))}
-          </>
-        ) : (
-          <div className="text-[24px] text-center">
-            <span className="text-[#7B9EFF]">{greeting}</span> Задай вопрос, и я сразу отвечу!
-          </div>
-        )}
+      <div className="hidden md:flex flex-col items-start grow h-full max-w-100 glass-dark bg-black/10 px-5 py-5 gap-6.25">
+        <Button variant="ghost" size="default" className="gap-1 sm:text-md" asChild>
+          <Link href="/">
+            <ArrowLeft size={16}/>
+            Вернуться
+          </Link>
+        </Button>
+        <div className="flex flex-col gap-2.5 px-2 h-full">
+          <Link className={"hover:underline active:opacity-50"} href="/quiz">Тест: Кто ты в IT?</Link>
+          <Link className={"hover:underline active:opacity-50"} href="/quide">Гид по специальностям/профессиям</Link>
+          <Link className={"hover:underline active:opacity-50"} href="/cources">Курсы IT.Москва School</Link>
+          <Link className={"hover:underline active:opacity-50"} href="/events">Наши мероприятия</Link>
+          <Link className={"hover:underline active:opacity-50"} href="https://itmoscow.mskobr.ru/o-nas/pedagogicheskii-sostav">Состав преподователей</Link>
+          <Link className={"hover:underline active:opacity-50"} href="/faq">FAQ (Вопрос-ответ)</Link>
+        </div>
+        <Button variant="default" size="default" className="gap-1 sm:text-md w-full font-black text-[#18181B] active:bg-[#7B9EFF]" asChild>
+          <Link href="/">
+            Играть
+          </Link>
+        </Button>
       </div>
+      <div className="flex flex-col gap-5 items-center justify-center px-6.25 py-12.5 sm:px-17.5 md:px-6.25 grow-2">
+        <div className={`w-full max-w-2xl flex flex-col gap-5 px-2.5 sm:px-5 max-h-full overflow-y-auto transition-[flex-grow,margin] duration-300 ease-in-out ${started ? "flex-1 mt-10" : "flex-none"}`}>
+          {started ? (
+              <>
+                {messageGroups.map((messageGroup, i) => (
+                    <div className={`w-full flex flex-col gap-2.5 ${messageGroup[0].sender === "client" ? "items-end" : ""}`} key={i}>
+                      {messageGroup.map((message, j) => (
+                          <MessageRender message={message} key={j} />
+                      ))}
+                    </div>
+                ))}
 
-      <div className="w-full max-w-2xl flex flex-col gap-5 items-center">
-        <ChatInput
-          thinking={action === "thinking"}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onSubmit={onSubmit}
-        />
+                {action &&
+                    (answerStream ? (
+                        <MessageRender message={{ message: answerStream, sender: "server" }} />
+                    ) : (
+                        <div className="text-white/50">
+                          {action === "thinking" ? "Думаю..." : "Остановлено."}
+                        </div>
+                    ))}
+              </>
+          ) : (
+              <div className="text-[24px] text-center">
+                <span className="text-[#7B9EFF]">{greeting}</span> Задай вопрос, и я сразу отвечу!
+              </div>
+          )}
+        </div>
+
+        <div className="w-full max-w-2xl flex flex-col gap-5 items-center">
+          <ChatInput
+              thinking={action === "thinking"}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              onSubmit={onSubmit}
+          />
+        </div>
       </div>
     </div>
   );

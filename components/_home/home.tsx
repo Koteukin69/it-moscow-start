@@ -8,7 +8,6 @@ import Earning from "./blocks/earning";
 import Partners from "@/components/_home/blocks/partners";
 import Footer from "@/components/_home/blocks/footer";
 import News from "@/components/_home/blocks/news";
-import CommissionBanner from "@/components/_home/blocks/commission-banner";
 import {TechnologiesCarousel} from "@/components/_home/blocks/technologies-carousel";
 import ShowcasePanel from "@/components/_home/blocks/showcase-panel";
 import Faq from "@/components/_home/blocks/faq";
@@ -25,7 +24,7 @@ export default async function Home() {
     <main className={"text-black"}>
       <Header/>
       <Hero/>
-      <div id={"directions"} className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 lg:px-25 py-10 gap-20"}>
+      <div id={"directions"} className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 lg:px-25 py-10 gap-20 relative"}>
         <Directions directions={directions.map(({_id, ...direction}) => direction)}/>
       </div>
       <Transition className={"bg-[#7B9EFF] text-[#18181B]"}/>

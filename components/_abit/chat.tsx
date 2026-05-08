@@ -8,6 +8,7 @@ import remarkBreaks from "remark-breaks";
 import {ArrowLeft} from "lucide-react";
 import Link from "next/link";
 import {Button} from "@/components/ui/button";
+import Orb from "@/components/orb";
 
 type Message = {
   message: string;
@@ -185,7 +186,7 @@ export default function Chat({ greeting }: { greeting: string }) {
           </Link>
         </Button>
       </div>
-      <div className="hidden md:flex flex-col items-start grow h-full max-w-100 glass-dark bg-black/10 px-5 py-5 gap-6.25">
+      <div className="hidden md:flex flex-col items-start grow h-full max-w-100 glass-dark bg-black/10 p-5 pb-7.5 gap-6.25">
         <Button variant="ghost" size="default" className="gap-1 sm:text-md" asChild>
           <Link href="/">
             <ArrowLeft size={16}/>
@@ -206,31 +207,37 @@ export default function Chat({ greeting }: { greeting: string }) {
           </Link>
         </Button>
       </div>
-      <div className="flex flex-col gap-5 items-center justify-center px-6.25 py-12.5 sm:px-17.5 md:px-6.25 grow-2">
+      <div className="flex flex-col gap-5 items-center justify-center px-6.25 py-12.5 sm:px-17.5 md:px-6.25 grow-2 h-full">
         <div className={`w-full max-w-2xl flex flex-col gap-5 px-2.5 sm:px-5 max-h-full overflow-y-auto transition-[flex-grow,margin] duration-300 ease-in-out ${started ? "flex-1 mt-10" : "flex-none"}`}>
           {started ? (
-              <>
-                {messageGroups.map((messageGroup, i) => (
-                    <div className={`w-full flex flex-col gap-2.5 ${messageGroup[0].sender === "client" ? "items-end" : ""}`} key={i}>
-                      {messageGroup.map((message, j) => (
-                          <MessageRender message={message} key={j} />
-                      ))}
-                    </div>
+            <>
+              {messageGroups.map((messageGroup, i) => (
+                <div className={`w-full flex flex-col gap-2.5 ${messageGroup[0].sender === "client" ? "items-end" : ""}`} key={i}>
+                  {messageGroup.map((message, j) => (
+                    <MessageRender message={message} key={j} />
+                  ))}
+                </div>
+              ))}
+              {action &&
+                (answerStream ? (
+                  <MessageRender message={{ message: answerStream, sender: "server" }} />
+                ) : (
+                  <div className="text-white/50">
+                    {action === "thinking" ? "Думаю..." : "Остановлено."}
+                  </div>
                 ))}
-
-                {action &&
-                    (answerStream ? (
-                        <MessageRender message={{ message: answerStream, sender: "server" }} />
-                    ) : (
-                        <div className="text-white/50">
-                          {action === "thinking" ? "Думаю..." : "Остановлено."}
-                        </div>
-                    ))}
-              </>
+            </>
           ) : (
+            <>
+              <div className={"flex justify-center"}>
+                <div className={"w-50 h-50 relative"}>
+                  <Orb/>
+                </div>
+              </div>
               <div className="text-[24px] text-center">
                 <span className="text-[#7B9EFF]">{greeting}</span> Задай вопрос, и я сразу отвечу!
               </div>
+            </>
           )}
         </div>
 

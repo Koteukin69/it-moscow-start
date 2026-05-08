@@ -17,16 +17,23 @@ export default function Directions({directions}: {directions: Direction[]}) {
       title={"Какое направление выбрать ребёнку?"}
       description={"13 востребованных специальностей и профессий с трудоустройством в ведущие компании страны"}
     />
-    <Tabs className={"flex flex-col gap-4 w-full items-center"} defaultValue={directionsCategories[0]}>
-      <DirectionsTabList tabs={directionsCategories}/>
-      {directionsDict.map((item, i) => (
-        <TabsContent className={"grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"} value={item.category} key={i}>
-          {item.directions.map((direction, i) => (
-            <DirectionCard direction={direction} key={i} />
-          ))}
-        </TabsContent>
-      ))}
-    </Tabs>
+    <div className={"flex items-stretch gap-10"}>
+      <Tabs className={"flex flex-col gap-4 w-full items-center"} defaultValue={directionsCategories[0]}>
+        <DirectionsTabList tabs={directionsCategories}/>
+        {directionsDict.map((item, i) => (
+          <TabsContent className={"grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"} value={item.category} key={i}>
+            {item.directions.map((direction, i) => (
+              <DirectionCard direction={direction} key={i} />
+            ))}
+          </TabsContent>
+        ))}
+      </Tabs>
+      <div className={"pt-[52px] hidden lg:block"}>
+        <div className="sticky top-[calc(50%)] rounded-2xl p-5 border w-3xs">
+          Реклама ИИ Помощника Орба, он предлагает подсказать про специальности
+        </div>
+      </div>
+    </div>
   </>);
 }
 

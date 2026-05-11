@@ -129,7 +129,7 @@ function MatrixRain({
     }, [brightColor, dimColor, bgColor, glowColor]);
 
     return (
-        <div className={`absolute inset-0 -z-[1] overflow-hidden ${className}`} style={{ background: bgColor }}>
+        <div className={`fixed inset-0 -z-[1] overflow-hidden ${className}`} style={{ background: bgColor }}>
             <canvas ref={canvasRef} className="block w-full h-full" />
         </div>
     );

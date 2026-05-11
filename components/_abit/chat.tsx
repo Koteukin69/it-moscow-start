@@ -195,7 +195,7 @@ export default function Chat({ greeting }: { greeting: string }) {
         </Button>
         <div className="flex flex-col gap-2.5 px-2 h-full">
           <Link className={"hover:underline active:opacity-50"} href="/quiz">Тест: Кто ты в IT?</Link>
-          <Link className={"hover:underline active:opacity-50"} href="/quide">Гид по специальностям/профессиям</Link>
+          <Link className={"hover:underline active:opacity-50"} href="/guide">Гид по специальностям/профессиям</Link>
           <Link className={"hover:underline active:opacity-50"} href="/cources">Курсы IT.Москва School</Link>
           <Link className={"hover:underline active:opacity-50"} href="/events">Наши мероприятия</Link>
           <Link className={"hover:underline active:opacity-50"} href="https://itmoscow.mskobr.ru/o-nas/pedagogicheskii-sostav">Состав преподователей</Link>

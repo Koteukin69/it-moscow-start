@@ -1,14 +1,7 @@
-type Result =
-  | { ok: true; data: AIAnswer }
-  | { ok: false; error: AIError };
+import { retrieveContext } from "@/lib/knowledge-base";
+import { getWebContext } from "@/lib/web-cache";
 
-type AskParams = {
-  prompt: string;
-  system?: string;
-  temperature?: number;
-  maxTokens?: number;
-  signal?: AbortSignal;
-};
+export type ModelType = "Приемная комиссия" | "База знаний ИТ.Москва" | "ИТ.Дизайн";
 
 export type AIError = {
   code:
@@ -23,40 +16,158 @@ export type AIError = {
     | "UNKNOWN_ERROR";
   message: string;
   status?: number;
-  requestId?: string;
 };
 
-export type AIAnswer = {
-  text: string;
-  model: string;
-  finishReason: string | null;
-  usage: {
-    promptTokens?: number;
-    completionTokens?: number;
-    totalTokens?: number;
+export type StreamResult =
+  | { ok: false; error: AIError }
+  | { ok: true; stream: AsyncGenerator<string, void, unknown> };
+
+type AskParams = {
+  prompt: string;
+  modelType?: ModelType;
+  temperature?: number;
+  maxTokens?: number;
+  signal?: AbortSignal;
+};
+
+type FMAlternative = {
+  message?: { role?: string; text?: string };
+  status?: string;
+};
+
+type FMEvent = {
+  result?: {
+    alternatives?: FMAlternative[];
   };
 };
 
-type ThreadResponse = {
-  id: string;
-};
+const BASE_URL =
+  "https://llm.api.cloud.yandex.net/foundationModels/v1/completion";
 
-type RunResponse = {
-  id: string;
-  state?: {
-    status?: string;
-    completed_message?: {
-      status?: string;
-      content?: {
-        content?: {
-          text?: {
-            content?: string;
-          };
-        }[];
-      };
+const apiKey = process.env.YANDEX_API_KEY ?? process.env.AI_API_KEY;
+const modelUri = process.env.YANDEX_MODEL_URI;
+const admissionSystemPrompt = process.env.YANDEX_SYSTEM_PROMPT ?? "";
+const knowledgeSystemPrompt =
+  process.env.KNOWLEDGE_SYSTEM_PROMPT ??
+  "Ты — Орбс, умный ИИ-помощник образовательного центра ИТ.Москва. " +
+  "Помогай с вопросами по математике, физике, информатике, программированию и другим точным наукам. " +
+  "Решай задачи пошагово. Не отвечай на вопросы о поступлении в колледж — для этого есть режим «Приемная комиссия».";
+
+const configError = !apiKey
+  ? "YANDEX_API_KEY or AI_API_KEY env is required"
+  : !modelUri
+    ? "YANDEX_MODEL_URI env is required"
+    : null;
+
+export async function askAIStream(params: AskParams): Promise<StreamResult> {
+  if (configError || !apiKey || !modelUri) {
+    return {
+      ok: false,
+      error: { code: "CONFIG_ERROR", message: configError ?? "AI client is not configured" },
     };
-  };
-};
+  }
+
+  const isKnowledge = params.modelType === "База знаний ИТ.Москва";
+
+  try {
+    let fullSystemPrompt: string;
+
+    if (isKnowledge) {
+      fullSystemPrompt = knowledgeSystemPrompt;
+    } else {
+      const [kbContext, webContext] = await Promise.all([
+        Promise.resolve(retrieveContext(params.prompt)),
+        getWebContext(params.prompt),
+      ]);
+      fullSystemPrompt = admissionSystemPrompt;
+      if (kbContext) fullSystemPrompt += `\n\nРелевантная информация из базы знаний:\n${kbContext}`;
+      if (webContext) fullSystemPrompt += `\n\nАктуальная информация с сайтов ИТ.Москва:\n${webContext}`;
+    }
+
+    const res = await fetch(BASE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Api-Key ${apiKey}`,
+      },
+      body: JSON.stringify({
+        modelUri,
+        completionOptions: {
+          stream: true,
+          temperature: params.temperature ?? 0.3,
+          maxTokens: String(params.maxTokens ?? 1000),
+        },
+        messages: [
+          { role: "system", text: fullSystemPrompt },
+          { role: "user", text: params.prompt },
+        ],
+      }),
+      signal: params.signal,
+    });
+
+    if (!res.ok || !res.body) {
+      const text = await res.text().catch(() => "");
+      const data = text ? safeJsonParse(text) : null;
+      const message =
+        getYandexErrorMessage(data) ??
+        (text || `Yandex FM request failed: ${res.status}`);
+      throw new YandexRequestError(message, res.status);
+    }
+
+    return { ok: true, stream: parseFMStream(res.body, params.signal) };
+  } catch (error) {
+    console.error("[AI setup error]", error);
+    return { ok: false, error: normalizeError(error) };
+  }
+}
+
+async function* parseFMStream(
+  body: ReadableStream<Uint8Array>,
+  signal?: AbortSignal,
+): AsyncGenerator<string, void, unknown> {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let prevLength = 0;
+
+  try {
+    while (true) {
+      if (signal?.aborted) break;
+
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+
+        const parsed = safeJsonParse(trimmed) as FMEvent | null;
+        const alternative = parsed?.result?.alternatives?.[0];
+        if (!alternative) continue;
+
+        const text = alternative.message?.text ?? "";
+        const status = alternative.status ?? "";
+
+        if (
+          status === "ALTERNATIVE_STATUS_PARTIAL" ||
+          status === "ALTERNATIVE_STATUS_FINAL"
+        ) {
+          const chunk = text.slice(prevLength);
+          if (chunk) yield chunk;
+          prevLength = text.length;
+        }
+
+        if (status === "ALTERNATIVE_STATUS_FINAL") return;
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
 
 class YandexRequestError extends Error {
   constructor(message: string, public status?: number) {
@@ -64,220 +175,26 @@ class YandexRequestError extends Error {
   }
 }
 
-const apiKey = process.env.YANDEX_API_KEY ?? process.env.AI_API_KEY;
-const assistantId = process.env.YANDEX_AGENT_ID;
-const folderId = process.env.YANDEX_FOLDER_ID ?? process.env.AI_FOLDER_ID;
-const baseURL = process.env.YANDEX_ASSISTANT_BASE_URL ?? "https://rest-assistant.api.cloud.yandex.net/assistants/v1";
-
-const configError =
-  !apiKey ? "YANDEX_API_KEY or AI_API_KEY env is required" :
-    !assistantId ? "YANDEX_AGENT_ID env is required" :
-      !folderId ? "YANDEX_FOLDER_ID or AI_FOLDER_ID env is required" : null;
-
-export async function askAI(params: AskParams): Promise<Result> {
-  if (configError || !apiKey || !assistantId || !folderId) {
-    return {
-      ok: false,
-      error: {
-        code: "CONFIG_ERROR",
-        message: configError ?? "AI client is not configured",
-      },
-    };
-  }
-
-  try {
-    const thread = await yandexFetch<ThreadResponse>("/threads", {
-      method: "POST",
-      body: {
-        folderId,
-      },
-      signal: params.signal,
-    });
-
-    await yandexFetch(`/messages?threadId=${encodeURIComponent(thread.id)}`, {
-      method: "POST",
-      body: {
-        threadId: thread.id,
-        content: {
-          content: [
-            {
-              text: {
-                content: params.prompt,
-              },
-            },
-          ],
-        },
-      },
-      signal: params.signal,
-    });
-
-    const run = await yandexFetch<RunResponse>("/runs", {
-      method: "POST",
-      body: {
-        assistantId,
-        threadId: thread.id,
-      },
-      signal: params.signal,
-    });
-
-    const finishedRun = await waitForRun(run.id, params.signal);
-    const messageStatus = finishedRun.state?.completed_message?.status;
-
-    if (messageStatus === "FILTERED_CONTENT") {
-      return {
-        ok: false,
-        error: {
-          code: "CONTENT_FILTER",
-          message: "Yandex Assistant stopped generation because of content filtering",
-        },
-      };
-    }
-
-    const text = getRunText(finishedRun);
-
-    if (!text) {
-      return {
-        ok: false,
-        error: {
-          code: "EMPTY_RESPONSE",
-          message: "Yandex Assistant returned empty response",
-        },
-      };
-    }
-
-    return {
-      ok: true,
-      data: {
-        text,
-        model: assistantId,
-        finishReason: finishedRun.state?.status ?? null,
-        usage: {},
-      },
-    };
-  } catch (error) {
-    console.error("[AI raw error]", error);
-
-    return {
-      ok: false,
-      error: normalizeError(error),
-    };
-  }
-}
-
-async function waitForRun(runId: string, signal?: AbortSignal): Promise<RunResponse> {
-  const startedAt = Date.now();
-  const maxWaitMs = 60_000;
-
-  while (Date.now() - startedAt < maxWaitMs) {
-    const run = await yandexFetch<RunResponse>(`/runs/${encodeURIComponent(runId)}`, {
-      signal,
-    });
-
-    const status = run.state?.status;
-
-    if (status === "COMPLETED") return run;
-
-    if (status === "FAILED" || status === "CANCELLED" || status === "EXPIRED") {
-      throw new YandexRequestError(`Run finished with status: ${status}`);
-    }
-
-    await sleep(1000, signal);
-  }
-
-  return Promise.reject(new YandexRequestError("Yandex Assistant did not respond in 60 seconds"));
-}
-
-async function yandexFetch<T>(
-  path: string,
-  options: {
-    method?: "GET" | "POST";
-    body?: unknown;
-    signal?: AbortSignal;
-  } = {},
-): Promise<T> {
-  const res = await fetch(`${baseURL}${path}`, {
-    method: options.method ?? "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Api-Key ${apiKey}`,
-    },
-    body: options.body ? JSON.stringify(options.body) : undefined,
-    signal: options.signal,
-  });
-
-  const text = await res.text();
-  const data = text ? safeJsonParse(text) : null;
-
-  if (!res.ok) {
-    const message =
-      getYandexErrorMessage(data) ??
-      (text ? text : `Yandex request failed: ${res.status}`);
-
-    throw new YandexRequestError(message, res.status);
-  }
-
-  return data as T;
-}
-
-function getRunText(run: RunResponse): string | undefined {
-  return run.state?.completed_message?.content?.content
-    ?.map((part) => part.text?.content)
-    .filter(Boolean)
-    .join("\n")
-    .trim();
-}
-
 function normalizeError(error: unknown): AIError {
   if (error instanceof YandexRequestError) {
-    if (error.status === 401) {
-      return {
-        code: "AUTH_ERROR",
-        message: "Invalid Yandex API key",
-        status: error.status,
-      };
-    }
-
-    if (error.status === 403) {
-      return {
-        code: "PERMISSION_ERROR",
-        message: "Yandex API key has no permission for this assistant or folder",
-        status: error.status,
-      };
-    }
-
-    if (error.status === 429) {
-      return {
-        code: "RATE_LIMIT",
-        message: "Yandex rate limit exceeded",
-        status: error.status,
-      };
-    }
-
-    return {
-      code: "YANDEX_ERROR",
-      message: error.message,
-      status: error.status,
-    };
+    if (error.status === 401)
+      return { code: "AUTH_ERROR", message: "Invalid Yandex API key", status: error.status };
+    if (error.status === 403)
+      return { code: "PERMISSION_ERROR", message: "Yandex API key has no permission", status: error.status };
+    if (error.status === 429)
+      return { code: "RATE_LIMIT", message: "Yandex rate limit exceeded", status: error.status };
+    return { code: "YANDEX_ERROR", message: error.message, status: error.status };
   }
 
   if (error instanceof DOMException && error.name === "AbortError") {
-    return {
-      code: "TIMEOUT",
-      message: "AI request was aborted",
-    };
+    return { code: "TIMEOUT", message: "AI request was aborted" };
   }
 
   if (error instanceof Error) {
-    return {
-      code: "UNKNOWN_ERROR",
-      message: error.message,
-    };
+    return { code: "UNKNOWN_ERROR", message: error.message };
   }
 
-  return {
-    code: "UNKNOWN_ERROR",
-    message: "Unknown AI error",
-  };
+  return { code: "UNKNOWN_ERROR", message: "Unknown AI error" };
 }
 
 function safeJsonParse(text: string): unknown {
@@ -290,28 +207,6 @@ function safeJsonParse(text: string): unknown {
 
 function getYandexErrorMessage(data: unknown): string | undefined {
   if (!data || typeof data !== "object") return undefined;
-
   const message = (data as { message?: unknown }).message;
-
   return typeof message === "string" ? message : undefined;
-}
-
-function sleep(ms: number, signal?: AbortSignal): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (signal?.aborted) {
-      reject(new DOMException("Aborted", "AbortError"));
-      return;
-    }
-
-    const timeout = setTimeout(resolve, ms);
-
-    signal?.addEventListener(
-      "abort",
-      () => {
-        clearTimeout(timeout);
-        reject(new DOMException("Aborted", "AbortError"));
-      },
-      { once: true },
-    );
-  });
 }

@@ -32,6 +32,7 @@ interface OAuthState {
   state: string;
   mode: OAuthMode;
   codeVerifier?: string;
+  returnUrl?: string;
 }
 
 function randomHex(bytes: number): string {
@@ -41,7 +42,7 @@ function randomHex(bytes: number): string {
 }
 
 function base64url(buffer: ArrayBuffer): string {
-  return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+  return btoa(Array.from(new Uint8Array(buffer), (b) => String.fromCharCode(b)).join(""))
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=+$/, "");
@@ -224,4 +225,23 @@ export async function getYandexUserInfo(accessToken: string): Promise<{
 
 export function generateState(): string {
   return randomHex(16);
+}
+
+export function embedReturnUrl(state: string, returnUrl?: string): string {
+  if (!returnUrl) return state;
+  const encoded = btoa(returnUrl).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return `${state}~${encoded}`;
+}
+
+export function extractReturnUrl(embeddedState: string): { baseState: string; returnUrl?: string } {
+  const tilde = embeddedState.indexOf("~");
+  if (tilde === -1) return { baseState: embeddedState };
+  try {
+    const raw = embeddedState.slice(tilde + 1).replace(/-/g, "+").replace(/_/g, "/");
+    const padded = raw + "=".repeat((4 - (raw.length % 4)) % 4);
+    const decoded = atob(padded);
+    return { baseState: embeddedState.slice(0, tilde), returnUrl: decoded.startsWith("/") ? decoded : undefined };
+  } catch {
+    return { baseState: embeddedState };
+  }
 }

@@ -4,7 +4,7 @@ import {ChangeEventHandler} from "react";
 import type { KeyboardEventHandler } from "react";
 import { Square, Play } from 'lucide-react';
 
-export default function ChatInput({onChange, value, onSubmit, thinking}: {onChange?: ChangeEventHandler<HTMLTextAreaElement, HTMLTextAreaElement> | undefined, value?: string, onSubmit?: () => void, thinking?: boolean}) {
+export default function ChatInput({onChange, value, onSubmit, thinking, disabled}: {onChange?: ChangeEventHandler<HTMLTextAreaElement, HTMLTextAreaElement> | undefined, value?: string, onSubmit?: () => void, thinking?: boolean, disabled?: boolean}) {
   const handleKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
     if (e.key !== "Enter") return;
     if (e.shiftKey) return;
@@ -14,13 +14,14 @@ export default function ChatInput({onChange, value, onSubmit, thinking}: {onChan
     onSubmit?.();
   };
 
-  return (<div className={"w-full h-25 relative"}>
+  return (<div className={`w-full h-25 relative ${disabled ? "opacity-50 pointer-events-none" : ""}`}>
     <textarea
       value={value}
       onChange={onChange}
-      placeholder="Как я могу вам помочь?"
+      placeholder={disabled ? "Лимит вопросов исчерпан. Войдите, чтобы продолжить." : "Как я могу вам помочь?"}
       className={"absolute inset-0 resize-none px-4 py-3 pr-10 text-[16px] text-white bg-white/10 placeholder:text-white/50 rounded-[10px] outline-none"}
       name={"chat-input"}
+      disabled={disabled}
       onKeyDown={value?.trim() || thinking ? handleKeyDown : undefined}
     />
     <button

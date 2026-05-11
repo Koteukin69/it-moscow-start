@@ -1,3 +1,6 @@
+import { headers } from "next/headers";
+import { ObjectId } from "mongodb";
+import { usersCollection } from "@/lib/db/collections";
 import Chat from "@/components/_abit/chat";
 
 function getMoscowGreeting(date = new Date()) {
@@ -16,6 +19,32 @@ function getMoscowGreeting(date = new Date()) {
   return "Доброй ночи!";
 }
 
-export default function Abit() {
-  return (<Chat greeting={getMoscowGreeting()}/>);
+export default async function Abit() {
+  const h = await headers();
+  const userId = h.get("x-user-id") ?? undefined;
+  const rawName = h.get("x-user-name") ?? undefined;
+  const userName = rawName ? decodeURIComponent(rawName) : undefined;
+
+  let userAvatar: string | undefined;
+  if (userId) {
+    try {
+      const collection = await usersCollection;
+      const user = await collection.findOne(
+        { _id: new ObjectId(userId) },
+        { projection: { avatar: 1 } },
+      );
+      userAvatar = user?.avatar ?? undefined;
+    } catch {
+      // non-critical — sidebar still renders with initials fallback
+    }
+  }
+
+  return (
+    <Chat
+      greeting={getMoscowGreeting()}
+      userId={userId}
+      userName={userName}
+      userAvatar={userAvatar}
+    />
+  );
 }

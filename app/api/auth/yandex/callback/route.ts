@@ -4,6 +4,7 @@ import {
   clearOAuthStateCookie,
   exchangeYandexCode,
   getYandexUserInfo,
+  extractReturnUrl,
 } from "@/lib/oauth";
 import {createToken, verifyToken, AUTH_COOKIE_OPTIONS} from "@/lib/auth";
 import {usersCollection} from "@/lib/db/collections";
@@ -19,9 +20,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       return NextResponse.redirect(new URL("/applicant", req.url));
     }
 
+    const { returnUrl: embeddedReturnUrl } = extractReturnUrl(state);
     const oauthState = await getOAuthStateCookie(req);
     if (!oauthState || oauthState.state !== state) {
-      return NextResponse.redirect(new URL("/applicant", req.url));
+      return NextResponse.redirect(new URL(embeddedReturnUrl ?? "/applicant", req.url));
     }
 
     const tokens = await exchangeYandexCode(code);
@@ -80,6 +82,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       "oauthProviders.providerUserId": providerUserId,
     });
 
+    const loginRedirect = embeddedReturnUrl ?? oauthState.returnUrl ?? "/applicant";
+
     if (existingUser) {
       const token = await createToken({
         userId: existingUser._id.toString(),
@@ -87,7 +91,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         hasPhone: existingUser.oauthProviders?.some((p: {phone?: string}) => !!p.phone) ?? false,
       } satisfies JWTPayload);
 
-      const response = NextResponse.redirect(new URL("/applicant", req.url));
+      const response = NextResponse.redirect(new URL(loginRedirect, req.url));
       response.cookies.set("auth-token", token, AUTH_COOKIE_OPTIONS);
       clearOAuthStateCookie(response);
       return response;
@@ -113,7 +117,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       hasPhone: !!yandexUser.phone,
     } satisfies JWTPayload);
 
-    const response = NextResponse.redirect(new URL("/applicant", req.url));
+    const response = NextResponse.redirect(new URL(loginRedirect, req.url));
     response.cookies.set("auth-token", token, AUTH_COOKIE_OPTIONS);
     clearOAuthStateCookie(response);
     return response;

@@ -1,6 +1,7 @@
 import {NextRequest, NextResponse} from "next/server";
 import {
   generateState,
+  embedReturnUrl,
   generatePKCE,
   getVKAuthorizationURL,
   setOAuthStateCookie,
@@ -13,13 +14,17 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({error: "Invalid mode"}, {status: 400});
   }
 
-  const state = generateState();
+  const rawReturn = req.nextUrl.searchParams.get("returnUrl") ?? "";
+  const returnUrl = rawReturn.startsWith("/") ? rawReturn : undefined;
+
+  const baseState = generateState();
+  const state = embedReturnUrl(baseState, returnUrl);
   const {codeVerifier, codeChallenge} = generatePKCE();
   const challenge = await codeChallenge;
 
   const url = getVKAuthorizationURL(state, challenge);
   const response = NextResponse.redirect(url);
-  await setOAuthStateCookie(response, {state, mode, codeVerifier});
+  await setOAuthStateCookie(response, {state, mode, codeVerifier, returnUrl});
 
   return response;
 }

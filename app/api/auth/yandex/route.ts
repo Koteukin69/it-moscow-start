@@ -1,6 +1,7 @@
 import {NextRequest, NextResponse} from "next/server";
 import {
   generateState,
+  embedReturnUrl,
   getYandexAuthorizationURL,
   setOAuthStateCookie,
   type OAuthMode,
@@ -12,10 +13,14 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({error: "Invalid mode"}, {status: 400});
   }
 
-  const state = generateState();
+  const rawReturn = req.nextUrl.searchParams.get("returnUrl") ?? "";
+  const returnUrl = rawReturn.startsWith("/") ? rawReturn : undefined;
+
+  const baseState = generateState();
+  const state = embedReturnUrl(baseState, returnUrl);
   const url = getYandexAuthorizationURL(state);
   const response = NextResponse.redirect(url);
-  await setOAuthStateCookie(response, {state, mode});
+  await setOAuthStateCookie(response, {state, mode, returnUrl});
 
   return response;
 }

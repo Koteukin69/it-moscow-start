@@ -47,3 +47,5 @@ next-env.d.ts
 /game
 /.claude
 /uploads
+
+/lib/generated/prisma

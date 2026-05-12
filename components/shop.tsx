@@ -21,6 +21,7 @@ interface ShopProps {
   initialCoins: number;
   initialCart: CartWithProducts;
   backUrl: string;
+  isGuest?: boolean;
 }
 
 function reindex(items: CartItemData[]): CartItemData[] {
@@ -29,7 +30,7 @@ function reindex(items: CartItemData[]): CartItemData[] {
 
 const collator = new Intl.Collator(["ru", "en"], {sensitivity: "base", numeric: true});
 
-export default function Shop({initialCoins, initialCart, backUrl}: ShopProps) {
+export default function Shop({initialCoins, initialCart, backUrl, isGuest = false}: ShopProps) {
   const [products, setProducts] = useState<ProductData[]>([]);
   const [loading, setLoading] = useState(true);
   const [coins, setCoins] = useState(initialCoins);
@@ -321,23 +322,34 @@ export default function Shop({initialCoins, initialCart, backUrl}: ShopProps) {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <div className="flex items-center gap-1.5 bg-background/70 border border-border/40 rounded-full px-3 py-1.5 text-sm">
-              <Coins size={14} className="text-yellow-500"/>
-              <span className="font-semibold">{coins}</span>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative"
-              onClick={() => setCartOpen(true)}
-            >
-              <ShoppingCart size={18}/>
-              {totalCartItems > 0 && (
-                <Badge className="absolute -top-1.5 -right-1.5 h-5 min-w-5 px-1 text-[10px] flex items-center justify-center rounded-full">
-                  {totalCartItems}
-                </Badge>
-              )}
-            </Button>
+            {isGuest ? (
+              <Link
+                href="/api/auth/vk?mode=login&returnUrl=/shop"
+                className="flex items-center gap-1.5 bg-primary/10 border border-primary/20 rounded-full px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/20 transition-colors"
+              >
+                Войти для покупки
+              </Link>
+            ) : (
+              <>
+                <div className="flex items-center gap-1.5 bg-background/70 border border-border/40 rounded-full px-3 py-1.5 text-sm">
+                  <Coins size={14} className="text-yellow-500"/>
+                  <span className="font-semibold">{coins}</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative"
+                  onClick={() => setCartOpen(true)}
+                >
+                  <ShoppingCart size={18}/>
+                  {totalCartItems > 0 && (
+                    <Badge className="absolute -top-1.5 -right-1.5 h-5 min-w-5 px-1 text-[10px] flex items-center justify-center rounded-full">
+                      {totalCartItems}
+                    </Badge>
+                  )}
+                </Button>
+              </>
+            )}
           </div>
         </div>
         <div className="flex sm:hidden gap-1.5 overflow-x-auto no-scrollbar px-6 pb-2">
@@ -383,10 +395,10 @@ export default function Shop({initialCoins, initialCart, backUrl}: ShopProps) {
               <ProductCard
                 key={product._id}
                 product={product}
-                cartQuantity={cartCountMap.get(product._id) || 0}
-                onAdd={() => addToCart(product._id)}
-                onIncrement={() => handleIncrement(product)}
-                onDecrement={() => handleDecrement(product)}
+                cartQuantity={isGuest ? 0 : (cartCountMap.get(product._id) || 0)}
+                onAdd={isGuest ? () => { window.location.href = "/api/auth/vk?mode=login&returnUrl=/shop"; } : () => addToCart(product._id)}
+                onIncrement={isGuest ? undefined : () => handleIncrement(product)}
+                onDecrement={isGuest ? undefined : () => handleDecrement(product)}
                 onClick={() => setSelected(product)}
               />
             ))}

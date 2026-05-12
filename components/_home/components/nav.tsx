@@ -9,7 +9,7 @@ const navLinks: { text: string; href: string }[] = [
   {"text": "О колледже", "href": "#about"},
   {"text": "Курсы", "href": "#courses"},
   {"text": "Частые вопросы", "href": "#faq"},
-  {"text": "Форма связи", "href": "#contacts"},
+  {"text": "Магазин", "href": "/shop"},
   {"text": "Мероприятия", "href": "/parent/events"},
 ]
 

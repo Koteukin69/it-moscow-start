@@ -23,8 +23,8 @@ interface ProductCardProps {
   product: ProductData;
   cartQuantity: number;
   onAdd: () => void;
-  onIncrement: () => void;
-  onDecrement: () => void;
+  onIncrement?: () => void;
+  onDecrement?: () => void;
   onClick: () => void;
 }
 
@@ -68,11 +68,11 @@ export default function ProductCard({product, cartQuantity, onAdd, onIncrement, 
           {!outOfStock && (
             cartQuantity > 0 ? (
               <div className="flex items-center gap-1">
-                <Button variant="outline" size="icon-xs" onClick={e => { e.stopPropagation(); onDecrement(); }}>
+                <Button variant="outline" size="icon-xs" onClick={e => { e.stopPropagation(); onDecrement?.(); }}>
                   <Minus size={12}/>
                 </Button>
                 <span className="w-5 text-center text-xs sm:text-sm font-medium">{cartQuantity}</span>
-                <Button variant="outline" size="icon-xs" onClick={e => { e.stopPropagation(); onIncrement(); }}>
+                <Button variant="outline" size="icon-xs" onClick={e => { e.stopPropagation(); onIncrement?.(); }}>
                   <Plus size={12}/>
                 </Button>
               </div>

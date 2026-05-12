@@ -1,12 +1,11 @@
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import Shop from "@/components/shop";
 import type { CartWithProducts } from "@/lib/types";
 
 type CartItem = { productId: string; quantity: number; variant?: string };
 
-const ALLOWED_BACK_URLS = new Set(["/profile", "/abit", "/store"]);
+const ALLOWED_BACK_URLS = new Set(["/profile", "/abit", "/store", "/"]);
 
 export default async function ShopPage({
   searchParams,
@@ -14,17 +13,15 @@ export default async function ShopPage({
   searchParams: Promise<Record<string, string>>;
 }) {
   const h = await headers();
-  const userId = h.get("x-user-id");
+  const userId = h.get("x-user-id") ?? null;
   const params = await searchParams;
   const from = params.from ?? "";
-  const backUrl = ALLOWED_BACK_URLS.has(from) ? from : "/profile";
+  const backUrl = ALLOWED_BACK_URLS.has(from) ? from : "/";
 
-  if (!userId) redirect("/");
-
-  const user = await prisma.user.findUnique({ where: { id: userId }, select: { coins: true } });
+  const user = userId ? await prisma.user.findUnique({ where: { id: userId }, select: { coins: true } }) : null;
   const coins = user?.coins ?? 0;
 
-  const cart = await prisma.cart.findUnique({ where: { userId } });
+  const cart = userId ? await prisma.cart.findUnique({ where: { userId } }) : null;
   const cartItems = (cart?.items as CartItem[]) ?? [];
 
   let enrichedCart: CartWithProducts = { items: [] };
@@ -56,5 +53,5 @@ export default async function ShopPage({
     };
   }
 
-  return <Shop initialCoins={coins} initialCart={enrichedCart} backUrl={backUrl} />;
+  return <Shop initialCoins={coins} initialCart={enrichedCart} backUrl={backUrl} isGuest={!userId} />;
 }

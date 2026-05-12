@@ -1,10 +1,11 @@
-import {headers} from "next/headers";
-import {redirect} from "next/navigation";
-import type {QuizResult} from "@/lib/types";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import type { QuizResult } from "@/lib/types";
 import ProfileCard from "@/components/profile-card";
 import Back from "@/components/back";
-import {usersCollection, quizResultsCollection, ordersCollection} from "@/lib/db/collections";
-import {ObjectId} from "mongodb";
+import { prisma } from "@/lib/db/prisma";
+
+type OAuthProvider = { provider: string; phone?: string; linkedAt: string };
 
 export interface UserOrder {
   _id: string;
@@ -25,43 +26,44 @@ export default async function Profile() {
 
   const name = decodeURIComponent(h.get("x-user-name") ?? "");
 
-  const [users, quizCollection, ordersCol] = await Promise.all([usersCollection, quizResultsCollection, ordersCollection]);
   const [userDoc, quizDoc, orderDocs] = await Promise.all([
-    users.findOne({_id: new ObjectId(userId)}),
-    quizCollection.findOne({userId}),
-    ordersCol.find({userId}).sort({createdAt: -1}).toArray(),
+    prisma.user.findUnique({ where: { id: userId } }),
+    prisma.quizResult.findUnique({ where: { userId } }),
+    prisma.order.findMany({ where: { userId }, orderBy: { createdAt: "desc" } }),
   ]);
 
   const coins = userDoc?.coins ?? 0;
-  const avatar = userDoc?.avatar;
-  const oauthProviders = (userDoc?.oauthProviders ?? []).map(p => ({
-    provider: p.provider,
-    linkedAt: p.linkedAt instanceof Date ? p.linkedAt.toISOString() : String(p.linkedAt),
+  const avatar = userDoc?.avatar ?? undefined;
+  const oauthProviders = ((userDoc?.oauthProviders as OAuthProvider[]) ?? []).map(p => ({
+    provider: p.provider as "vk" | "yandex",
+    linkedAt: p.linkedAt ?? new Date().toISOString(),
   }));
   const quizResult: QuizResult | undefined = quizDoc
-    ? {directions: quizDoc.directions, top: quizDoc.top, completedAt: quizDoc.completedAt.toISOString()}
+    ? { directions: quizDoc.directions as Record<string, number>, top: quizDoc.top, completedAt: quizDoc.completedAt.toISOString() }
     : undefined;
 
   const orders: UserOrder[] = orderDocs.map(o => ({
-    _id: o._id.toString(),
+    _id: o.id,
     orderNumber: o.orderNumber ?? 0,
     pickupCode: o.pickupCode ?? "",
     productName: o.productName,
     variant: o.variant || null,
     quantity: o.quantity || 1,
     status: o.status,
-    createdAt: o.createdAt instanceof Date ? o.createdAt.toISOString() : String(o.createdAt),
+    createdAt: o.createdAt.toISOString(),
   }));
 
-  return <>
-    <Back link="/abit" />
-    <ProfileCard
-      name={name}
-      coins={coins}
-      avatar={avatar}
-      quizResult={quizResult}
-      orders={orders}
-      oauthProviders={oauthProviders}
-    />
-  </>;
+  return (
+    <>
+      <Back link="/abit" />
+      <ProfileCard
+        name={name}
+        coins={coins}
+        avatar={avatar}
+        quizResult={quizResult}
+        orders={orders}
+        oauthProviders={oauthProviders}
+      />
+    </>
+  );
 }

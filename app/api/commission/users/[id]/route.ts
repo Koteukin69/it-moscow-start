@@ -1,66 +1,52 @@
-import {NextRequest, NextResponse} from "next/server";
-import {ObjectId} from "mongodb";
-import {usersCollection} from "@/lib/db/collections";
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db/prisma";
 
-export async function DELETE(_req: NextRequest, {params}: {params: Promise<{id: string}>}): Promise<NextResponse> {
+type OAuthProvider = { provider: string; phone?: string };
+
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
-    const {id} = await params;
+    const { id } = await params;
 
-    if (!ObjectId.isValid(id)) {
-      return NextResponse.json({error: "Неверный ID"}, {status: 400});
+    const user = await prisma.user.findUnique({ where: { id }, select: { id: true } });
+    if (!user) {
+      return NextResponse.json({ error: "Пользователь не найден" }, { status: 404 });
     }
 
-    const collection = await usersCollection;
-    const result = await collection.deleteOne({_id: new ObjectId(id)});
-
-    if (result.deletedCount === 0) {
-      return NextResponse.json({error: "Пользователь не найден"}, {status: 404});
-    }
-
-    return NextResponse.json({success: true});
+    await prisma.user.delete({ where: { id } });
+    return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json({error: "Ошибка сервера"}, {status: 500});
+    return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
   }
 }
 
-export async function PUT(req: NextRequest, {params}: {params: Promise<{id: string}>}): Promise<NextResponse> {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
-    const {id} = await params;
-    if (!ObjectId.isValid(id)) {
-      return NextResponse.json({error: "Неверный ID"}, {status: 400});
-    }
+    const { id } = await params;
 
-    const {name, coins} = await req.json();
+    const { name, coins } = await req.json();
     if (!name) {
-      return NextResponse.json({error: "Имя обязательно"}, {status: 400});
+      return NextResponse.json({ error: "Имя обязательно" }, { status: 400 });
     }
 
-    const collection = await usersCollection;
-    const result = await collection.findOneAndUpdate(
-      {_id: new ObjectId(id)},
-      {$set: {name: String(name), coins: Number(coins) || 0}},
-      {returnDocument: "after"},
-    );
+    const result = await prisma.user.update({
+      where: { id },
+      data: { name: String(name), coins: Number(coins) || 0 },
+    });
 
-    if (!result) {
-      return NextResponse.json({error: "Пользователь не найден"}, {status: 404});
-    }
-
-    const phones = (result.oauthProviders ?? [])
-      .map(p => p.phone)
-      .filter((p): p is string => Boolean(p));
+    const providers = (result.oauthProviders as OAuthProvider[]) ?? [];
+    const phones = providers.map(p => p.phone).filter((p): p is string => Boolean(p));
 
     return NextResponse.json({
       success: true,
       user: {
-        _id: result._id.toString(),
+        _id: result.id,
         name: result.name,
         phones,
-        providers: (result.oauthProviders ?? []).map(p => p.provider),
+        providers: providers.map(p => p.provider),
         coins: result.coins ?? 0,
       },
     });
   } catch {
-    return NextResponse.json({error: "Ошибка сервера"}, {status: 500});
+    return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
   }
 }

@@ -1,17 +1,16 @@
-import {NextResponse} from "next/server";
-import {consultationsCollection} from "@/lib/db/collections";
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db/prisma";
 
 export async function GET(): Promise<NextResponse> {
   try {
-    const collection = await consultationsCollection;
-    const consultations = await collection
-      .find({flames: {$gt: 0}})
-      .sort({createdAt: -1})
-      .toArray();
+    const consultations = await prisma.consultation.findMany({
+      where: { flames: { gt: 0 } },
+      orderBy: { createdAt: "desc" },
+    });
 
     return NextResponse.json({
       consultations: consultations.map(c => ({
-        _id: c._id.toString(),
+        _id: c.id,
         name: c.name,
         phone: c.phone,
         childName: c.childName,
@@ -19,10 +18,10 @@ export async function GET(): Promise<NextResponse> {
         grade: c.grade,
         flames: c.flames,
         sessionId: c.sessionId ?? null,
-        createdAt: c.createdAt instanceof Date ? c.createdAt.toISOString() : c.createdAt,
+        createdAt: c.createdAt.toISOString(),
       })),
     });
   } catch {
-    return NextResponse.json({error: "Ошибка сервера"}, {status: 500});
+    return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
   }
 }

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { usersCollection } from "@/lib/db/collections";
-import { ObjectId } from "mongodb";
+import { prisma } from "@/lib/db/prisma";
 
 const ALLOWED_GAMES = ["fly", "2048"] as const;
-type GameId = typeof ALLOWED_GAMES[number];
+type GameId = (typeof ALLOWED_GAMES)[number];
 
 function calcCoins(game: GameId, score: number): number {
   if (game === "fly") return Math.min(Math.floor(score / 2), 30);
@@ -37,8 +36,10 @@ export async function POST(req: NextRequest) {
 
   const coins = calcCoins(body.game as GameId, body.score);
   if (coins > 0) {
-    const users = await usersCollection;
-    await users.updateOne({ _id: new ObjectId(userId) }, { $inc: { coins } });
+    await prisma.user.update({
+      where: { id: userId },
+      data: { coins: { increment: coins } },
+    });
   }
 
   return NextResponse.json({ coins });

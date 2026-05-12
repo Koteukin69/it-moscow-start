@@ -1,6 +1,5 @@
 import { headers } from "next/headers";
-import { ObjectId } from "mongodb";
-import { usersCollection } from "@/lib/db/collections";
+import { prisma } from "@/lib/db/prisma";
 import Chat from "@/components/_abit/chat";
 
 function getMoscowGreeting(date = new Date()) {
@@ -28,14 +27,10 @@ export default async function Abit() {
   let userAvatar: string | undefined;
   if (userId) {
     try {
-      const collection = await usersCollection;
-      const user = await collection.findOne(
-        { _id: new ObjectId(userId) },
-        { projection: { avatar: 1 } },
-      );
+      const user = await prisma.user.findUnique({ where: { id: userId }, select: { avatar: true } });
       userAvatar = user?.avatar ?? undefined;
-    } catch {
-      // non-critical — sidebar still renders with initials fallback
+    } catch (err) {
+      console.error("[abit] avatar fetch error", err);
     }
   }
 

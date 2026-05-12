@@ -1,33 +1,30 @@
-import {NextRequest, NextResponse} from "next/server";
-import {productsCollection} from "@/lib/db/collections";
-import {ObjectId} from "mongodb";
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db/prisma";
+import { Prisma } from "@prisma/client";
 
-const mapProduct = (p: Record<string, unknown> & {_id: {toString(): string}}) => ({
-  _id: p._id.toString(),
+const mapProduct = (p: { id: string; name: string; price: number; description: string; images: unknown; stock: number | null; variants: unknown; variantLabel: string | null; isNew: boolean }) => ({
+  _id: p.id,
   name: p.name,
   price: p.price,
   description: p.description,
-  images: Array.isArray(p.images) ? p.images : (p.image ? [p.image] : []),
+  images: Array.isArray(p.images) ? p.images : [],
   stock: p.stock ?? null,
-  variants: p.variants || p.sizes || null,
+  variants: (p.variants as Record<string, number> | null) || null,
   variantLabel: p.variantLabel || null,
   isNew: p.isNew ?? false,
 });
 
-export async function PUT(req: NextRequest, {params}: {params: Promise<{id: string}>}): Promise<NextResponse> {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
-    const {id} = await params;
-    if (!ObjectId.isValid(id)) {
-      return NextResponse.json({error: "Неверный ID"}, {status: 400});
-    }
+    const { id } = await params;
 
     const body = await req.json();
-    const {name, price, description} = body;
+    const { name, price, description } = body;
     if (!name || price === undefined || !description) {
-      return NextResponse.json({error: "Заполните обязательные поля"}, {status: 400});
+      return NextResponse.json({ error: "Заполните обязательные поля" }, { status: 400 });
     }
 
-    const update: Record<string, unknown> = {
+    const data: Parameters<typeof prisma.product.update>[0]["data"] = {
       name: String(name),
       price: Number(price),
       description: String(description),
@@ -35,97 +32,60 @@ export async function PUT(req: NextRequest, {params}: {params: Promise<{id: stri
     };
 
     if (Array.isArray(body.images)) {
-      update.images = body.images.filter((u: unknown) => typeof u === "string");
+      data.images = body.images.filter((u: unknown) => typeof u === "string");
     }
 
-    const unsetFields: Record<string, ""> = {};
-
     if (body.variants && typeof body.variants === "object") {
-      update.variants = body.variants;
-      unsetFields.stock = "";
-      if (body.variantLabel) update.variantLabel = String(body.variantLabel);
+      data.variants = body.variants;
+      data.stock = null;
+      if (body.variantLabel) data.variantLabel = String(body.variantLabel);
     } else if (body.stock !== undefined && body.stock !== null) {
-      update.stock = Number(body.stock);
-      unsetFields.variants = "";
-      unsetFields.variantLabel = "";
+      data.stock = Number(body.stock);
+      data.variants = Prisma.DbNull;
+      data.variantLabel = null;
     }
 
-    const collection = await productsCollection;
-    const op: Record<string, unknown> = {$set: update};
-    if (Object.keys(unsetFields).length > 0) op.$unset = unsetFields;
-
-    const result = await collection.findOneAndUpdate(
-      {_id: new ObjectId(id)},
-      op,
-      {returnDocument: "after"},
-    );
-
-    if (!result) {
-      return NextResponse.json({error: "Товар не найден"}, {status: 404});
-    }
-
-    return NextResponse.json({success: true, product: mapProduct(result as never)});
+    const result = await prisma.product.update({ where: { id }, data });
+    return NextResponse.json({ success: true, product: mapProduct(result) });
   } catch {
-    return NextResponse.json({error: "Ошибка сервера"}, {status: 500});
+    return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
   }
 }
 
-export async function DELETE(_req: NextRequest, {params}: {params: Promise<{id: string}>}): Promise<NextResponse> {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
-    const {id} = await params;
-    if (!ObjectId.isValid(id)) {
-      return NextResponse.json({error: "Неверный ID"}, {status: 400});
+    const { id } = await params;
+
+    const product = await prisma.product.findUnique({ where: { id }, select: { id: true } });
+    if (!product) {
+      return NextResponse.json({ error: "Товар не найден" }, { status: 404 });
     }
-    const collection = await productsCollection;
-    const result = await collection.deleteOne({_id: new ObjectId(id)});
-    if (result.deletedCount === 0) {
-      return NextResponse.json({error: "Товар не найден"}, {status: 404});
-    }
-    return NextResponse.json({success: true});
+
+    await prisma.product.delete({ where: { id } });
+    return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json({error: "Ошибка сервера"}, {status: 500});
+    return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
   }
 }
 
-export async function PATCH(req: NextRequest, {params}: {params: Promise<{id: string}>}): Promise<NextResponse> {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
-    const {id} = await params;
-    if (!ObjectId.isValid(id)) {
-      return NextResponse.json({error: "Неверный ID"}, {status: 400});
-    }
+    const { id } = await params;
     const body = await req.json();
-    const collection = await productsCollection;
 
-    const update: Record<string, unknown> = {};
+    const data: Parameters<typeof prisma.product.update>[0]["data"] = {};
 
-    if (body.stock !== undefined && typeof body.stock === "number") {
-      update.stock = body.stock;
+    if (body.stock !== undefined && typeof body.stock === "number") data.stock = body.stock;
+    if (body.variants && typeof body.variants === "object") data.variants = body.variants;
+    if (body.isNew !== undefined && typeof body.isNew === "boolean") data.isNew = body.isNew;
+
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json({ error: "Нечего обновлять" }, { status: 422 });
     }
 
-    if (body.variants && typeof body.variants === "object") {
-      update.variants = body.variants;
-    }
-
-    if (body.isNew !== undefined && typeof body.isNew === "boolean") {
-      update.isNew = body.isNew;
-    }
-
-    if (Object.keys(update).length === 0) {
-      return NextResponse.json({error: "Нечего обновлять"}, {status: 422});
-    }
-
-    const result = await collection.findOneAndUpdate(
-      {_id: new ObjectId(id)},
-      {$set: update},
-      {returnDocument: "after"}
-    );
-
-    if (!result) {
-      return NextResponse.json({error: "Товар не найден"}, {status: 404});
-    }
-
-    return NextResponse.json({success: true, product: mapProduct(result as never)});
+    const result = await prisma.product.update({ where: { id }, data });
+    return NextResponse.json({ success: true, product: mapProduct(result) });
   } catch {
-    return NextResponse.json({error: "Ошибка сервера"}, {status: 500});
+    return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
   }
 }

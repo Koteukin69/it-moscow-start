@@ -58,7 +58,7 @@ export default async function Home() {
           title="Марочкина Баффет"
           color={"pink"}
           image={{src: "/buffet-showcase.png", alt: "buffet"}}
-          description="Устал кодить? Зарядись бодрящим напитком прямо в кофетерии ИТ.Москва. Баги не сами себя не исправят!"
+          description="Устал кодить? Зарядись бодрящим напитком прямо в кофетерии ИТ.Москва. Баги сами себя не исправят!"
           buttonText="Перейти"
           buttonHref="/cafeteria"
           textLarge

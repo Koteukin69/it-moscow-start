@@ -84,14 +84,13 @@ export const defaultApplicantFaq: { question: string; answer: string }[] = [
   },
 ];
 
-import {faqCollection} from "@/lib/db/collections";
+import { prisma } from "@/lib/db/prisma";
 
 export async function getFaq(): Promise<{ question: string; answer: string }[]> {
   try {
-    const col = await faqCollection;
-    const items = await col.find({}).sort({_id: 1}).toArray();
+    const items = await prisma.faq.findMany({ orderBy: { id: "asc" } });
     if (items.length === 0) return defaultApplicantFaq;
-    return items.map(i => ({question: i.question, answer: i.answer}));
+    return items.map(i => ({ question: i.question, answer: i.answer }));
   } catch {
     return defaultApplicantFaq;
   }

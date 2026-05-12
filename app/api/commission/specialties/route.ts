@@ -1,13 +1,13 @@
-import {NextResponse} from "next/server";
-import {specialtiesCollection} from "@/lib/db/collections";
-import {mergeWithDefaults} from "@/lib/merge-specialties";
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db/prisma";
+import { mergeWithDefaults } from "@/lib/merge-specialties";
 
 export async function GET(): Promise<NextResponse> {
   try {
-    const docs = await (await specialtiesCollection).find({}).toArray();
-    const specialties = mergeWithDefaults(docs);
-    return NextResponse.json({specialties});
+    const docs = await prisma.specialty.findMany();
+    const specialties = mergeWithDefaults(docs as never);
+    return NextResponse.json({ specialties });
   } catch {
-    return NextResponse.json({error: "Ошибка сервера"}, {status: 500});
+    return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
   }
 }

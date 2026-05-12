@@ -1,10 +1,10 @@
 import SpecialtyCard from "@/components/parent/specialty-card";
-import {specialtiesCollection} from "@/lib/db/collections";
+import { prisma } from "@/lib/db/prisma";
 import {mergeWithDefaults} from "@/lib/merge-specialties";
 
 export default async function ParentDirections() {
-  const docs = await (await specialtiesCollection).find({}).toArray();
-  const specialties = mergeWithDefaults(docs);
+  const docs = await prisma.specialty.findMany();
+  const specialties = mergeWithDefaults(docs as never);
 
   return (
     <section id="directions" className="mx-auto max-w-6xl px-10 py-20 sm:px-20">

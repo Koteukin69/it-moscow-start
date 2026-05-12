@@ -1,9 +1,10 @@
-import {headers} from "next/headers";
-import {redirect} from "next/navigation";
-import {usersCollection, cartsCollection, productsCollection} from "@/lib/db/collections";
-import {ObjectId} from "mongodb";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/db/prisma";
 import Shop from "@/components/shop";
-import type {CartWithProducts} from "@/lib/types";
+import type { CartWithProducts } from "@/lib/types";
+
+type CartItem = { productId: string; quantity: number; variant?: string };
 
 const ALLOWED_BACK_URLS = new Set(["/profile", "/abit", "/store"]);
 
@@ -20,25 +21,18 @@ export default async function ShopPage({
 
   if (!userId) redirect("/");
 
-  const [users, carts, products] = await Promise.all([
-    usersCollection, cartsCollection, productsCollection,
-  ]);
-
-  const user = await users.findOne({_id: new ObjectId(userId)});
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { coins: true } });
   const coins = user?.coins ?? 0;
 
-  const cart = await carts.findOne({userId});
-  const cartItems = cart?.items ?? [];
+  const cart = await prisma.cart.findUnique({ where: { userId } });
+  const cartItems = (cart?.items as CartItem[]) ?? [];
 
-  let enrichedCart: CartWithProducts = {items: []};
+  let enrichedCart: CartWithProducts = { items: [] };
 
   if (cartItems.length > 0) {
-    const productIds = cartItems.map(i => {
-      try { return new ObjectId(i.productId); } catch { return null; }
-    }).filter(Boolean) as ObjectId[];
-
-    const productDocs = await products.find({_id: {$in: productIds}}).toArray();
-    const productMap = new Map(productDocs.map(p => [p._id.toString(), p]));
+    const productIds = [...new Set(cartItems.map(i => i.productId))];
+    const productDocs = await prisma.product.findMany({ where: { id: { in: productIds } } });
+    const productMap = new Map(productDocs.map(p => [p.id, p]));
 
     enrichedCart = {
       items: cartItems
@@ -52,8 +46,8 @@ export default async function ShopPage({
             variant: item.variant || undefined,
             name: product.name,
             price: product.price,
-            images: Array.isArray(product.images) ? product.images : [],
-            variants: product.variants || null,
+            images: Array.isArray(product.images) ? (product.images as string[]) : [],
+            variants: (product.variants as Record<string, number> | null) || null,
             variantLabel: product.variantLabel || null,
             stock: product.stock ?? null,
           };

@@ -1,11 +1,11 @@
-import {NextResponse} from "next/server";
-import {ordersCollection} from "@/lib/db/collections";
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db/prisma";
 
 export async function GET(): Promise<NextResponse> {
   try {
-    const orders = await (await ordersCollection).find({}).sort({createdAt: -1}).toArray();
+    const orders = await prisma.order.findMany({ orderBy: { createdAt: "desc" } });
     const result = orders.map(o => ({
-      _id: o._id.toString(),
+      _id: o.id,
       orderNumber: o.orderNumber ?? 0,
       pickupCode: o.pickupCode ?? "",
       userId: o.userId,
@@ -17,10 +17,10 @@ export async function GET(): Promise<NextResponse> {
       quantity: o.quantity || 1,
       price: o.price,
       status: o.status,
-      createdAt: o.createdAt instanceof Date ? o.createdAt.toISOString() : o.createdAt,
+      createdAt: o.createdAt.toISOString(),
     }));
-    return NextResponse.json({orders: result});
+    return NextResponse.json({ orders: result });
   } catch {
-    return NextResponse.json({error: "Ошибка сервера"}, {status: 500});
+    return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
   }
 }

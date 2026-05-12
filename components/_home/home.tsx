@@ -12,20 +12,20 @@ import {TechnologiesCarousel} from "@/components/_home/blocks/technologies-carou
 import ShowcasePanel from "@/components/_home/blocks/showcase-panel";
 import Faq from "@/components/_home/blocks/faq";
 
-import {directionsCollection} from "@/lib/db/collections";
+import { prisma } from "@/lib/db/prisma";
 import {getFaq} from "@/lib/faq";
 import Events from "@/components/_home/blocks/events";
 
 export default async function Home() {
-  const collection = await directionsCollection;
-  const directions = await collection.find({}).toArray();
+  const directionDocs = await prisma.direction.findMany();
+  const directions = directionDocs.map(({ forField, ...d }) => ({ ...d, for: forField }));
 
   return (<>
     <main className={"text-black"}>
       <Header/>
       <Hero/>
       <div id={"directions"} className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 lg:px-25 py-10 gap-20 relative"}>
-        <Directions directions={directions.map(({_id, ...direction}) => direction)}/>
+        <Directions directions={directions as never}/>
       </div>
       <Transition className={"bg-[#7B9EFF] text-[#18181B]"}/>
       <div id={"about"} className={"bg-[#18181B] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>

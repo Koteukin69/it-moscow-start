@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             String   @id @default(uuid())
+  name           String
+  coins          Int      @default(0)
+  avatar         String?
+  oauthProviders Json     @default("[]")
+  gameSession    Json?
+  createdAt      DateTime @default(now())
+
+  orders     Order[]
+  quizResult QuizResult?
+  cart       Cart?
+}
+
+model QuizResult {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  directions  Json
+  top         String[]
+  completedAt DateTime
+}
+
+model Event {
+  id              String  @id @default(uuid())
+  name            String
+  date            String
+  image           String?
+  description     String
+  registrationUrl String?
+}
+
+model Product {
+  id           String  @id @default(uuid())
+  name         String
+  price        Int
+  description  String
+  images       Json    @default("[]")
+  stock        Int?
+  variants     Json?
+  variantLabel String?
+  isNew        Boolean @default(false)
+
+  orders Order[]
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  orderNumber Int         @unique
+  pickupCode  String
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  userName    String
+  phone       String?
+  productId   String
+  product     Product     @relation(fields: [productId], references: [id])
+  productName String
+  variant     String?
+  quantity    Int
+  price       Int
+  status      OrderStatus @default(pending)
+  createdAt   DateTime    @default(now())
+}
+
+enum OrderStatus {
+  pending
+  completed
+  cancelled
+}
+
+model Cart {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     Json     @default("[]")
+  updatedAt DateTime @updatedAt
+}
+
+model Consultation {
+  id        String   @id @default(uuid())
+  name      String
+  phone     String
+  childName String
+  specialty String
+  grade     String
+  flames    Int      @default(3)
+  sessionId String?
+  createdAt DateTime @default(now())
+}
+
+model Counter {
+  id  String @id
+  seq Int    @default(0)
+}
+
+model Faq {
+  id       String @id @default(uuid())
+  question String
+  answer   String
+}
+
+model Specialty {
+  id             String @id
+  code           String
+  title          String
+  description    String
+  relevance      String
+  curriculum     Json
+  targetAudience Json
+  careers        Json
+  image          String
+  icons          Json
+  orb            String
+  budgetPlaces   Json?
+}
+
+model Direction {
+  id          String @id
+  code        String
+  name        String
+  description String
+  image       String
+  budget      Json?
+  forField    Json   @map("for")
+  become      Json
+  program     Json
+  category    String
+  align       String
+}
+
+model PopupSettings {
+  key                String  @id
+  image              String
+  title              String
+  subtitle           String
+  description        String
+  buttonUrl          String?
+  delaySeconds       Int?
+  repeatDelaySeconds Int?
+}
+
+model ParentTokenAttempt {
+  id        String   @id @default(uuid())
+  ip        String
+  token     String
+  createdAt DateTime @default(now())
+}

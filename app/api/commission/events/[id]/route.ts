@@ -1,63 +1,47 @@
-import {NextRequest, NextResponse} from "next/server";
-import {ObjectId} from "mongodb";
-import {eventsCollection} from "@/lib/db/collections";
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db/prisma";
 
-export async function PUT(req: NextRequest, {params}: {params: Promise<{id: string}>}): Promise<NextResponse> {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
-    const {id} = await params;
-    if (!ObjectId.isValid(id)) {
-      return NextResponse.json({error: "Неверный ID"}, {status: 400});
-    }
+    const { id } = await params;
 
-    const {name, date, image, description, registrationUrl} = await req.json();
+    const { name, date, image, description, registrationUrl } = await req.json();
     if (!name || !date || !description || !image) {
-      return NextResponse.json({error: "Заполните обязательные поля"}, {status: 400});
+      return NextResponse.json({ error: "Заполните обязательные поля" }, { status: 400 });
     }
 
-    const collection = await eventsCollection;
-    const baseSet = {name: String(name), date: String(date), image: String(image), description: String(description)};
-    const result = await (registrationUrl
-      ? collection.findOneAndUpdate(
-          {_id: new ObjectId(id)},
-          {$set: {...baseSet, registrationUrl: String(registrationUrl)}},
-          {returnDocument: "after"},
-        )
-      : collection.findOneAndUpdate(
-          {_id: new ObjectId(id)},
-          {$set: baseSet, $unset: {registrationUrl: 1 as const}},
-          {returnDocument: "after"},
-        ));
-
-    if (!result) {
-      return NextResponse.json({error: "Мероприятие не найдено"}, {status: 404});
-    }
+    const result = await prisma.event.update({
+      where: { id },
+      data: {
+        name: String(name),
+        date: String(date),
+        image: String(image),
+        description: String(description),
+        registrationUrl: registrationUrl ? String(registrationUrl) : null,
+      },
+    });
 
     return NextResponse.json({
       success: true,
-      event: {_id: result._id.toString(), name: result.name, date: result.date, image: result.image || null, description: result.description, registrationUrl: result.registrationUrl || null},
+      event: { _id: result.id, name: result.name, date: result.date, image: result.image || null, description: result.description, registrationUrl: result.registrationUrl || null },
     });
   } catch {
-    return NextResponse.json({error: "Ошибка сервера"}, {status: 500});
+    return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
   }
 }
 
-export async function DELETE(_req: NextRequest, {params}: {params: Promise<{id: string}>}): Promise<NextResponse> {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   try {
-    const {id} = await params;
+    const { id } = await params;
 
-    if (!ObjectId.isValid(id)) {
-      return NextResponse.json({error: "Неверный ID"}, {status: 400});
+    const event = await prisma.event.findUnique({ where: { id }, select: { id: true } });
+    if (!event) {
+      return NextResponse.json({ error: "Мероприятие не найдено" }, { status: 404 });
     }
 
-    const collection = await eventsCollection;
-    const result = await collection.deleteOne({_id: new ObjectId(id)});
-
-    if (result.deletedCount === 0) {
-      return NextResponse.json({error: "Мероприятие не найдено"}, {status: 404});
-    }
-
-    return NextResponse.json({success: true});
+    await prisma.event.delete({ where: { id } });
+    return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json({error: "Ошибка сервера"}, {status: 500});
+    return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
   }
 }

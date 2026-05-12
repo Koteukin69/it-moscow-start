@@ -1,4 +1,4 @@
-import {NextRequest, NextResponse} from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   getOAuthStateCookie,
   clearOAuthStateCookie,
@@ -6,10 +6,20 @@ import {
   getVKUserInfo,
   extractReturnUrl,
 } from "@/lib/oauth";
-import {createToken, verifyToken, AUTH_COOKIE_OPTIONS} from "@/lib/auth";
-import {usersCollection} from "@/lib/db/collections";
-import {ObjectId} from "mongodb";
-import type {JWTPayload} from "@/lib/types";
+import { createToken, verifyToken, AUTH_COOKIE_OPTIONS } from "@/lib/auth";
+import { prisma } from "@/lib/db/prisma";
+import type { JWTPayload } from "@/lib/types";
+
+type OAuthProvider = {
+  provider: string;
+  providerUserId: string;
+  phone?: string;
+  linkedAt: string;
+};
+
+function findProvider(providers: OAuthProvider[], provider: string, providerUserId: string) {
+  return providers.find(p => p.provider === provider && p.providerUserId === providerUserId);
+}
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
@@ -30,7 +40,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const tokens = await exchangeVKCode(code, oauthState.codeVerifier, deviceId);
     const vkUser = await getVKUserInfo(tokens.access_token);
     const providerUserId = String(vkUser.id);
-    const collection = await usersCollection;
 
     if (oauthState.mode === "link") {
       const authToken = req.cookies.get("auth-token")?.value;
@@ -39,31 +48,24 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         return NextResponse.redirect(new URL("/applicant", req.url));
       }
 
-      const existing = await collection.findOne({
-        "oauthProviders.provider": "vk",
-        "oauthProviders.providerUserId": providerUserId,
-      });
+      const allUsers = await prisma.user.findMany({ select: { id: true, oauthProviders: true } });
+      const existing = allUsers.find(u =>
+        findProvider(u.oauthProviders as OAuthProvider[], "vk", providerUserId),
+      );
 
-      if (existing && existing._id.toString() !== payload.userId) {
+      if (existing && existing.id !== payload.userId) {
         const response = NextResponse.redirect(new URL("/profile?error=vk_already_linked", req.url));
         clearOAuthStateCookie(response);
         return response;
       }
 
       if (!existing) {
-        await collection.updateOne(
-          {_id: new ObjectId(payload.userId)},
-          {
-            $push: {
-              oauthProviders: {
-                provider: "vk" as const,
-                providerUserId,
-                phone: vkUser.phone,
-                linkedAt: new Date(),
-              },
-            },
-          },
-        );
+        const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+        if (user) {
+          const providers = (user.oauthProviders as OAuthProvider[]) ?? [];
+          providers.push({ provider: "vk", providerUserId, phone: vkUser.phone, linkedAt: new Date().toISOString() });
+          await prisma.user.update({ where: { id: payload.userId }, data: { oauthProviders: providers } });
+        }
       }
 
       const newToken = await createToken({
@@ -78,18 +80,19 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       return response;
     }
 
-    const existingUser = await collection.findOne({
-      "oauthProviders.provider": "vk",
-      "oauthProviders.providerUserId": providerUserId,
-    });
+    const allUsers = await prisma.user.findMany({ select: { id: true, name: true, oauthProviders: true } });
+    const existingUser = allUsers.find(u =>
+      findProvider(u.oauthProviders as OAuthProvider[], "vk", providerUserId),
+    );
 
     const loginRedirect = embeddedReturnUrl ?? oauthState.returnUrl ?? "/applicant";
 
     if (existingUser) {
+      const providers = (existingUser.oauthProviders as OAuthProvider[]) ?? [];
       const token = await createToken({
-        userId: existingUser._id.toString(),
+        userId: existingUser.id,
         name: existingUser.name,
-        hasPhone: existingUser.oauthProviders?.some((p: {phone?: string}) => !!p.phone) ?? false,
+        hasPhone: providers.some(p => !!p.phone),
       } satisfies JWTPayload);
 
       const response = NextResponse.redirect(new URL(loginRedirect, req.url));
@@ -99,21 +102,16 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     }
 
     const name = [vkUser.firstName, vkUser.lastName].filter(Boolean).join(" ") || "Пользователь";
-    const insertResult = await collection.insertOne({
-      name,
-      coins: 0,
-      oauthProviders: [
-        {
-          provider: "vk" as const,
-          providerUserId,
-          phone: vkUser.phone,
-          linkedAt: new Date(),
-        },
-      ],
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        coins: 0,
+        oauthProviders: [{ provider: "vk", providerUserId, phone: vkUser.phone, linkedAt: new Date().toISOString() }],
+      },
     });
 
     const token = await createToken({
-      userId: insertResult.insertedId.toString(),
+      userId: newUser.id,
       name,
       hasPhone: !!vkUser.phone,
     } satisfies JWTPayload);

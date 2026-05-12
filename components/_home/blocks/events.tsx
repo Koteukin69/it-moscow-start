@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import Title from "@/components/_home/components/title";
 
@@ -26,11 +25,9 @@ export default function Events({ events }: { events: EventItem[] }) {
             >
               <div className="w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-full overflow-hidden bg-white/20 border-2 border-white/30 group-hover:border-white/60 transition-colors flex items-center justify-center">
                 {event.image ? (
-                  <Image
+                  <img
                     src={event.image}
                     alt={event.name}
-                    width={160}
-                    height={160}
                     className="w-full h-full object-cover"
                   />
                 ) : (

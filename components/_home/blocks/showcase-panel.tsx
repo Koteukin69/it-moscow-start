@@ -12,9 +12,11 @@ interface ShowcasePanelProps {
   description?: string;
   buttonText?: string;
   buttonHref?: string;
+  textLarge?: boolean;
+  centeredContent?: boolean;
 }
 
-export default function ShowcasePanel({ image, color, title, description, buttonText, buttonHref }: ShowcasePanelProps) {
+export default function ShowcasePanel({ image, color, title, description, buttonText, buttonHref, textLarge = false, centeredContent = false }: ShowcasePanelProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [parallaxY, setParallaxY] = useState(0);
 
@@ -66,20 +68,20 @@ export default function ShowcasePanel({ image, color, title, description, button
 
       {/* Card */}
       <div
-        className="w-full h-50 sm:h-100 rounded-[40px] relative"
+        className={`w-full rounded-[40px] relative ${hasContent ? "h-64 sm:h-100" : "h-50 sm:h-100"}`}
         style={{ backgroundColor: color, zIndex: 0 }}
       >
         {hasContent && (
-          <div className="absolute inset-0 flex flex-col justify-between pl-8 sm:pl-12 pr-[45%] sm:pr-[50%] py-6 sm:py-10">
+          <div className={`absolute inset-0 flex flex-col pl-8 sm:pl-12 pr-[42%] sm:pr-[48%] py-6 sm:py-10 ${centeredContent ? "justify-center gap-6" : "justify-between"}`}>
             {description && (
-              <p className="text-white/90 font-medium text-xs sm:text-sm md:text-base leading-snug line-clamp-5 sm:line-clamp-none">
+              <p className={`text-white/90 font-semibold leading-snug ${textLarge ? "text-xl sm:text-2xl md:text-3xl lg:text-4xl" : "text-sm sm:text-base md:text-lg lg:text-xl"}`}>
                 {description}
               </p>
             )}
             {buttonText && buttonHref && (
               <Link
                 href={buttonHref}
-                className="mt-3 self-start px-5 py-2 rounded-full bg-white/20 hover:bg-white/30 active:bg-white/40 text-white font-semibold text-sm transition-colors backdrop-blur-sm border border-white/30"
+                className="self-start px-10 py-4 rounded-full bg-white/20 hover:bg-white/30 active:bg-white/40 text-white font-bold text-xl sm:text-2xl transition-colors backdrop-blur-sm border border-white/30"
               >
                 {buttonText}
               </Link>

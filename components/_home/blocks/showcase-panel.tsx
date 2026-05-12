@@ -76,9 +76,9 @@ export default function ShowcasePanel({ image, color, title, description, button
         className={`z-1 relative ${hasContent ? "h-64 sm:h-76 lg:h-100 xl:h-100" : "h-50 sm:h-76 lg:h-100 xl:h-100"}`}
       >
         {hasContent && (
-          <div className={`absolute inset-0 z-10 flex flex-col px-8 sm:pl-12 sm:pr-[48%] py-6 sm:py-10 ${centeredContent ? "justify-center gap-6" : "justify-between"}`}>
+          <div className={`absolute inset-0 z-10 flex flex-col px-8 sm:pl-12 sm:pr-[30%] md:pr-[48%] py-6 sm:py-10 ${centeredContent ? "justify-center gap-6" : "justify-between"}`}>
             {description && (
-              <p className={`text-white/90 font-semibold leading-snug ${textLarge ? "text-xl sm:text-2xl lg:text-3xl xl:text-4xl" : "text-sm sm:text-base md:text-lg lg:text-xl"}`}>
+              <p className={`text-white/90 font-semibold leading-snug ${textLarge ? "text-xl lg:text-2xl xl:text-3xl" : "text-sm sm:text-base md:text-lg lg:text-xl"}`}>
                 {description}
               </p>
             )}

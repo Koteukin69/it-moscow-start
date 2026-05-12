@@ -7,14 +7,16 @@ import Image from "next/image";
 import {Dialog, DialogContent, DialogTitle} from "@/components/ui/dialog";
 import {Direction, ImageAlign} from "@/lib/types";
 
-export default function DirectionCard({direction, ...props}: {
-  direction: Direction
+export default function DirectionCard({direction, className, active=true, ...props}: {
+  direction: Direction, active?: boolean;
 } & React.HTMLAttributes<HTMLDivElement>) {
   const [open, setOpen] = useState(false);
 
   return (<>
-    <div onClick={() => setOpen(true)}
-         className={"p-4 glass bg-white/10 rounded-[10px] max-w-sm flex flex-col gap-5 justify-between relative hover:scale-[105%] transition-transform duration-100 select-none cursor-pointer"} {...props}>
+    <div onClick={active ? () => setOpen(true) : undefined}
+      className={`p-4 glass bg-white/10 rounded-[10px] flex flex-col gap-5 justify-between relative hover:scale-[105%] transition-transform duration-100 select-none cursor-pointer h-full ${className}`}
+      {...props}
+    >
       <DirectionCardImage align={direction.align} src={direction.image} alt={direction.name}/>
       <div className={"flex flex-row justify-between items-end gap-2.5"}>
         <div className={"text-[20px] -mb-1 line-clamp-3 line-clamp-3"}>{direction.name}</div>

@@ -131,4 +131,5 @@ export type Direction = {
   program: string[];
   category: string;
   align: ImageAlign;
+  active?: boolean;
 }

@@ -1,0 +1,301 @@
+"use client";
+
+import Link from "next/link";
+import { ArrowLeft, Gamepad2, Lock, Shield, Star, Users, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+type Game = {
+  id: string;
+  title: string;
+  tagline: string;
+  description: string;
+  tags: string[];
+  href: string | null;
+  external?: boolean;
+  requiresAuth: boolean;
+  gradient: string;
+  icon: React.ReactNode;
+  rating: number | null;
+  players: string;
+  isFeatured?: boolean;
+  coverImage?: string;
+  platforms?: string[];
+};
+
+const GAMES: Game[] = [
+  {
+    id: "gorod",
+    title: "Город Мастеров",
+    tagline: "Примерь профессию мечты в живом городе",
+    description:
+      "Погрузись в пиксельный город московских колледжей: выбирай профессию, проходи испытания и собирай команду. Ты — студент, который прокладывает собственный путь в мире IT, строительства, медицины и десятков других специальностей. Исследуй улицы, выполняй задания и открывай своё призвание.",
+    tags: ["Ролевая", "Приключение", "Профессии"],
+    href: "https://masterscitygame.ru/play",
+    external: true,
+    requiresAuth: false,
+    gradient: "from-[#1a1000] via-[#2a1800] to-[#0e0a00]",
+    icon: <Zap size={44} className="text-orange-400" />,
+    rating: 4.9,
+    players: "5к+",
+    isFeatured: true,
+    coverImage: "/gorod-masterov-hero.png",
+    platforms: ["Windows", "Android"],
+  },
+  {
+    id: "runner",
+    title: "ИТ.Раннер",
+    tagline: "Беги по коридорам колледжа, собирай монеты",
+    description: "Бесконечный раннер в стенах ИТ.Москвы.",
+    tags: ["Раннер", "Аркада"],
+    href: "/game",
+    requiresAuth: true,
+    gradient: "from-[#0d1a40] via-[#0a2260] to-[#061028]",
+    icon: <Zap size={36} className="text-[#7B9EFF]" />,
+    rating: 4.8,
+    players: "1.2к",
+  },
+  {
+    id: "fly",
+    title: "ИТ.Флай",
+    tagline: "Лети сквозь здания московских колледжей",
+    description: "Уворачивайся от стен и зарабатывай ИтКоины.",
+    tags: ["Флай", "Рефлексы", "Монеты"],
+    href: "/games/fly",
+    requiresAuth: false,
+    gradient: "from-[#0a1a30] via-[#102040] to-[#061018]",
+    icon: <Star size={36} className="text-blue-400" />,
+    rating: 4.5,
+    players: "новинка",
+  },
+  {
+    id: "2048",
+    title: "ИТ.2048",
+    tagline: "Классический 2048 в стиле ИТ.Москвы",
+    description: "Складывай плитки и зарабатывай ИтКоины.",
+    tags: ["Головоломка", "Монеты"],
+    href: "/games/2048",
+    requiresAuth: false,
+    gradient: "from-[#0d1a30] via-[#0a1a3e] to-[#060e20]",
+    icon: <Shield size={36} className="text-[#7B9EFF]" />,
+    rating: 4.6,
+    players: "новинка",
+  },
+  {
+    id: "cyber",
+    title: "Кибер-Олимпиада",
+    tagline: "Турнир по программированию и кибербезу",
+    description: "Соревнуйся в режиме реального времени.",
+    tags: ["PvP", "Программирование"],
+    href: null,
+    requiresAuth: false,
+    gradient: "from-[#1a0a2e] via-[#2d1a4e] to-[#0d0a1e]",
+    icon: <Lock size={36} className="text-purple-400" />,
+    rating: null,
+    players: "—",
+  },
+];
+
+const featured = GAMES.find(g => g.isFeatured)!;
+const rest = GAMES.filter(g => !g.isFeatured);
+
+export default function GameStore({ userId }: { userId?: string }) {
+  return (
+    <div className="min-h-screen bg-[#0f0f13] text-white">
+      <header className="sticky top-0 z-20 bg-[#0f0f13]/90 backdrop-blur-md border-b border-white/8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/abit"
+              className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors text-sm"
+            >
+              <ArrowLeft size={16} />
+              Назад
+            </Link>
+            <span className="text-white/20">|</span>
+            <div className="flex items-center gap-2">
+              <Gamepad2 size={18} className="text-[#7B9EFF]" />
+              <span className="font-semibold text-sm">Игры ИТ.Москва</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/shop?from=/store" className="text-white/50 hover:text-white text-sm transition-colors">
+              Магазин
+            </Link>
+            {userId ? (
+              <Link href="/profile" className="text-white/50 hover:text-white text-sm transition-colors">
+                Профиль
+              </Link>
+            ) : (
+              <Link
+                href="/api/auth/vk?mode=login&returnUrl=/store"
+                className="text-[#7B9EFF] hover:text-[#a0b8ff] text-sm transition-colors"
+              >
+                Войти
+              </Link>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-12">
+        <section className="relative rounded-2xl overflow-hidden min-h-[400px] sm:min-h-[460px] flex items-end">
+          {featured.coverImage && (
+            <img
+              src={featured.coverImage}
+              alt={featured.title}
+              className="absolute inset-0 w-full h-full object-cover object-center"
+            />
+          )}
+          <div className={`absolute inset-0 ${featured.coverImage ? "" : `bg-gradient-to-br ${featured.gradient}`}`} />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
+
+          <div className="relative z-10 p-8 sm:p-12 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 w-full">
+            <div className="flex flex-col gap-4 max-w-xl">
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="px-2.5 py-0.5 rounded-full bg-orange-500/20 border border-orange-500/30 text-orange-400 text-xs font-medium">
+                  Хит сезона
+                </span>
+                <div className="flex items-center gap-1 text-yellow-400 text-sm">
+                  <Star size={13} fill="currentColor" />
+                  <span className="font-medium">{featured.rating}</span>
+                </div>
+                <div className="flex items-center gap-1 text-white/40 text-sm">
+                  <Users size={13} />
+                  <span>{featured.players} игроков</span>
+                </div>
+              </div>
+
+              <h1 className="text-4xl sm:text-5xl font-black tracking-tight drop-shadow-lg">
+                {featured.title}
+              </h1>
+              <p className="text-white/75 text-base leading-relaxed">{featured.description}</p>
+
+              <div className="flex flex-wrap gap-2">
+                {featured.tags.map(tag => (
+                  <span key={tag} className="px-3 py-1 rounded-full bg-white/10 text-white/60 text-xs">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              {featured.platforms && (
+                <div className="flex gap-2">
+                  {featured.platforms.map(p => (
+                    <span key={p} className="px-2.5 py-1 rounded-lg bg-white/8 border border-white/12 text-white/50 text-xs">
+                      {p}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex-shrink-0">
+              {featured.external ? (
+                <a href={featured.href!} target="_blank" rel="noopener noreferrer">
+                  <Button size="lg" className="bg-white text-[#0f0f13] hover:bg-white/90 font-bold px-8 h-12">
+                    Играть
+                  </Button>
+                </a>
+              ) : featured.requiresAuth && !userId ? (
+                <Link href="/api/auth/vk?mode=login&returnUrl=/game">
+                  <Button size="lg" className="bg-white text-[#0f0f13] hover:bg-white/90 font-bold px-8 h-12">
+                    Войти и играть
+                  </Button>
+                </Link>
+              ) : (
+                <Link href={featured.href!}>
+                  <Button size="lg" className="bg-white text-[#0f0f13] hover:bg-white/90 font-bold px-8 h-12">
+                    Играть бесплатно
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section className="flex flex-col gap-5">
+          <h2 className="text-xl font-bold text-white/90">Все игры</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {rest.map(game => (
+              <GameCard key={game.id} game={game} userId={userId} />
+            ))}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+function GameCard({ game, userId }: { game: Game; userId?: string }) {
+  const comingSoon = !game.href;
+  const needsAuth = game.href && game.requiresAuth && !userId;
+  const canPlay = game.href && (!game.requiresAuth || !!userId);
+
+  return (
+    <div className="group rounded-xl border border-white/8 bg-white/4 overflow-hidden flex flex-col hover:border-white/16 transition-colors">
+      <div className={`relative h-36 bg-gradient-to-br ${game.gradient} flex items-center justify-center`}>
+        {game.icon}
+        {comingSoon && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <span className="px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white/60 text-xs font-medium">
+              Скоро
+            </span>
+          </div>
+        )}
+        {!comingSoon && game.rating !== null && (
+          <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/50 backdrop-blur-sm">
+            <Star size={11} fill="#facc15" className="text-yellow-400" />
+            <span className="text-yellow-400 text-xs font-medium">{game.rating}</span>
+          </div>
+        )}
+        {!comingSoon && game.rating === null && (
+          <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-black/50 backdrop-blur-sm">
+            <span className="text-white/40 text-xs">новинка</span>
+          </div>
+        )}
+      </div>
+
+      <div className="p-4 flex flex-col gap-3 flex-1">
+        <div className="flex flex-col gap-1">
+          <h3 className="font-semibold text-white/90">{game.title}</h3>
+          <p className="text-white/50 text-sm leading-snug">{game.tagline}</p>
+        </div>
+        <div className="flex flex-wrap gap-1.5 mt-auto">
+          {game.tags.map(tag => (
+            <span key={tag} className="px-2 py-0.5 rounded-full bg-white/8 text-white/40 text-xs">
+              {tag}
+            </span>
+          ))}
+        </div>
+        <div className="pt-1">
+          {canPlay && (
+            game.external ? (
+              <a href={game.href!} target="_blank" rel="noopener noreferrer">
+                <Button size="sm" className="w-full bg-white text-[#0f0f13] hover:bg-white/90 font-semibold">
+                  Играть
+                </Button>
+              </a>
+            ) : (
+              <Link href={game.href!}>
+                <Button size="sm" className="w-full bg-white text-[#0f0f13] hover:bg-white/90 font-semibold">
+                  Играть
+                </Button>
+              </Link>
+            )
+          )}
+          {needsAuth && (
+            <Link href={`/api/auth/vk?mode=login&returnUrl=${game.href}`}>
+              <Button size="sm" variant="outline" className="w-full border-white/20 text-white/70 hover:text-white">
+                Войти и играть
+              </Button>
+            </Link>
+          )}
+          {comingSoon && (
+            <Button size="sm" disabled className="w-full opacity-40">Скоро</Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

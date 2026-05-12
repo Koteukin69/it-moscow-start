@@ -5,9 +5,18 @@ import {ObjectId} from "mongodb";
 import Shop from "@/components/shop";
 import type {CartWithProducts} from "@/lib/types";
 
-export default async function ShopPage() {
+const ALLOWED_BACK_URLS = new Set(["/profile", "/abit", "/store"]);
+
+export default async function ShopPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string>>;
+}) {
   const h = await headers();
   const userId = h.get("x-user-id");
+  const params = await searchParams;
+  const from = params.from ?? "";
+  const backUrl = ALLOWED_BACK_URLS.has(from) ? from : "/profile";
 
   if (!userId) redirect("/");
 
@@ -53,5 +62,5 @@ export default async function ShopPage() {
     };
   }
 
-  return <Shop initialCoins={coins} initialCart={enrichedCart}/>;
+  return <Shop initialCoins={coins} initialCart={enrichedCart} backUrl={backUrl} />;
 }

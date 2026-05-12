@@ -54,7 +54,7 @@ export default async function Profile() {
   }));
 
   return <>
-    <Back/>
+    <Back link="/abit" />
     <ProfileCard
       name={name}
       coins={coins}

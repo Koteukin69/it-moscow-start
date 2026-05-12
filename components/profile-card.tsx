@@ -141,7 +141,9 @@ export default function ProfileCard({name: initialName, coins, avatar: initialAv
         setDisplayAvatar(id);
         setAvatarOpen(false);
       }
-    } catch { /* ignore */ }
+    } catch (err) {
+      console.error("[avatar save error]", err);
+    }
     setAvatarSaving(null);
   };
 
@@ -156,7 +158,9 @@ export default function ProfileCard({name: initialName, coins, avatar: initialAv
       if (res.ok) {
         setProviders(prev => prev.filter(p => p.provider !== provider));
       }
-    } catch { /* ignore */ }
+    } catch (err) {
+      console.error("[unlink error]", err);
+    }
     setUnlinking(null);
   };
 
@@ -303,22 +307,16 @@ export default function ProfileCard({name: initialName, coins, avatar: initialAv
               </div>
               <div className="flex flex-col w-full gap-2 mt-auto">
                 <Button variant="default" className="w-full rounded-xl gap-2 mt-auto" asChild>
-                  <Link href="/game">
+                  <Link href="/store">
                     Играть
                   </Link>
                 </Button>
-                <Button variant="outline" className="w-full rounded-xl mt-auto justify-center" disabled>
-                  <span className={"mx-auto"}>Потратить в магазине</span>
-                  <Badge className="bg-green-300 pointer-events-none text-[10px] px-1.5 py-0.5 -mr-2">скоро</Badge>
-                </Button>
-                {/*
                 <Button variant="outline" className="w-full rounded-xl gap-2 mt-auto" asChild>
                   <Link href="/shop">
                     Потратить в магазине
                     <ChevronRight size={16}/>
                   </Link>
                 </Button>
-                */}
               </div>
             </CardContent>
           </Card>

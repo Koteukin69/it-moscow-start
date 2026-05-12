@@ -3,7 +3,7 @@ import Courses from "@/components/courses";
 
 export default function CoursesPage() {
   return <>
-    <Back/>
+    <Back link="/abit" />
     <Courses/>
   </>;
 }

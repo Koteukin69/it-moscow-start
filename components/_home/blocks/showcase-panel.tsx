@@ -46,7 +46,7 @@ export default function ShowcasePanel({ image, color, title, description, button
       {image && (
         <div
           className="absolute right-0 bottom-0 h-[80%] sm:h-full pointer-events-none"
-          style={{ transform: `translateY(${parallaxY}px)`, willChange: "transform", zIndex: 1 }}
+          style={{ transform: `translateY(${Math.max(0, parallaxY)}px)`, willChange: "transform", zIndex: 1 }}
         >
           <Image
             className="h-full w-auto max-w-none"

@@ -33,10 +33,10 @@ export default async function Home() {
   return (<>
     <main className={"text-black"}>
       <Header/>
-      <div className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 md:px-20 lg:px-30 pt-28 pb-10 gap-8"}>
+      <Hero/>
+      <div className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 md:px-20 lg:px-30 py-10 gap-8"}>
         <Events events={events.map(e => ({ id: e.id, name: e.name, date: e.date, image: e.image ?? null }))}/>
       </div>
-      <Hero/>
       <div id={"directions"} className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 lg:px-25 py-10 gap-20 relative"}>
         <Directions directions={directions as never}/>
       </div>
@@ -49,24 +49,19 @@ export default async function Home() {
           title="МЕРЧ IT.Москва"
           color={"lightblue"}
           image={{src: "/merch-showcase.png", alt: "merch"}}
-          description="Приобретай мерч IT.Москва уже сейчас и становись частью огромной индустрии"
+          description="Приобретай мерч IT.Москва уже сейчас и становись частью огромной индустрии!"
           buttonText="Перейти"
           buttonHref="/shop"
+          textLarge
         />
         <ShowcasePanel
           title="Марочкина Баффет"
           color={"pink"}
           image={{src: "/buffet-showcase.png", alt: "buffet"}}
-          description="Устал кодить? Зарядись бодрящим напитком прямо в кофетерии ИТ.Москва. Баги не сами себя не исправят"
+          description="Устал кодить? Зарядись бодрящим напитком прямо в кофетерии ИТ.Москва. Баги не сами себя не исправят!"
           buttonText="Перейти"
           buttonHref="/cafeteria"
-        />
-        <ShowcasePanel
-          title="ИТ.Москва Мастерская"
-          color={"#6A5BFF"}
-          description="Ты уже разрабатываешь игры и мечтаешь, чтобы о твоём проекте узнали? В ИТ.Москва у тебя есть такая возможность! Загружай свою игру в мастерскую, демонстрируй её другим участникам и сделай первый шаг к тому, чтобы твой проект увидела вся Москва!"
-          buttonText="Перейти"
-          buttonHref="/workshop"
+          textLarge
         />
       </div>
       <div id={"tech"} className={"bg-[#18181B] text-white flex flex-col items-center w-full px-10 md:px-0 py-10 gap-20 overflow-x-hidden"}>
@@ -149,6 +144,16 @@ export default async function Home() {
           ]}
         />
       </div>*/}
+      <div className={"bg-[#18181B] text-white flex flex-col items-center px-5 sm:px-10 md:px-30 lg:px-50 py-10"}>
+        <ShowcasePanel
+          title="ИТ.Москва Мастерская"
+          color={"#6A5BFF"}
+          description="Ты уже разрабатываешь игры и мечтаешь, чтобы о твоём проекте узнали? Загружай свою игру и демонстрируй её другим участникам!"
+          buttonText="Перейти"
+          buttonHref="/workshop"
+          textLarge
+        />
+      </div>
       <div id={"courses"} className={"bg-[#18181B] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
         <Courses/>
       </div>

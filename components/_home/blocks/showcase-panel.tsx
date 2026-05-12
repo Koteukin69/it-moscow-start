@@ -39,6 +39,7 @@ export default function ShowcasePanel({ image, color, title, description, button
   }, []);
 
   const hasContent = description || (buttonText && buttonHref);
+  const outlineColor = `color-mix(in srgb, ${color} 80%, transparent)`;
 
   return (
     <div ref={containerRef} className="w-full relative rounded-[40px] overflow-hidden">
@@ -78,7 +79,13 @@ export default function ShowcasePanel({ image, color, title, description, button
         {hasContent && (
           <div className={`absolute inset-0 z-10 flex flex-col px-8 sm:pl-12 sm:pr-[30%] md:pr-[48%] py-6 sm:py-10 ${centeredContent ? "justify-center gap-6" : "justify-between"}`}>
             {description && (
-              <p className={`text-white/90 font-semibold leading-snug ${textLarge ? "text-xl lg:text-2xl xl:text-3xl" : "text-sm sm:text-base md:text-lg lg:text-xl"}`}>
+              <p
+                className={`text-[#18181b] font-semibold leading-snug ${textLarge ? "text-xl lg:text-2xl xl:text-3xl" : "text-sm sm:text-base md:text-lg lg:text-xl"}`}
+                style={{
+                  WebkitTextStroke: `4px ${outlineColor}`,
+                  paintOrder: "stroke fill",
+                }}
+              >
                 {description}
               </p>
             )}

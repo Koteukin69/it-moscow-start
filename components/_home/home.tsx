@@ -37,7 +37,7 @@ export default async function Home() {
       <div className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 md:px-20 lg:px-30 py-10 gap-8"}>
         <Events events={events.map(e => ({ id: e.id, name: e.name, date: e.date, image: e.image ?? null }))}/>
       </div>
-      <div id={"directions"} className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 lg:px-25 py-10 gap-20 relative"}>
+      <div id={"directions"} className={"bg-[#7B9EFF] text-white flex flex-col items-center px-5 sm:px-10 lg:px-25 py-10 gap-20 relative overflow-x-clip"}>
         <Directions directions={directions as never}/>
       </div>
       <Transition className={"bg-[#7B9EFF] text-[#18181B]"}/>

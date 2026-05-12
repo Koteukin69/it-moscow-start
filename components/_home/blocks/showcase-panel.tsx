@@ -41,12 +41,12 @@ export default function ShowcasePanel({ image, color, title, description, button
   const hasContent = description || (buttonText && buttonHref);
 
   return (
-    <div ref={containerRef} className="w-full relative overflow-hidden">
+    <div ref={containerRef} className="w-full relative rounded-[40px] overflow-hidden">
       {/* Image with parallax — clipped to block, z-index below header (z-50) */}
       {image && (
         <div
-          className="absolute right-0 bottom-0 h-[80%] sm:h-full pointer-events-none"
-          style={{ transform: `translateY(${Math.max(0, parallaxY)}px)`, willChange: "transform", zIndex: 1 }}
+          className="absolute right-0 bottom-0 h-[80%] sm:h-full pointer-events-none z-1"
+          style={{ transform: `translateY(${Math.max(0, parallaxY)}px)`, willChange: "transform" }}
         >
           <Image
             className="h-full w-auto max-w-none"
@@ -66,22 +66,26 @@ export default function ShowcasePanel({ image, color, title, description, button
         {title}
       </div>
 
+      <div
+        className={`w-full rounded-[40px] overflow-hidden absolute ${hasContent ? "h-64 sm:h-76 lg:h-100 xl:h-100" : "h-50 sm:h-76 lg:h-100 xl:h-100"}`}
+        style={{ backgroundColor: color }}
+      />
+
       {/* Card */}
       <div
-        className={`w-full rounded-[40px] relative ${hasContent ? "h-64 sm:h-100" : "h-50 sm:h-100"}`}
-        style={{ backgroundColor: color, zIndex: 0 }}
+        className={`z-1 relative ${hasContent ? "h-64 sm:h-76 lg:h-100 xl:h-100" : "h-50 sm:h-76 lg:h-100 xl:h-100"}`}
       >
         {hasContent && (
-          <div className={`absolute inset-0 flex flex-col pl-8 sm:pl-12 pr-[42%] sm:pr-[48%] py-6 sm:py-10 ${centeredContent ? "justify-center gap-6" : "justify-between"}`}>
+          <div className={`absolute inset-0 z-10 flex flex-col px-8 sm:pl-12 sm:pr-[48%] py-6 sm:py-10 ${centeredContent ? "justify-center gap-6" : "justify-between"}`}>
             {description && (
-              <p className={`text-white/90 font-semibold leading-snug ${textLarge ? "text-xl sm:text-2xl md:text-3xl lg:text-4xl" : "text-sm sm:text-base md:text-lg lg:text-xl"}`}>
+              <p className={`text-white/90 font-semibold leading-snug ${textLarge ? "text-xl sm:text-2xl lg:text-3xl xl:text-4xl" : "text-sm sm:text-base md:text-lg lg:text-xl"}`}>
                 {description}
               </p>
             )}
             {buttonText && buttonHref && (
               <Link
                 href={buttonHref}
-                className="self-start px-10 py-4 rounded-full bg-white/20 hover:bg-white/30 active:bg-white/40 text-white font-bold text-xl sm:text-2xl transition-colors backdrop-blur-sm border border-white/30"
+                className="self-start px-10 py-4 rounded-full bg-white/20 hover:bg-white/30 active:bg-white/40 text-white font-bold text-xl md:text-2xl transition-colors backdrop-blur-sm border border-white/30"
               >
                 {buttonText}
               </Link>

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
-import { ArrowLeft, ChevronDown, Menu, Trash2, User } from "lucide-react";
+import { ArrowLeft, ChevronDown, Download, Menu, PanelLeftClose, PanelLeftOpen, ShoppingBag, Trash2, User, X } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -25,7 +25,7 @@ const NAV_LINKS = [
   { label: "Специальности", href: "/guide" },
   { label: "Курсы", href: "/courses" },
   { label: "Мероприятия", href: "/events" },
-  { label: "FAQ", href: "/faq" },
+  { label: "Играть", href: "/store" },
 ];
 
 const MODEL_OPTIONS: ModelType[] = [
@@ -103,6 +103,7 @@ export default function Chat({
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [orbPreset, setOrbPreset] = useState<OrbPreset>("cyan");
   const [questionsUsed, setQuestionsUsed] = useState(0);
   const [isGuest, setIsGuest] = useState(false);
@@ -121,7 +122,7 @@ export default function Chat({
     function loadFromStorage() {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        try { setConversations(JSON.parse(stored) as Conversation[]); } catch {}
+        try { setConversations(JSON.parse(stored) as Conversation[]); } catch (err) { console.error("[chat storage parse error]", err); }
       }
       if (!isAuthenticated) {
         const used = parseInt(localStorage.getItem(QUESTIONS_KEY) ?? "0", 10);
@@ -442,13 +443,22 @@ export default function Chat({
   const userInitial = userName?.[0]?.toUpperCase() ?? "?";
 
   return (
-    <div className="w-full h-svh bg-[#18181B] flex flex-row justify-stretch items-center overflow-hidden">
+    <div className="w-full h-svh bg-[#18181B] flex flex-row items-stretch overflow-hidden">
       <button
-        className="md:hidden absolute left-4 top-4 z-20 p-2 rounded-lg bg-white/10 text-white"
+        className="md:hidden absolute left-4 top-4 z-20 p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
         onClick={() => setSidebarOpen(true)}
       >
         <Menu size={20} />
       </button>
+
+      {!desktopSidebarOpen && (
+        <button
+          className="hidden md:flex absolute left-4 top-4 z-20 p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
+          onClick={() => setDesktopSidebarOpen(true)}
+        >
+          <PanelLeftOpen size={20} />
+        </button>
+      )}
 
       {sidebarOpen && (
         <div className="md:hidden fixed inset-0 z-30 bg-black/50" onClick={() => setSidebarOpen(false)} />
@@ -456,16 +466,30 @@ export default function Chat({
 
       <div
         className={[
-          "fixed md:relative z-40 md:z-auto",
-          "flex flex-col h-full w-80 md:w-[22rem] md:max-w-[22rem]",
-          "glass-dark bg-black/10 p-5 pb-7.5 gap-4",
-          "transition-transform duration-300",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+          "fixed md:relative z-40 md:z-auto flex-shrink-0",
+          "flex flex-col h-full",
+          "glass-dark bg-black/10 gap-4",
+          "transition-all duration-300 overflow-hidden",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full",
+          desktopSidebarOpen
+            ? "w-80 md:w-[22rem] md:translate-x-0 p-5 pb-7.5"
+            : "w-80 md:w-0 md:translate-x-0 p-5 pb-7.5 md:p-0",
         ].join(" ")}
       >
-        <Button variant="ghost" size="default" className="gap-1 sm:text-md" asChild>
-          <Link href="/"><ArrowLeft size={16} />Вернуться</Link>
-        </Button>
+        <div className="flex items-center justify-between gap-1">
+          <Button variant="ghost" size="default" className="gap-1 sm:text-md" asChild>
+            <Link href="/"><ArrowLeft size={16} />Вернуться</Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-white/50 hover:text-white flex-shrink-0"
+            onClick={() => { setSidebarOpen(false); setDesktopSidebarOpen(false); }}
+            title="Скрыть панель"
+          >
+            <PanelLeftClose size={18} />
+          </Button>
+        </div>
 
         <Button variant="outline" size="default" onClick={startNewConversation}>
           + Новый чат
@@ -510,61 +534,81 @@ export default function Chat({
           className="w-full font-black text-[#18181B] active:bg-[#7B9EFF]"
           asChild
         >
-          <Link href="/">Играть</Link>
+          <Link href="/store">Играть</Link>
         </Button>
 
         {!isAuthenticated && isGuest && (
-          <div className="flex items-center gap-3 px-3 py-2 rounded-xl">
-            <div className="w-9 h-9 rounded-full flex-shrink-0 bg-white/10 flex items-center justify-center">
-              <User size={18} className="text-white/60" />
+          <div className="flex items-center gap-2">
+            <div className="flex-1 flex items-center gap-3 px-3 py-2 rounded-xl min-w-0">
+              <div className="w-9 h-9 rounded-full flex-shrink-0 bg-white/10 flex items-center justify-center">
+                <User size={18} className="text-white/60" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-white/90 text-sm font-medium">Гость</span>
+                <button
+                  className="text-white/40 text-xs text-left hover:text-white/60 transition-colors"
+                  onClick={() => setShowAuthModal(true)}
+                >
+                  Войти в аккаунт
+                </button>
+              </div>
             </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-white/90 text-sm font-medium">Гость</span>
-              <button
-                className="text-white/40 text-xs text-left hover:text-white/60 transition-colors"
-                onClick={() => setShowAuthModal(true)}
-              >
-                Войти в аккаунт
-              </button>
-            </div>
+            <Link
+              href="/store"
+              className="flex-shrink-0 flex flex-col items-center gap-0.5 p-2 rounded-xl hover:bg-white/8 transition-colors text-white/40 hover:text-white/80"
+              title="Магазин"
+            >
+              <ShoppingBag size={18} />
+              <span className="text-[10px]">Магазин</span>
+            </Link>
           </div>
         )}
 
         {isAuthenticated && (
-          <Link
-            href="/profile"
-            className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/8 transition-colors"
-          >
-            <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 bg-white/10 flex items-center justify-center">
-              {userAvatar ? (
-                <Image
-                  src={`/avatars/${userAvatar}.png`}
-                  width={36}
-                  height={36}
-                  alt="avatar"
-                  className="object-cover w-full h-full"
-                />
-              ) : (
-                <span className="text-sm font-semibold text-white">{userInitial}</span>
-              )}
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-white/90 text-sm font-medium truncate">{userName ?? "Профиль"}</span>
-              <span className="text-white/40 text-xs">Открыть профиль</span>
-            </div>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/profile"
+              className="flex-1 flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/8 transition-colors min-w-0"
+            >
+              <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 bg-white/10 flex items-center justify-center">
+                {userAvatar ? (
+                  <Image
+                    src={`/avatars/${userAvatar}.png`}
+                    width={36}
+                    height={36}
+                    alt="avatar"
+                    className="object-cover w-full h-full"
+                  />
+                ) : (
+                  <span className="text-sm font-semibold text-white">{userInitial}</span>
+                )}
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-white/90 text-sm font-medium truncate">{userName ?? "Профиль"}</span>
+                <span className="text-white/40 text-xs">Открыть профиль</span>
+              </div>
+            </Link>
+            <Link
+              href="/shop?from=/abit"
+              className="flex-shrink-0 flex flex-col items-center gap-0.5 p-2 rounded-xl hover:bg-white/8 transition-colors text-white/40 hover:text-white/80"
+              title="Магазин"
+            >
+              <ShoppingBag size={18} />
+              <span className="text-[10px]">Магазин</span>
+            </Link>
+          </div>
         )}
       </div>
 
-      <div className="flex flex-col gap-5 items-center justify-center px-6.25 pt-14 pb-4 md:pt-0 md:px-6.25 grow-2 h-full">
+      <div className={`flex flex-col gap-5 items-center justify-center px-4 sm:px-6 pb-4 min-w-0 flex-1 h-full overflow-x-hidden ${desktopSidebarOpen ? "pt-14 md:pt-4" : "pt-14"}`}>
         <div
-          className={`w-full max-w-3xl flex flex-col gap-5 px-2.5 sm:px-5 max-h-full overflow-y-auto transition-[flex-grow,margin] duration-300 ease-in-out ${started ? "flex-1 mt-4" : "flex-none"}`}
+          className={`w-full max-w-3xl flex flex-col gap-5 px-2.5 sm:px-5 max-h-full overflow-y-auto overflow-x-hidden transition-[flex-grow,margin] duration-300 ease-in-out ${started ? "flex-1 mt-4" : "flex-none"}`}
         >
           {started ? (
             <>
               {messageGroups.map((messageGroup, i) => (
                 <div
-                  className={`w-full flex flex-col gap-2.5 ${messageGroup[0].sender === "client" ? "items-end" : ""}`}
+                  className={`w-full min-w-0 flex flex-col gap-2.5 ${messageGroup[0].sender === "client" ? "items-end" : ""}`}
                   key={i}
                 >
                   {messageGroup.map((message, j) => (
@@ -709,23 +753,69 @@ export default function Chat({
 
 function MessageRender({ message }: { message: Message }) {
   const isClient = message.sender === "client";
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   if (message.imageBase64) {
+    const dataUrl = `data:image/jpeg;base64,${message.imageBase64}`;
+
+    function downloadImage() {
+      const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `Image_Generate_Orbs_${ts}.jpg`;
+      a.click();
+    }
+
     return (
-      <div className="max-w-sm">
-        <img
-          src={`data:image/jpeg;base64,${message.imageBase64}`}
-          alt="Сгенерированное изображение"
-          className="rounded-xl w-full object-cover"
-        />
-      </div>
+      <>
+        <div className="max-w-sm cursor-zoom-in" onClick={() => setLightboxOpen(true)}>
+          <img
+            src={dataUrl}
+            alt="Сгенерированное изображение"
+            className="rounded-xl w-full object-cover hover:opacity-90 transition-opacity"
+          />
+        </div>
+
+        {lightboxOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4"
+            onClick={() => setLightboxOpen(false)}
+          >
+            <div
+              className="relative flex flex-col items-center gap-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={dataUrl}
+                alt="Сгенерированное изображение"
+                className="rounded-2xl max-w-[min(90vw,600px)] max-h-[80svh] object-contain shadow-2xl"
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={downloadImage}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm transition-colors"
+                >
+                  <Download size={16} />
+                  Скачать
+                </button>
+              </div>
+              <button
+                onClick={() => setLightboxOpen(false)}
+                className="absolute -top-3 -right-3 p-2 rounded-full bg-white/10 hover:bg-white/25 text-white transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          </div>
+        )}
+      </>
     );
   }
 
   return (
     <div
       className={[
-        "text-white/90 leading-relaxed",
+        "text-white/90 leading-relaxed break-words min-w-0 max-w-full",
         "[&>*+*]:mt-3",
         "[&_ul]:list-disc [&_ul]:pl-5",
         "[&_ol]:list-decimal [&_ol]:pl-5",

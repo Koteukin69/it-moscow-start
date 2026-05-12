@@ -51,7 +51,7 @@ export default function Game({ userId, isMobile, ycBucketName }: { userId: strin
         {isFullscreen ? <Minimize size={22} /> : <Maximize size={22} />}
       </button>
       <Link
-        href="/applicant"
+        href="/store"
         className="absolute left-4 top-4 z-1 rounded-xl bg-black/50 p-2.5 text-white backdrop-blur-sm active:scale-90 transition-transform"
       >
         <ArrowLeft size={22} />

@@ -20,6 +20,7 @@ type SortOption = "default" | "price-asc" | "price-desc" | "name-asc" | "name-de
 interface ShopProps {
   initialCoins: number;
   initialCart: CartWithProducts;
+  backUrl: string;
 }
 
 function reindex(items: CartItemData[]): CartItemData[] {
@@ -28,7 +29,7 @@ function reindex(items: CartItemData[]): CartItemData[] {
 
 const collator = new Intl.Collator(["ru", "en"], {sensitivity: "base", numeric: true});
 
-export default function Shop({initialCoins, initialCart}: ShopProps) {
+export default function Shop({initialCoins, initialCart, backUrl}: ShopProps) {
   const [products, setProducts] = useState<ProductData[]>([]);
   const [loading, setLoading] = useState(true);
   const [coins, setCoins] = useState(initialCoins);
@@ -49,7 +50,9 @@ export default function Shop({initialCoins, initialCart}: ShopProps) {
     try {
       const res = await fetch("/api/shop");
       if (res.ok) setProducts((await res.json()).products);
-    } catch { /* ignore */ }
+    } catch (err) {
+      console.error("[shop fetch error]", err);
+    }
     setLoading(false);
   }, []);
 
@@ -297,7 +300,7 @@ export default function Shop({initialCoins, initialCart}: ShopProps) {
       <header className="sticky top-0 w-full border-b border-border/40 bg-background/80 backdrop-blur-md z-1  ">
         <div className="flex h-18 items-center justify-between gap-5 px-6 sm:px-10 max-w-7xl mx-auto">
           <Button variant="ghost" size="sm" className="gap-1 shrink-0" asChild>
-            <Link href="/profile">
+            <Link href={backUrl}>
               <ArrowLeft size={16}/>
               <span className="hidden sm:inline">Вернуться</span>
             </Link>

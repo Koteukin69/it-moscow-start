@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
         yield encoder.encode(
           `data: ${JSON.stringify({ error: "Ошибка генерации ответа" })}\n\n`,
         );
-      } catch {}
+      } catch (writeErr) { console.error("[SSE write error]", writeErr); }
     }
   });
 }

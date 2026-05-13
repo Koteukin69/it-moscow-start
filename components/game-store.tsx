@@ -1,8 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Gamepad2, Lock, Shield, Star, Users, Zap } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { AlertTriangle, ArrowLeft, Gamepad2, Lock, Shield, Star, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const GUEST_WARNING_DISMISSED_KEY = "itmoscow-store-guest-warning-dismissed";
 
 type Game = {
   id: string;
@@ -98,7 +102,22 @@ const GAMES: Game[] = [
 const featured = GAMES.find(g => g.isFeatured)!;
 const rest = GAMES.filter(g => !g.isFeatured);
 
-export default function GameStore({ userId }: { userId?: string }) {
+export default function GameStore({ userId, userAvatar }: { userId?: string; userAvatar?: string }) {
+  const isAuthenticated = !!userId;
+  const hasAvatarUrl = !!userAvatar && /^https?:\/\//.test(userAvatar);
+  const [warningOpen, setWarningOpen] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) return;
+    const dismissed = sessionStorage.getItem(GUEST_WARNING_DISMISSED_KEY) === "1";
+    if (!dismissed) setWarningOpen(true);
+  }, [isAuthenticated]);
+
+  function dismissWarning() {
+    sessionStorage.setItem(GUEST_WARNING_DISMISSED_KEY, "1");
+    setWarningOpen(false);
+  }
+
   return (
     <div className="min-h-screen bg-[#0f0f13] text-white">
       <header className="sticky top-0 z-20 bg-[#0f0f13]/90 backdrop-blur-md border-b border-white/8">
@@ -121,14 +140,31 @@ export default function GameStore({ userId }: { userId?: string }) {
             <Link href="/shop?from=/store" className="text-white/50 hover:text-white text-sm transition-colors">
               Магазин
             </Link>
-            {userId ? (
-              <Link href="/profile" className="text-white/50 hover:text-white text-sm transition-colors">
-                Профиль
+            {isAuthenticated ? (
+              <Link
+                href="/profile"
+                className="block w-9 h-9 rounded-full overflow-hidden bg-white/10 hover:ring-2 hover:ring-white/40 transition-all"
+                title="Профиль"
+              >
+                {hasAvatarUrl ? (
+                  <Image
+                    src={userAvatar!}
+                    width={36}
+                    height={36}
+                    alt="Профиль"
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-[#7B9EFF] to-[#5b7be0] flex items-center justify-center text-sm font-bold text-white">
+                    ?
+                  </div>
+                )}
               </Link>
             ) : (
               <Link
                 href="/api/auth/vk?mode=login&returnUrl=/store"
-                className="text-[#7B9EFF] hover:text-[#a0b8ff] text-sm transition-colors"
+                className="px-4 py-2 rounded-lg bg-[#7B9EFF] hover:bg-[#a0b8ff] text-[#0f0f13] text-sm font-bold transition-colors shadow-lg shadow-[#7B9EFF]/30"
               >
                 Войти
               </Link>
@@ -136,6 +172,38 @@ export default function GameStore({ userId }: { userId?: string }) {
           </div>
         </div>
       </header>
+
+      {warningOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl bg-[#1a1a22] border border-white/10 p-6 flex flex-col gap-4 shadow-2xl">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center">
+                <AlertTriangle size={20} className="text-orange-400" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <h2 className="text-lg font-bold text-white">Прогресс не сохранится</h2>
+                <p className="text-sm text-white/60 leading-relaxed">
+                  Вы не вошли в аккаунт. Все монеты, достижения и результаты игр будут потеряны после закрытия вкладки.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Link
+                href="/api/auth/vk?mode=login&returnUrl=/store"
+                className="w-full text-center px-4 py-2.5 rounded-lg bg-[#7B9EFF] hover:bg-[#a0b8ff] text-[#0f0f13] text-sm font-bold transition-colors"
+              >
+                Войти и сохранять прогресс
+              </Link>
+              <button
+                onClick={dismissWarning}
+                className="w-full text-center px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 text-sm font-medium transition-colors"
+              >
+                Продолжить без входа
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-12">
         <section className="relative rounded-2xl overflow-hidden min-h-[400px] sm:min-h-[460px] flex items-end">

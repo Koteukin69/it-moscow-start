@@ -8,5 +8,5 @@ export default async function Applicant() {
   const userId = h.get("x-user-id") || undefined;
   const user = name && userId ? {name} : null;
 
-  return <ApplicantChat user={user} userId={userId}/>;
+  return <ApplicantChat user={user}/>;
 }

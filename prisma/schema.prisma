@@ -12,6 +12,8 @@ model User {
   coins          Int      @default(0)
   avatar         String?
   oauthProviders Json     @default("[]")
+  orbProUsage    Json     @default("{}")
+  orbPlus        Json     @default("{}")
   gameSession    Json?
   createdAt      DateTime @default(now())
 

@@ -1,10 +1,8 @@
 import {Card, CardContent} from "@/components/ui/card";
-import {Button} from "@/components/ui/button";
 import CourseCardVisual from "@/components/parent/course-card-visual";
 import {MapPin, Clock, CalendarDays, GraduationCap, Gamepad2, Network, Palette, Globe, Code, Camera, Coins} from "lucide-react";
 import type {LucideIcon} from "lucide-react";
 import type {OrbAnimationProps} from "@/components/orb";
-import Link from "next/link";
 
 interface CourseEntry {
   id: string;

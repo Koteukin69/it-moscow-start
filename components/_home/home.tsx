@@ -154,7 +154,7 @@ export default async function Home() {
           textLarge
         />
       </div>
-      <div id={"courses"} className={"bg-[#18181B] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>
+      <div id={"courses"} className={"bg-[#18181B] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20 overflow-x-hidden"}>
         <Courses/>
       </div>
       <div id={"faq"} className={"bg-[#18181B] text-white flex flex-col items-center px-5 sm:px-10 md:px-25 py-10 gap-20"}>

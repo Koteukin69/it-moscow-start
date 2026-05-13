@@ -571,13 +571,14 @@ export default function Chat({
               className="flex-1 flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/8 transition-colors min-w-0"
             >
               <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 bg-white/10 flex items-center justify-center">
-                {userAvatar ? (
+                {userAvatar && /^https?:\/\//.test(userAvatar) ? (
                   <Image
-                    src={`/avatars/${userAvatar}.png`}
+                    src={userAvatar}
                     width={36}
                     height={36}
                     alt="avatar"
                     className="object-cover w-full h-full"
+                    unoptimized
                   />
                 ) : (
                   <span className="text-sm font-semibold text-white">{userInitial}</span>

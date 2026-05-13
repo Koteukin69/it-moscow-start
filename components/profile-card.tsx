@@ -6,8 +6,7 @@ import {Card, CardContent} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Badge} from "@/components/ui/badge";
-import {Popover, PopoverTrigger, PopoverContent} from "@/components/ui/popover";
-import {Pencil, Check, X, Loader2, Coins, LogOut, BadgeCheck, Brain, ChevronRight, ShoppingBag, Link2, Unlink} from "lucide-react";
+import {Pencil, Check, X, Loader2, Coins, LogOut, Brain, ChevronRight, ShoppingBag, Link2, Unlink} from "lucide-react";
 import type {UserOrder} from "@/app/profile/page";
 import type {QuizResult} from "@/lib/types";
 import OrbAnimation from "@/components/orb";
@@ -77,8 +76,6 @@ function getInitials(name: string): string {
     .join("");
 }
 
-const AVATAR_IDS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
-
 interface OAuthProviderInfo {
   provider: "vk" | "yandex";
   linkedAt: string;
@@ -110,12 +107,9 @@ const PROVIDER_META = {
   },
 } as const;
 
-export default function ProfileCard({name: initialName, coins, avatar: initialAvatar, quizResult, orders = [], oauthProviders: initialProviders}: ProfileCardProps) {
+export default function ProfileCard({name: initialName, coins, avatar, quizResult, orders = [], oauthProviders: initialProviders}: ProfileCardProps) {
   const router = useRouter();
   const [displayName, setDisplayName] = useState(initialName);
-  const [displayAvatar, setDisplayAvatar] = useState(initialAvatar);
-  const [avatarOpen, setAvatarOpen] = useState(false);
-  const [avatarSaving, setAvatarSaving] = useState<string | null>(null);
   const [providers, setProviders] = useState(initialProviders);
   const [unlinking, setUnlinking] = useState<string | null>(null);
 
@@ -129,23 +123,7 @@ export default function ProfileCard({name: initialName, coins, avatar: initialAv
     router.push('/');
   };
 
-  const handleAvatarSelect = async (id: string) => {
-    setAvatarSaving(id);
-    try {
-      const res = await fetch("/api/profile", {
-        method: "PATCH",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({field: "avatar", value: id}),
-      });
-      if (res.ok) {
-        setDisplayAvatar(id);
-        setAvatarOpen(false);
-      }
-    } catch (err) {
-      console.error("[avatar save error]", err);
-    }
-    setAvatarSaving(null);
-  };
+  const avatarUrl = avatar && /^https?:\/\//.test(avatar) ? avatar : undefined;
 
   const handleUnlink = async (provider: "vk" | "yandex") => {
     setUnlinking(provider);
@@ -178,59 +156,22 @@ export default function ProfileCard({name: initialName, coins, avatar: initialAv
         <Card className="bg-background/70 border-border/40 p-6 pt-10">
           <CardContent className="flex flex-col sm:flex-row items-center gap-5 p-0">
             <div className="flex-1 min-w-0 flex flex-row gap-5 justify-start items-center w-full">
-              <Popover open={avatarOpen} onOpenChange={setAvatarOpen}>
-                <PopoverTrigger asChild>
-                  <button className="group relative shrink-0 w-20 h-20 rounded-full overflow-hidden cursor-pointer">
-                    {displayAvatar ? (
-                      <Image
-                        src={`/avatars/${displayAvatar}.png`}
-                        alt="Аватар"
-                        width={80}
-                        height={80}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-linear-to-br from-primary/80 to-primary/30 flex items-center justify-center text-2xl font-bold text-primary-foreground select-none">
-                        {getInitials(displayName) || "?"}
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                      <Pencil size={16} className="text-white opacity-0 group-hover:opacity-100 transition-opacity"/>
-                    </div>
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent align="start" className="w-auto p-3">
-                  <p className="text-sm font-medium mb-2">Выберите аватар</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    {AVATAR_IDS.map(id => (
-                      <button
-                        key={id}
-                        onClick={() => handleAvatarSelect(id)}
-                        disabled={avatarSaving !== null}
-                        className={cn(
-                          "relative w-16 h-16 rounded-full overflow-hidden cursor-pointer transition-all hover:scale-105",
-                          "ring-2 ring-offset-2 ring-offset-popover",
-                          displayAvatar === id ? "ring-primary" : "ring-transparent hover:ring-muted-foreground/30",
-                          avatarSaving === id && "opacity-60"
-                        )}
-                      >
-                        <Image
-                          src={`/avatars/${id}.png`}
-                          alt={`Аватар ${id}`}
-                          width={64}
-                          height={64}
-                          className="w-full h-full object-cover"
-                        />
-                        {avatarSaving === id && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                            <Loader2 size={16} className="text-white animate-spin"/>
-                          </div>
-                        )}
-                      </button>
-                    ))}
+              <div className="shrink-0 w-20 h-20 rounded-full overflow-hidden">
+                {avatarUrl ? (
+                  <Image
+                    src={avatarUrl}
+                    alt="Аватар"
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="w-full h-full bg-linear-to-br from-primary/80 to-primary/30 flex items-center justify-center text-2xl font-bold text-primary-foreground select-none">
+                    {getInitials(displayName) || "?"}
                   </div>
-                </PopoverContent>
-              </Popover>
+                )}
+              </div>
               <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-start">
                 <InlineNameField displayValue={displayName} edit={nameEdit}/>
               </div>

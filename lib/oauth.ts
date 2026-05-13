@@ -202,11 +202,16 @@ export async function exchangeYandexCode(code: string): Promise<{access_token: s
   return {access_token: data.access_token};
 }
 
+export type YandexGender = "male" | "female";
+
 export async function getYandexUserInfo(accessToken: string): Promise<{
   id: string;
+  login: string;
   firstName: string;
   lastName: string;
+  gender?: YandexGender;
   phone?: string;
+  avatar?: string;
 }> {
   const res = await fetch("https://login.yandex.ru/info?format=json", {
     headers: {Authorization: `OAuth ${accessToken}`},
@@ -215,11 +220,22 @@ export async function getYandexUserInfo(accessToken: string): Promise<{
   const data = await res.json();
   if (data.error) throw new Error(`Yandex user_info error: ${data.error}`);
 
+  const gender: YandexGender | undefined =
+    data.sex === "male" || data.sex === "female" ? data.sex : undefined;
+
+  const hasAvatar = !data.is_avatar_empty && typeof data.default_avatar_id === "string" && data.default_avatar_id.length > 0;
+  const avatar = hasAvatar
+    ? `https://avatars.yandex.net/get-yapic/${data.default_avatar_id}/islands-200`
+    : undefined;
+
   return {
     id: data.id,
+    login: data.login || "",
     firstName: data.first_name || "",
     lastName: data.last_name || "",
+    gender,
     phone: data.default_phone?.number || undefined,
+    avatar,
   };
 }
 

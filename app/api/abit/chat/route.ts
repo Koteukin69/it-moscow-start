@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { askAIStream, type AIError, type ModelType } from "@/lib/ai";
 import { generateImage } from "@/lib/image-gen";
 import { checkContent } from "@/lib/content-filter";
+import { consumeOrbProQuota } from "@/lib/orb-plus";
+
+const ORB_PRO_TIER = "Orbs Pro";
 
 type Body = {
   prompt?: unknown;
   modelType?: unknown;
   maxTokens?: unknown;
+  orbsTier?: unknown;
 };
 
 type ResponseError = {
@@ -29,7 +33,30 @@ export async function POST(req: NextRequest) {
   const modelType = (typeof body.modelType === "string" ? body.modelType : "Приемная комиссия") as ModelType;
   const rawMaxTokens = typeof body.maxTokens === "number" ? body.maxTokens : 1000;
   const maxTokens = Math.min(Math.max(rawMaxTokens, 100), 2000);
+  const orbsTier = typeof body.orbsTier === "string" ? body.orbsTier : null;
   const encoder = new TextEncoder();
+
+  if (orbsTier === ORB_PRO_TIER) {
+    const userId = req.headers.get("x-user-id");
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Тариф Orbs Pro доступен только авторизованным пользователям", code: "AUTH_REQUIRED" },
+        { status: 401 },
+      );
+    }
+
+    const result = await consumeOrbProQuota(userId);
+    if (!result.ok) {
+      return NextResponse.json(
+        {
+          error: "Лимит запросов Orbs Pro исчерпан",
+          code: "ORB_PRO_LIMIT",
+          status: result.status,
+        },
+        { status: 429 },
+      );
+    }
+  }
 
   function sseStream(events: () => AsyncIterable<Uint8Array>): Response {
     return new Response(

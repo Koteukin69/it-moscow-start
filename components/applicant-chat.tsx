@@ -1,7 +1,6 @@
 'use client';
 
-import {useCallback, useMemo, useState} from "react";
-import {useRouter} from "next/navigation";
+import {useMemo} from "react";
 import Nav from "@/components/nav";
 import OrbAnimation from "@/components/orb";
 import Chat, {ChatStep} from "@/components/chat";
@@ -14,10 +13,9 @@ import Image from "next/image";
 
 interface ApplicantChatProps {
   user: { name: string } | null;
-  userId?: string;
 }
 
-function AuthCard({onSkip}: { onSkip: () => void }) {
+function AuthCard() {
   return (
     <div className="flex flex-col gap-3 rounded-2xl border bg-card p-4 max-w-sm">
       <p className="font-semibold leading-snug">Войти через</p>
@@ -39,9 +37,6 @@ function AuthCard({onSkip}: { onSkip: () => void }) {
           Яндекс
         </Button>
       </div>
-      <Button variant="link" className="text-muted-foreground" onClick={onSkip}>
-        Пропустить
-      </Button>
     </div>
   );
 }
@@ -89,25 +84,11 @@ function ChatConsultationRow() {
 }
 
 export default function ApplicantChat({user}: ApplicantChatProps) {
-  const router = useRouter();
-  const [phase, setPhase] = useState<"auth" | "name">("auth");
-
   const authSteps: ChatStep[] = useMemo(() => [
     {type: "message", sender: "client", text: "Я — абитуриент"},
     {type: "message", sender: "server", text: "Привет, давай познакомимся!", delay: 800},
     {type: "message", sender: "server", text: "Войди через VK или Яндекс, чтобы сохранить прогресс.", delay: 500},
-    {type: "component", render: () => <AuthCard onSkip={() => setPhase("name")}/>},
-  ], []);
-
-  const nameSteps: ChatStep[] = useMemo(() => [
-    {type: "message", sender: "client", text: "Я — абитуриент"},
-    {type: "message", sender: "server", text: "Привет, давай познакомимся!"},
-    {type: "message", sender: "server", text: "Напиши своё имя."},
-    {type: "input", key: "name", placeholder: "Ваше имя..."},
-    {type: "message", sender: "server", text: "Ещё раз приветствую, {name}.", delay: 500},
-    {type: "message", sender: "server", text: "А теперь перейдём к возможностям.", delay: 500},
-    {type: "component", render: () => <ActionButtons/>},
-    {type: "component", render: () => <ChatConsultationRow/>},
+    {type: "component", render: () => <AuthCard/>},
   ], []);
 
   const loggedInSteps: ChatStep[] = useMemo(() => [
@@ -118,42 +99,16 @@ export default function ApplicantChat({user}: ApplicantChatProps) {
     {type: "component", render: () => <ChatConsultationRow/>},
   ], [user?.name]);
 
-  const handleNameComplete = useCallback(async (data: Record<string, string>) => {
-    try {
-      await fetch("/api/auth/skip", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({name: data.name}),
-      });
-      router.refresh();
-    } catch (err) {
-      console.error(err);
-    }
-  }, [router]);
-
-  const chatContent = (() => {
-    if (user) {
-      return (
-        <Chat
-          key="logged-in"
-          steps={loggedInSteps}
-          initialData={{name: user.name}}
-          instant
-        />
-      );
-    }
-    if (phase === "name") {
-      return (
-        <Chat
-          key="name"
-          steps={nameSteps}
-          onComplete={handleNameComplete}
-          instant
-        />
-      );
-    }
-    return <Chat key="auth" steps={authSteps}/>;
-  })();
+  const chatContent = user ? (
+    <Chat
+      key="logged-in"
+      steps={loggedInSteps}
+      initialData={{name: user.name}}
+      instant
+    />
+  ) : (
+    <Chat key="auth" steps={authSteps}/>
+  );
 
   return (
     <div className="flex align-center h-dvh">

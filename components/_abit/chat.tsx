@@ -5,12 +5,24 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
-import { ArrowLeft, ChevronDown, Download, Menu, PanelLeftClose, PanelLeftOpen, ShoppingBag, Trash2, User, X } from "lucide-react";
+import { ArrowLeft, ChevronDown, Download, Menu, PanelLeftClose, PanelLeftOpen, ShoppingBag, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Orb from "@/components/orb";
 import type { ModelType } from "@/lib/ai";
+
+interface OrbStatus {
+  authenticated: boolean;
+  plusActive: boolean;
+  plusExpiresAt: string | null;
+  limit: number;
+  used: number;
+  remaining: number;
+  resetAt: string | null;
+}
+
+const ORB_PLUS_PRICE_RUB = 100;
 
 const THINKING_PHRASES = [
   "Думаю...",
@@ -44,7 +56,6 @@ type OrbsTier = typeof ORBS_TIERS[number]["label"];
 
 const STORAGE_KEY = "itmoscow-chat-history";
 const QUESTIONS_KEY = "itmoscow-questions-used";
-const GUEST_KEY = "itmoscow-guest";
 const QUESTION_LIMIT = 5;
 
 const TICK_MS = 16;
@@ -106,10 +117,13 @@ export default function Chat({
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [orbPreset, setOrbPreset] = useState<OrbPreset>("cyan");
   const [questionsUsed, setQuestionsUsed] = useState(0);
-  const [isGuest, setIsGuest] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [selectedModel, setSelectedModel] = useState<ModelType>(MODEL_OPTIONS[0]);
   const [orbsTier, setOrbsTier] = useState<OrbsTier>("Orbs 1.0");
+  const [orbStatus, setOrbStatus] = useState<OrbStatus | null>(null);
+  const [orbLimitModalOpen, setOrbLimitModalOpen] = useState(false);
+  const [orbPlusModalOpen, setOrbPlusModalOpen] = useState(false);
+  const [paymentStubOpen, setPaymentStubOpen] = useState(false);
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -127,7 +141,6 @@ export default function Chat({
       if (!isAuthenticated) {
         const used = parseInt(localStorage.getItem(QUESTIONS_KEY) ?? "0", 10);
         setQuestionsUsed(isNaN(used) ? 0 : used);
-        setIsGuest(localStorage.getItem(GUEST_KEY) === "1");
       }
     }
 
@@ -141,6 +154,19 @@ export default function Chat({
   useEffect(() => {
     currentConversationIdRef.current = currentConversationId;
   }, [currentConversationId]);
+
+  async function refreshOrbStatus() {
+    try {
+      const res = await fetch("/api/orb-plus/status");
+      if (!res.ok) return;
+      const data = (await res.json()) as OrbStatus;
+      setOrbStatus(data);
+    } catch (err) {
+      console.error("[orb status fetch error]", err);
+    }
+  }
+
+  useEffect(() => { void refreshOrbStatus(); }, [isAuthenticated]);
 
   useEffect(() => {
     if (messages.length === 0) return;
@@ -337,12 +363,19 @@ export default function Chat({
           prompt,
           modelType: selectedModel,
           maxTokens: ORBS_TIERS.find((t) => t.label === orbsTier)?.maxTokens ?? 1000,
+          orbsTier,
         }),
         signal: controller.signal,
       });
 
       if (!res.ok || !res.body) {
-        const data = (await res.json().catch(() => null)) as { error?: string } | null;
+        const data = (await res.json().catch(() => null)) as { error?: string; code?: string; status?: OrbStatus } | null;
+        if (data?.code === "ORB_PRO_LIMIT") {
+          if (data.status) setOrbStatus({ ...data.status, authenticated: true });
+          setOrbLimitModalOpen(true);
+          finishWithError("Лимит запросов Orbs Pro исчерпан");
+          return;
+        }
         finishWithError(data?.error ?? "AI request failed");
         return;
       }
@@ -391,8 +424,13 @@ export default function Chat({
     const prompt = value.trim();
     if (!prompt && action !== "thinking") return;
 
-    if (prompt && !isAuthenticated && !isGuest && questionsUsed >= QUESTION_LIMIT) {
+    if (prompt && !isAuthenticated && questionsUsed >= QUESTION_LIMIT) {
       setShowAuthModal(true);
+      return;
+    }
+
+    if (prompt && orbsTier === "Orbs Pro" && isAuthenticated && orbStatus && orbStatus.remaining <= 0) {
+      setOrbLimitModalOpen(true);
       return;
     }
 
@@ -407,7 +445,7 @@ export default function Chat({
 
       appendMessage({ message: prompt, sender: "client" });
 
-      if (!isAuthenticated && !isGuest) {
+      if (!isAuthenticated) {
         const next = questionsUsed + 1;
         setQuestionsUsed(next);
         localStorage.setItem(QUESTIONS_KEY, String(next));
@@ -417,7 +455,9 @@ export default function Chat({
       setAnswerStream(undefined);
       setValue("");
 
-      void requestAnswer(prompt, requestId);
+      void requestAnswer(prompt, requestId).finally(() => {
+        if (isAuthenticated && orbsTier === "Orbs Pro") void refreshOrbStatus();
+      });
     } else {
       stopAnswer();
     }
@@ -439,7 +479,7 @@ export default function Chat({
   );
 
   const questionsLeft = Math.max(0, QUESTION_LIMIT - questionsUsed);
-  const limitReached = !isAuthenticated && !isGuest && questionsUsed >= QUESTION_LIMIT;
+  const limitReached = !isAuthenticated && questionsUsed >= QUESTION_LIMIT;
   const userInitial = userName?.[0]?.toUpperCase() ?? "?";
 
   return (
@@ -522,10 +562,32 @@ export default function Chat({
           ))}
         </div>
 
-        {!isAuthenticated && !isGuest && (
+        {!isAuthenticated && (
           <Button variant="outline" size="default" className="w-full" onClick={() => setShowAuthModal(true)}>
             Войти
           </Button>
+        )}
+
+        {isAuthenticated && (
+          <button
+            onClick={() => setOrbPlusModalOpen(true)}
+            className={`w-full rounded-md px-3 py-2 text-sm font-semibold transition-all ${
+              orbStatus?.plusActive
+                ? "bg-gradient-to-r from-[#7B9EFF]/20 to-[#a0b8ff]/20 border border-[#7B9EFF]/40 text-white hover:from-[#7B9EFF]/30 hover:to-[#a0b8ff]/30"
+                : "bg-gradient-to-r from-[#7B9EFF] to-[#a0b8ff] text-[#18181B] hover:from-[#a0b8ff] hover:to-[#c4d1ff] shadow-lg shadow-[#7B9EFF]/20"
+            }`}
+          >
+            {orbStatus?.plusActive ? (
+              <span className="flex items-center justify-center gap-1.5">
+                <span>✦ Orb Plus активен</span>
+              </span>
+            ) : (
+              <span className="flex items-center justify-center gap-1.5">
+                <span>✦ Orb Plus</span>
+                <span className="text-xs opacity-80">{ORB_PLUS_PRICE_RUB} ₽/мес</span>
+              </span>
+            )}
+          </button>
         )}
 
         <Button
@@ -536,33 +598,6 @@ export default function Chat({
         >
           <Link href="/store">Играть</Link>
         </Button>
-
-        {!isAuthenticated && isGuest && (
-          <div className="flex items-center gap-2">
-            <div className="flex-1 flex items-center gap-3 px-3 py-2 rounded-xl min-w-0">
-              <div className="w-9 h-9 rounded-full flex-shrink-0 bg-white/10 flex items-center justify-center">
-                <User size={18} className="text-white/60" />
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-white/90 text-sm font-medium">Гость</span>
-                <button
-                  className="text-white/40 text-xs text-left hover:text-white/60 transition-colors"
-                  onClick={() => setShowAuthModal(true)}
-                >
-                  Войти в аккаунт
-                </button>
-              </div>
-            </div>
-            <Link
-              href="/store"
-              className="flex-shrink-0 flex flex-col items-center gap-0.5 p-2 rounded-xl hover:bg-white/8 transition-colors text-white/40 hover:text-white/80"
-              title="Магазин"
-            >
-              <ShoppingBag size={18} />
-              <span className="text-[10px]">Магазин</span>
-            </Link>
-          </div>
-        )}
 
         {isAuthenticated && (
           <div className="flex items-center gap-2">
@@ -680,10 +715,26 @@ export default function Chat({
             </div>
 
             <div className="flex items-center gap-2">
-              {!isAuthenticated && !isGuest && (
+              {!isAuthenticated && (
                 <span className={`text-xs ${questionsLeft <= 1 ? "text-orange-400" : "text-white/40"}`}>
                   Осталось: {questionsLeft} из {QUESTION_LIMIT}
                 </span>
+              )}
+              {isAuthenticated && orbsTier === "Orbs Pro" && orbStatus && (
+                <button
+                  onClick={() => setOrbPlusModalOpen(true)}
+                  className={`text-xs px-2 py-1 rounded-md transition-colors ${
+                    orbStatus.remaining === 0
+                      ? "text-orange-400 bg-orange-500/10 hover:bg-orange-500/20"
+                      : orbStatus.remaining <= 2
+                      ? "text-orange-400 hover:bg-white/5"
+                      : "text-white/50 hover:bg-white/5"
+                  }`}
+                  title={orbStatus.plusActive ? "Orb Plus активен" : "Купить Orb Plus"}
+                >
+                  {orbStatus.plusActive && <span className="mr-1">✦</span>}
+                  Pro: {orbStatus.remaining}/{orbStatus.limit}
+                </button>
               )}
               <div className="relative">
                 <select
@@ -731,19 +782,119 @@ export default function Chat({
                   <Image src="/partners/yandex.svg" width={20} height={20} alt="yandex" className="size-5 flex-shrink-0" />
                   Яндекс
                 </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full gap-2 text-white/60 hover:text-white h-11 text-base border border-white/10 hover:bg-white/5"
-                  onClick={() => {
-                    localStorage.setItem(GUEST_KEY, "1");
-                    setIsGuest(true);
-                    setShowAuthModal(false);
-                  }}
-                >
-                  <User size={18} className="flex-shrink-0" />
-                  Я гость
-                </Button>
               </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {orbLimitModalOpen && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={() => setOrbLimitModalOpen(false)} />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="flex flex-col gap-5 rounded-2xl border border-white/10 bg-[#1E1E22] p-7 shadow-2xl w-full max-w-sm animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col gap-1">
+                  <p className="font-semibold text-white text-lg leading-snug">Лимит Orbs Pro исчерпан</p>
+                  <p className="text-white/50 text-sm">
+                    Вы использовали {orbStatus?.used ?? 0} из {orbStatus?.limit ?? 10} запросов на тарифе Orbs Pro.
+                    {orbStatus?.resetAt && (
+                      <> Лимит сбросится через 24 часа после первого запроса.</>
+                    )}
+                  </p>
+                </div>
+                <button className="text-white/30 hover:text-white/60 transition-colors flex-shrink-0 mt-1 text-lg leading-none" onClick={() => setOrbLimitModalOpen(false)}>✕</button>
+              </div>
+              <div className="flex flex-col gap-3">
+                <Button
+                  className="w-full bg-gradient-to-r from-[#7B9EFF] to-[#a0b8ff] hover:from-[#a0b8ff] hover:to-[#c4d1ff] text-[#18181B] h-11 text-base font-bold"
+                  onClick={() => { setOrbLimitModalOpen(false); setOrbPlusModalOpen(true); }}
+                >
+                  ✦ Купить Orb Plus за {ORB_PLUS_PRICE_RUB} ₽
+                </Button>
+                <p className="text-xs text-white/40 text-center">100 запросов в день на Orbs Pro</p>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {orbPlusModalOpen && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={() => setOrbPlusModalOpen(false)} />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="flex flex-col gap-5 rounded-2xl border border-[#7B9EFF]/30 bg-gradient-to-br from-[#1E1E22] to-[#1a1a2e] p-7 shadow-2xl w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col gap-1">
+                  <p className="font-bold text-white text-2xl leading-snug">✦ Orb Plus</p>
+                  <p className="text-white/60 text-sm">Подписка для активных пользователей Orbs Pro</p>
+                </div>
+                <button className="text-white/30 hover:text-white/60 transition-colors flex-shrink-0 mt-1 text-lg leading-none" onClick={() => setOrbPlusModalOpen(false)}>✕</button>
+              </div>
+
+              {orbStatus?.plusActive ? (
+                <div className="rounded-lg bg-[#7B9EFF]/10 border border-[#7B9EFF]/30 p-4 text-sm">
+                  <p className="text-white font-semibold mb-1">Подписка активна</p>
+                  {orbStatus.plusExpiresAt && (
+                    <p className="text-white/60 text-xs">
+                      Действует до {new Date(orbStatus.plusExpiresAt).toLocaleDateString("ru-RU")}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <div className="flex flex-col gap-2.5 text-sm">
+                    <div className="flex items-start gap-2">
+                      <span className="text-[#7B9EFF] mt-0.5">✓</span>
+                      <span className="text-white/80"><b>100 запросов в день</b> на Orbs Pro вместо 10</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-[#7B9EFF] mt-0.5">✓</span>
+                      <span className="text-white/80">Автопродление каждый месяц</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-[#7B9EFF] mt-0.5">✓</span>
+                      <span className="text-white/80">Отмена в любой момент</span>
+                    </div>
+                  </div>
+                  <div className="flex items-end justify-between rounded-lg bg-white/5 px-4 py-3">
+                    <span className="text-white/60 text-sm">Стоимость</span>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-white text-2xl font-bold">{ORB_PLUS_PRICE_RUB}</span>
+                      <span className="text-white/60 text-sm">₽/мес</span>
+                    </div>
+                  </div>
+                  <Button
+                    className="w-full bg-gradient-to-r from-[#7B9EFF] to-[#a0b8ff] hover:from-[#a0b8ff] hover:to-[#c4d1ff] text-[#18181B] h-12 text-base font-bold"
+                    onClick={() => { setOrbPlusModalOpen(false); setPaymentStubOpen(true); }}
+                  >
+                    Оформить подписку
+                  </Button>
+                  <p className="text-xs text-white/40 text-center">Оплата картами РФ через ЮKassa</p>
+                </>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {paymentStubOpen && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={() => setPaymentStubOpen(false)} />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="flex flex-col gap-5 rounded-2xl border border-white/10 bg-[#1E1E22] p-7 shadow-2xl w-full max-w-sm animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex flex-col gap-2">
+                <p className="font-bold text-white text-lg">Оплата в разработке</p>
+                <p className="text-white/60 text-sm leading-relaxed">
+                  Интеграция с ЮKassa скоро будет подключена. Вы сможете оплатить подписку картой РФ и получить 100 запросов в день на Orbs Pro.
+                </p>
+              </div>
+              <Button
+                className="w-full bg-white/10 hover:bg-white/15 text-white h-11"
+                onClick={() => setPaymentStubOpen(false)}
+              >
+                Понятно
+              </Button>
             </div>
           </div>
         </>

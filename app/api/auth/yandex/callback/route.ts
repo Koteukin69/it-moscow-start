@@ -14,6 +14,8 @@ type OAuthProvider = {
   provider: string;
   providerUserId: string;
   phone?: string;
+  login?: string;
+  gender?: "male" | "female";
   linkedAt: string;
 };
 
@@ -62,8 +64,21 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         const user = await prisma.user.findUnique({ where: { id: payload.userId } });
         if (user) {
           const providers = (user.oauthProviders as OAuthProvider[]) ?? [];
-          providers.push({ provider: "yandex", providerUserId, phone: yandexUser.phone, linkedAt: new Date().toISOString() });
-          await prisma.user.update({ where: { id: payload.userId }, data: { oauthProviders: providers } });
+          providers.push({
+            provider: "yandex",
+            providerUserId,
+            phone: yandexUser.phone,
+            login: yandexUser.login,
+            gender: yandexUser.gender,
+            linkedAt: new Date().toISOString(),
+          });
+          await prisma.user.update({
+            where: { id: payload.userId },
+            data: {
+              oauthProviders: providers,
+              ...(yandexUser.avatar ? { avatar: yandexUser.avatar } : {}),
+            },
+          });
         }
       }
 
@@ -88,10 +103,24 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     if (existingUser) {
       const providers = (existingUser.oauthProviders as OAuthProvider[]) ?? [];
+      const updatedProviders = providers.map(p =>
+        p.provider === "yandex" && p.providerUserId === providerUserId
+          ? { ...p, phone: yandexUser.phone, login: yandexUser.login, gender: yandexUser.gender }
+          : p,
+      );
+
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          oauthProviders: updatedProviders,
+          ...(yandexUser.avatar ? { avatar: yandexUser.avatar } : {}),
+        },
+      });
+
       const token = await createToken({
         userId: existingUser.id,
         name: existingUser.name,
-        hasPhone: providers.some(p => !!p.phone),
+        hasPhone: updatedProviders.some(p => !!p.phone),
       } satisfies JWTPayload);
 
       const response = NextResponse.redirect(new URL(loginRedirect, req.url));
@@ -105,7 +134,15 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       data: {
         name,
         coins: 0,
-        oauthProviders: [{ provider: "yandex", providerUserId, phone: yandexUser.phone, linkedAt: new Date().toISOString() }],
+        ...(yandexUser.avatar ? { avatar: yandexUser.avatar } : {}),
+        oauthProviders: [{
+          provider: "yandex",
+          providerUserId,
+          phone: yandexUser.phone,
+          login: yandexUser.login,
+          gender: yandexUser.gender,
+          linkedAt: new Date().toISOString(),
+        }],
       },
     });
 

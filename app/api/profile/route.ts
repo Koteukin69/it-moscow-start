@@ -27,16 +27,6 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
       return response;
     }
 
-    if (field === "avatar") {
-      const allowed = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
-      if (typeof value !== "string" || !allowed.includes(value)) {
-        return NextResponse.json({ error: "Некорректный аватар" }, { status: 422 });
-      }
-
-      await prisma.user.update({ where: { id: payload.userId }, data: { avatar: value } });
-      return NextResponse.json({ success: true, value });
-    }
-
     return NextResponse.json({ error: "Неизвестное поле" }, { status: 422 });
   } catch (error) {
     console.error(error);

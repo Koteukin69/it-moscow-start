@@ -141,11 +141,15 @@ export async function exchangeVKCode(
   return {access_token: data.access_token, user_id: data.user_id};
 }
 
+export type VKGender = "male" | "female";
+
 export async function getVKUserInfo(accessToken: string): Promise<{
   id: number;
   firstName: string;
   lastName: string;
+  gender?: VKGender;
   phone?: string;
+  avatar?: string;
 }> {
   const { clientId } = getVKConfig();
   const body = new URLSearchParams({
@@ -162,11 +166,23 @@ export async function getVKUserInfo(accessToken: string): Promise<{
   const data = await res.json();
   if (data.error) throw new Error(`VK user_info error: ${data.error}`);
 
+  const user = data.user ?? {};
+
+  let gender: VKGender | undefined;
+  if (user.sex === 2) gender = "male";
+  else if (user.sex === 1) gender = "female";
+
+  const avatar = typeof user.avatar === "string" && user.avatar.length > 0
+    ? user.avatar
+    : undefined;
+
   return {
-    id: data.user.user_id,
-    firstName: data.user.first_name || "",
-    lastName: data.user.last_name || "",
-    phone: data.user.phone || undefined,
+    id: user.user_id,
+    firstName: user.first_name || "",
+    lastName: user.last_name || "",
+    gender,
+    phone: user.phone || undefined,
+    avatar,
   };
 }
 

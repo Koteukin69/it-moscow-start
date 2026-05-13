@@ -5,6 +5,7 @@ import {
   exchangeVKCode,
   getVKUserInfo,
   extractReturnUrl,
+  getSiteUrl,
 } from "@/lib/oauth";
 import { createToken, verifyToken, AUTH_COOKIE_OPTIONS } from "@/lib/auth";
 import { prisma } from "@/lib/db/prisma";
@@ -28,13 +29,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const deviceId = req.nextUrl.searchParams.get("device_id") || "unknown";
 
     if (!code || !state) {
-      return NextResponse.redirect(new URL("/applicant", req.url));
+      return NextResponse.redirect(new URL("/applicant", getSiteUrl()));
     }
 
     const { returnUrl: embeddedReturnUrl } = extractReturnUrl(state);
     const oauthState = await getOAuthStateCookie(req);
     if (!oauthState || oauthState.state !== state || !oauthState.codeVerifier) {
-      return NextResponse.redirect(new URL(embeddedReturnUrl ?? "/applicant", req.url));
+      return NextResponse.redirect(new URL(embeddedReturnUrl ?? "/applicant", getSiteUrl()));
     }
 
     const tokens = await exchangeVKCode(code, oauthState.codeVerifier, deviceId);
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       const authToken = req.cookies.get("auth-token")?.value;
       const payload = authToken ? await verifyToken(authToken) : null;
       if (!payload) {
-        return NextResponse.redirect(new URL("/applicant", req.url));
+        return NextResponse.redirect(new URL("/applicant", getSiteUrl()));
       }
 
       const allUsers = await prisma.user.findMany({ select: { id: true, oauthProviders: true } });
@@ -54,7 +55,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       );
 
       if (existing && existing.id !== payload.userId) {
-        const response = NextResponse.redirect(new URL("/profile?error=vk_already_linked", req.url));
+        const response = NextResponse.redirect(new URL("/profile?error=vk_already_linked", getSiteUrl()));
         clearOAuthStateCookie(response);
         return response;
       }
@@ -74,7 +75,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         hasPhone: payload.hasPhone || !!vkUser.phone,
       } satisfies JWTPayload);
 
-      const response = NextResponse.redirect(new URL("/profile", req.url));
+      const response = NextResponse.redirect(new URL("/profile", getSiteUrl()));
       response.cookies.set("auth-token", newToken, AUTH_COOKIE_OPTIONS);
       clearOAuthStateCookie(response);
       return response;
@@ -95,7 +96,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         hasPhone: providers.some(p => !!p.phone),
       } satisfies JWTPayload);
 
-      const response = NextResponse.redirect(new URL(loginRedirect, req.url));
+      const response = NextResponse.redirect(new URL(loginRedirect, getSiteUrl()));
       response.cookies.set("auth-token", token, AUTH_COOKIE_OPTIONS);
       clearOAuthStateCookie(response);
       return response;
@@ -116,12 +117,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       hasPhone: !!vkUser.phone,
     } satisfies JWTPayload);
 
-    const response = NextResponse.redirect(new URL(loginRedirect, req.url));
+    const response = NextResponse.redirect(new URL(loginRedirect, getSiteUrl()));
     response.cookies.set("auth-token", token, AUTH_COOKIE_OPTIONS);
     clearOAuthStateCookie(response);
     return response;
   } catch (error) {
     console.error("VK callback error:", error);
-    return NextResponse.redirect(new URL("/applicant", req.url));
+    return NextResponse.redirect(new URL("/applicant", getSiteUrl()));
   }
 }

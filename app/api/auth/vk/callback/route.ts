@@ -15,6 +15,7 @@ type OAuthProvider = {
   provider: string;
   providerUserId: string;
   phone?: string;
+  gender?: "male" | "female";
   linkedAt: string;
 };
 
@@ -64,8 +65,20 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         const user = await prisma.user.findUnique({ where: { id: payload.userId } });
         if (user) {
           const providers = (user.oauthProviders as OAuthProvider[]) ?? [];
-          providers.push({ provider: "vk", providerUserId, phone: vkUser.phone, linkedAt: new Date().toISOString() });
-          await prisma.user.update({ where: { id: payload.userId }, data: { oauthProviders: providers } });
+          providers.push({
+            provider: "vk",
+            providerUserId,
+            phone: vkUser.phone,
+            gender: vkUser.gender,
+            linkedAt: new Date().toISOString(),
+          });
+          await prisma.user.update({
+            where: { id: payload.userId },
+            data: {
+              oauthProviders: providers,
+              ...(vkUser.avatar ? { avatar: vkUser.avatar } : {}),
+            },
+          });
         }
       }
 
@@ -90,10 +103,24 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     if (existingUser) {
       const providers = (existingUser.oauthProviders as OAuthProvider[]) ?? [];
+      const updatedProviders = providers.map(p =>
+        p.provider === "vk" && p.providerUserId === providerUserId
+          ? { ...p, phone: vkUser.phone, gender: vkUser.gender }
+          : p,
+      );
+
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          oauthProviders: updatedProviders,
+          ...(vkUser.avatar ? { avatar: vkUser.avatar } : {}),
+        },
+      });
+
       const token = await createToken({
         userId: existingUser.id,
         name: existingUser.name,
-        hasPhone: providers.some(p => !!p.phone),
+        hasPhone: updatedProviders.some(p => !!p.phone),
       } satisfies JWTPayload);
 
       const response = NextResponse.redirect(new URL(loginRedirect, getSiteUrl()));
@@ -107,7 +134,14 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       data: {
         name,
         coins: 0,
-        oauthProviders: [{ provider: "vk", providerUserId, phone: vkUser.phone, linkedAt: new Date().toISOString() }],
+        ...(vkUser.avatar ? { avatar: vkUser.avatar } : {}),
+        oauthProviders: [{
+          provider: "vk",
+          providerUserId,
+          phone: vkUser.phone,
+          gender: vkUser.gender,
+          linkedAt: new Date().toISOString(),
+        }],
       },
     });
 

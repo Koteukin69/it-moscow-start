@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
-import { ArrowLeft, ChevronDown, Download, Menu, PanelLeftClose, PanelLeftOpen, ShoppingBag, Trash2, X } from "lucide-react";
+import { ArrowLeft, ChevronDown, Download, FileText, Menu, PanelLeftClose, PanelLeftOpen, Paperclip, ShoppingBag, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -62,10 +62,18 @@ const TICK_MS = 16;
 const ANSWER_PRESETS = ["sunset", "aurora", "neon"] as const;
 type OrbPreset = "cyan" | "sunset" | "aurora" | "neon";
 
+type OrbFileMeta = {
+  id: string;
+  fileName: string;
+  type: "docx" | "xlsx" | "pdf";
+};
+
 type Message = {
   message: string;
   sender: "client" | "server";
   imageBase64?: string;
+  attachedFileName?: string;
+  generatedFile?: OrbFileMeta;
 };
 
 type MessageGroup = Message[];
@@ -73,9 +81,10 @@ type MessageGroup = Message[];
 type Action = "thinking" | "stopped";
 
 type SSEChunk =
-  | { text: string; error?: never; imageBase64?: never }
-  | { error: string; text?: never; imageBase64?: never }
-  | { imageBase64: string; text?: never; error?: never };
+  | { text: string; error?: never; imageBase64?: never; file?: never; replaceText?: never }
+  | { error: string; text?: never; imageBase64?: never; file?: never; replaceText?: never }
+  | { imageBase64: string; text?: never; error?: never; file?: never; replaceText?: never }
+  | { file: OrbFileMeta; replaceText?: string; text?: never; error?: never; imageBase64?: never };
 
 type Conversation = {
   id: string;
@@ -124,6 +133,7 @@ export default function Chat({
   const [orbLimitModalOpen, setOrbLimitModalOpen] = useState(false);
   const [orbPlusModalOpen, setOrbPlusModalOpen] = useState(false);
   const [paymentStubOpen, setPaymentStubOpen] = useState(false);
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const streamTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -294,11 +304,12 @@ export default function Chat({
     setMessages((prev) => [...prev, message]);
   }
 
-  async function requestAnswer(prompt: string, requestId: number) {
+  async function requestAnswer(prompt: string, requestId: number, file: File | null) {
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
     let accumulated = "";
+    let generatedFile: OrbFileMeta | undefined;
 
     function finishWithError(message: string) {
       if (requestIdRef.current !== requestId) return;
@@ -319,13 +330,22 @@ export default function Chat({
     function startTypewriter() {
       if (requestIdRef.current !== requestId) return;
 
-      if (!accumulated) {
+      if (!accumulated && !generatedFile) {
         setAnswerStream(undefined);
         setAction(undefined);
         return;
       }
 
       const fullText = accumulated;
+      const fileForMessage = generatedFile;
+
+      if (!fullText) {
+        appendMessage({ message: "Файл готов.", sender: "server", generatedFile: fileForMessage });
+        setAnswerStream(undefined);
+        setAction(undefined);
+        return;
+      }
+
       const durationMs = Math.min(2000, Math.max(600, fullText.length * 5));
       const charsPerTick = Math.max(1, Math.ceil(fullText.length / (durationMs / TICK_MS)));
       let pos = 0;
@@ -348,7 +368,7 @@ export default function Chat({
 
         if (pos >= fullText.length) {
           stop();
-          appendMessage({ message: fullText, sender: "server" });
+          appendMessage({ message: fullText, sender: "server", generatedFile: fileForMessage });
           setAnswerStream(undefined);
           setAction(undefined);
         }
@@ -356,17 +376,28 @@ export default function Chat({
     }
 
     try {
-      const res = await fetch("/api/abit/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt,
-          modelType: selectedModel,
-          maxTokens: ORBS_TIERS.find((t) => t.label === orbsTier)?.maxTokens ?? 1000,
-          orbsTier,
-        }),
-        signal: controller.signal,
-      });
+      let res: Response;
+      if (file) {
+        const fd = new FormData();
+        fd.append("prompt", prompt);
+        fd.append("modelType", selectedModel);
+        fd.append("maxTokens", String(ORBS_TIERS.find((t) => t.label === orbsTier)?.maxTokens ?? 1000));
+        if (orbsTier) fd.append("orbsTier", orbsTier);
+        fd.append("file", file);
+        res = await fetch("/api/abit/chat", { method: "POST", body: fd, signal: controller.signal });
+      } else {
+        res = await fetch("/api/abit/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt,
+            modelType: selectedModel,
+            maxTokens: ORBS_TIERS.find((t) => t.label === orbsTier)?.maxTokens ?? 1000,
+            orbsTier,
+          }),
+          signal: controller.signal,
+        });
+      }
 
       if (!res.ok || !res.body) {
         const data = (await res.json().catch(() => null)) as { error?: string; code?: string; status?: OrbStatus } | null;
@@ -407,6 +438,10 @@ export default function Chat({
           if (parsed.error) { finishWithError(parsed.error); return; }
           if (parsed.imageBase64) { finishWithImage(parsed.imageBase64); return; }
           if (parsed.text) { accumulated += parsed.text; }
+          if (parsed.file) {
+            generatedFile = parsed.file;
+            if (parsed.replaceText !== undefined) accumulated = parsed.replaceText;
+          }
         }
       }
 
@@ -422,28 +457,37 @@ export default function Chat({
 
   function onSubmit() {
     const prompt = value.trim();
-    if (!prompt && action !== "thinking") return;
+    const file = attachedFile;
+    if (!prompt && !file && action !== "thinking") return;
 
-    if (prompt && !isAuthenticated && questionsUsed >= QUESTION_LIMIT) {
+    if ((prompt || file) && !isAuthenticated && questionsUsed >= QUESTION_LIMIT) {
       setShowAuthModal(true);
       return;
     }
 
-    if (prompt && orbsTier === "Orbs Pro" && isAuthenticated && orbStatus && orbStatus.remaining <= 0) {
+    if (file && orbsTier !== "Orbs Pro") {
+      setOrbLimitModalOpen(false);
+      setOrbPlusModalOpen(false);
+      window.alert("Загрузка файлов доступна только в тарифе Orbs Pro.");
+      return;
+    }
+
+    if ((prompt || file) && orbsTier === "Orbs Pro" && isAuthenticated && orbStatus && orbStatus.remaining <= 0) {
       setOrbLimitModalOpen(true);
       return;
     }
 
     setStarted(true);
 
-    if (prompt) {
+    if (prompt || file) {
       clearAnswerTimers();
       abortControllerRef.current?.abort();
 
       const requestId = requestIdRef.current + 1;
       requestIdRef.current = requestId;
 
-      appendMessage({ message: prompt, sender: "client" });
+      const displayMessage = prompt || (file ? `📎 ${file.name}` : "");
+      appendMessage({ message: displayMessage, sender: "client", attachedFileName: file?.name });
 
       if (!isAuthenticated) {
         const next = questionsUsed + 1;
@@ -454,8 +498,9 @@ export default function Chat({
       setAction("thinking");
       setAnswerStream(undefined);
       setValue("");
+      setAttachedFile(null);
 
-      void requestAnswer(prompt, requestId).finally(() => {
+      void requestAnswer(prompt || "Проанализируй прикреплённый файл.", requestId, file).finally(() => {
         if (isAuthenticated && orbsTier === "Orbs Pro") void refreshOrbStatus();
       });
     } else {
@@ -698,6 +743,9 @@ export default function Chat({
             onChange={(e) => setValue(e.target.value)}
             onSubmit={onSubmit}
             disabled={limitReached}
+            attachEnabled={orbsTier === "Orbs Pro" && isAuthenticated}
+            fileAttached={attachedFile ? { name: attachedFile.name, size: attachedFile.size } : null}
+            onAttachFile={setAttachedFile}
           />
 
           <div className="w-full flex items-center justify-between px-1">
@@ -857,8 +905,8 @@ export default function Chat({
                       <span className="text-white/80">Отмена в любой момент</span>
                     </div>
                   </div>
-                  <div className="flex items-end justify-between rounded-lg bg-white/5 px-4 py-3">
-                    <span className="text-white/60 text-sm">Стоимость</span>
+                  <div className="flex items-center justify-between rounded-lg bg-white/5 px-4 py-4">
+                    <span className="text-white text-xl font-bold">Стоимость</span>
                     <div className="flex items-baseline gap-1">
                       <span className="text-white text-2xl font-bold">{ORB_PLUS_PRICE_RUB}</span>
                       <span className="text-white/60 text-sm">₽/мес</span>
@@ -981,6 +1029,24 @@ function MessageRender({ message }: { message: Message }) {
       <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
         {message.message}
       </ReactMarkdown>
+      {message.attachedFileName && (
+        <div className="mt-2 flex items-center gap-1.5 text-xs text-white/60">
+          <Paperclip size={12} />
+          <span className="truncate">{message.attachedFileName}</span>
+        </div>
+      )}
+      {message.generatedFile && (
+        <a
+          href={`/api/orb-files/${encodeURIComponent(message.generatedFile.id)}`}
+          download
+          className="mt-3 inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 px-3 py-2 transition-colors text-sm text-white/90 no-underline"
+        >
+          <FileText size={16} className="text-[#7B9EFF] flex-shrink-0" />
+          <span className="truncate">{message.generatedFile.fileName}</span>
+          <span className="text-xs text-white/40 uppercase">{message.generatedFile.type}</span>
+          <Download size={14} className="text-white/60 ml-1" />
+        </a>
+      )}
     </div>
   );
 }

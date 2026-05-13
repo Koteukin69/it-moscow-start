@@ -253,7 +253,7 @@ export default function ProfileCard({name: initialName, coins, avatar, quizResul
                   </Link>
                 </Button>
                 <Button variant="outline" className="w-full rounded-xl gap-2 mt-auto" asChild>
-                  <Link href="/shop">
+                  <Link href="/shop?from=/profile">
                     Потратить в магазине
                     <ChevronRight size={16}/>
                   </Link>

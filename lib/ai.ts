@@ -28,6 +28,7 @@ type AskParams = {
   temperature?: number;
   maxTokens?: number;
   signal?: AbortSignal;
+  systemPromptExtra?: string;
 };
 
 type FMAlternative = {
@@ -82,6 +83,10 @@ export async function askAIStream(params: AskParams): Promise<StreamResult> {
       fullSystemPrompt = admissionSystemPrompt;
       if (kbContext) fullSystemPrompt += `\n\nРелевантная информация из базы знаний:\n${kbContext}`;
       if (webContext) fullSystemPrompt += `\n\nАктуальная информация с сайтов ИТ.Москва:\n${webContext}`;
+    }
+
+    if (params.systemPromptExtra) {
+      fullSystemPrompt += `\n\n${params.systemPromptExtra}`;
     }
 
     const res = await fetch(BASE_URL, {

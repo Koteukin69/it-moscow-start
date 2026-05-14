@@ -9,20 +9,38 @@ const GAME_CORS_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [new URL("https://yandex.ru/**")],
+  },
   async headers() {
     return [
       {
         source: "/api/game/:path*",
         headers: GAME_CORS_HEADERS,
       },
+      {
+        source: "/Game/Build/:path*.wasm.br",
+        headers: [
+          { key: "Content-Encoding", value: "br" },
+          { key: "Content-Type", value: "application/wasm" },
+        ],
+      },
+      {
+        source: "/Game/Build/:path*.js.br",
+        headers: [
+          { key: "Content-Encoding", value: "br" },
+          { key: "Content-Type", value: "application/javascript" },
+        ],
+      },
+      {
+        source: "/Game/Build/:path*.data.br",
+        headers: [
+          { key: "Content-Encoding", value: "br" },
+          { key: "Content-Type", value: "application/octet-stream" },
+        ],
+      },
     ];
   },
 };
 
 export default nextConfig;
-
-module.exports = {
-  images: {
-    remotePatterns: [new URL('https://yandex.ru/**')],
-  },
-}

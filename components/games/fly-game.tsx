@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
+import { vibrate } from "@/lib/haptics";
 
 const GRAVITY = 0.45;
 const JUMP_FORCE = -9;
@@ -307,6 +308,7 @@ export default function FlyGame({ userId }: { userId?: string }) {
 
   const jump = useCallback(() => {
     if (statusRef.current === "dead") return;
+    vibrate(15);
     if (statusRef.current === "idle") {
       statusRef.current = "playing";
       setStatus("playing");
@@ -416,6 +418,7 @@ export default function FlyGame({ userId }: { userId?: string }) {
         if (dead) {
           statusRef.current = "dead";
           setStatus("dead");
+          vibrate([120, 50, 180]);
           awardCoins(scoreRef.current);
           for (let i = 0; i < 20; i++) {
             const ang = Math.random() * Math.PI * 2;

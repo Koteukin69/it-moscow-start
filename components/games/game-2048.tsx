@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { RotateCcw, Trophy } from "lucide-react";
+import { vibrate } from "@/lib/haptics";
 
 type Board = number[][];
 type Direction = "up" | "down" | "left" | "right";
@@ -173,6 +174,7 @@ export default function Game2048({ userId }: { userId?: string }) {
     setBoard(prev => {
       const { board: next, score: gained } = applyMove(prev, dir);
       if (boardsEqual(prev, next)) return prev;
+      if (gained > 0) vibrate(20);
 
       const withTile = addTile(next);
       const top = maxTile(withTile);

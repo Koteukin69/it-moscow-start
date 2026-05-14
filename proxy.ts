@@ -32,7 +32,8 @@ export async function proxy(request: NextRequest) {
 
   const isApplicantRoute =
     pathname.startsWith("/profile") ||
-    pathname.startsWith("/game");
+    pathname === "/game" ||
+    pathname.startsWith("/game/");
 
   if (isApplicantRoute && applicant) {
     try {

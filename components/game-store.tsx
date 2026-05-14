@@ -205,8 +205,8 @@ export default function GameStore({ userId, userAvatar }: { userId?: string; use
         </div>
       )}
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-12">
-        <section className="relative rounded-2xl overflow-hidden min-h-[400px] sm:min-h-[460px] flex items-end">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-5 sm:py-8 flex flex-col gap-8 sm:gap-12">
+        <section className="relative rounded-2xl overflow-hidden min-h-[280px] sm:min-h-[460px] flex items-end">
           {featured.coverImage && (
             <img
               src={featured.coverImage}
@@ -218,28 +218,29 @@ export default function GameStore({ userId, userAvatar }: { userId?: string; use
           <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/20" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
 
-          <div className="relative z-10 p-8 sm:p-12 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 w-full">
-            <div className="flex flex-col gap-4 max-w-xl">
-              <div className="flex items-center gap-3 flex-wrap">
+          <div className="relative z-10 p-5 sm:p-8 lg:p-12 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 sm:gap-6 w-full">
+            <div className="flex flex-col gap-2 sm:gap-4 max-w-xl">
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                 <span className="px-2.5 py-0.5 rounded-full bg-orange-500/20 border border-orange-500/30 text-orange-400 text-xs font-medium">
                   Хит сезона
                 </span>
-                <div className="flex items-center gap-1 text-yellow-400 text-sm">
-                  <Star size={13} fill="currentColor" />
+                <div className="flex items-center gap-1 text-yellow-400 text-xs sm:text-sm">
+                  <Star size={12} fill="currentColor" />
                   <span className="font-medium">{featured.rating}</span>
                 </div>
-                <div className="flex items-center gap-1 text-white/40 text-sm">
+                <div className="hidden sm:flex items-center gap-1 text-white/40 text-sm">
                   <Users size={13} />
                   <span>{featured.players} игроков</span>
                 </div>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl font-black tracking-tight drop-shadow-lg">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight drop-shadow-lg">
                 {featured.title}
               </h1>
-              <p className="text-white/75 text-base leading-relaxed">{featured.description}</p>
+              <p className="hidden sm:block text-white/75 text-base leading-relaxed">{featured.description}</p>
+              <p className="sm:hidden text-white/70 text-sm leading-snug line-clamp-2">{featured.tagline}</p>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="hidden sm:flex flex-wrap gap-2">
                 {featured.tags.map(tag => (
                   <span key={tag} className="px-3 py-1 rounded-full bg-white/10 text-white/60 text-xs">
                     {tag}
@@ -248,7 +249,7 @@ export default function GameStore({ userId, userAvatar }: { userId?: string; use
               </div>
 
               {featured.platforms && (
-                <div className="flex gap-2">
+                <div className="hidden sm:flex gap-2">
                   {featured.platforms.map(p => (
                     <span key={p} className="px-2.5 py-1 rounded-lg bg-white/8 border border-white/12 text-white/50 text-xs">
                       {p}
@@ -258,22 +259,22 @@ export default function GameStore({ userId, userAvatar }: { userId?: string; use
               )}
             </div>
 
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 w-full sm:w-auto">
               {featured.external ? (
                 <a href={featured.href!} target="_blank" rel="noopener noreferrer">
-                  <Button size="lg" className="bg-white text-[#0f0f13] hover:bg-white/90 font-bold px-8 h-12">
+                  <Button size="lg" className="bg-white text-[#0f0f13] hover:bg-white/90 font-bold px-8 h-11 sm:h-12 w-full sm:w-auto">
                     Играть
                   </Button>
                 </a>
               ) : featured.requiresAuth && !userId ? (
                 <Link href="/api/auth/vk?mode=login&returnUrl=/game">
-                  <Button size="lg" className="bg-white text-[#0f0f13] hover:bg-white/90 font-bold px-8 h-12">
+                  <Button size="lg" className="bg-white text-[#0f0f13] hover:bg-white/90 font-bold px-8 h-11 sm:h-12 w-full sm:w-auto">
                     Войти и играть
                   </Button>
                 </Link>
               ) : (
                 <Link href={featured.href!}>
-                  <Button size="lg" className="bg-white text-[#0f0f13] hover:bg-white/90 font-bold px-8 h-12">
+                  <Button size="lg" className="bg-white text-[#0f0f13] hover:bg-white/90 font-bold px-8 h-11 sm:h-12 w-full sm:w-auto">
                     Играть бесплатно
                   </Button>
                 </Link>
@@ -282,9 +283,9 @@ export default function GameStore({ userId, userAvatar }: { userId?: string; use
           </div>
         </section>
 
-        <section className="flex flex-col gap-5">
-          <h2 className="text-xl font-bold text-white/90">Все игры</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <section className="flex flex-col gap-4 sm:gap-5">
+          <h2 className="text-lg sm:text-xl font-bold text-white/90">Все игры</h2>
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {rest.map(game => (
               <GameCard key={game.id} game={game} userId={userId} />
             ))}
@@ -302,51 +303,51 @@ function GameCard({ game, userId }: { game: Game; userId?: string }) {
 
   return (
     <div className="group rounded-xl border border-white/8 bg-white/4 overflow-hidden flex flex-col hover:border-white/16 transition-colors">
-      <div className={`relative h-36 bg-gradient-to-br ${game.gradient} flex items-center justify-center`}>
+      <div className={`relative h-24 sm:h-36 bg-gradient-to-br ${game.gradient} flex items-center justify-center`}>
         {game.icon}
         {comingSoon && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <span className="px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white/60 text-xs font-medium">
+            <span className="px-2 py-0.5 rounded-full bg-white/10 border border-white/20 text-white/60 text-xs font-medium">
               Скоро
             </span>
           </div>
         )}
         {!comingSoon && game.rating !== null && (
-          <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/50 backdrop-blur-sm">
-            <Star size={11} fill="#facc15" className="text-yellow-400" />
-            <span className="text-yellow-400 text-xs font-medium">{game.rating}</span>
+          <div className="absolute top-2 right-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-black/50 backdrop-blur-sm">
+            <Star size={10} fill="#facc15" className="text-yellow-400" />
+            <span className="text-yellow-400 text-[10px] font-medium">{game.rating}</span>
           </div>
         )}
         {!comingSoon && game.rating === null && (
-          <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-black/50 backdrop-blur-sm">
-            <span className="text-white/40 text-xs">новинка</span>
+          <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-black/50 backdrop-blur-sm">
+            <span className="text-white/40 text-[10px]">новинка</span>
           </div>
         )}
       </div>
 
-      <div className="p-4 flex flex-col gap-3 flex-1">
-        <div className="flex flex-col gap-1">
-          <h3 className="font-semibold text-white/90">{game.title}</h3>
-          <p className="text-white/50 text-sm leading-snug">{game.tagline}</p>
+      <div className="p-3 sm:p-4 flex flex-col gap-2 sm:gap-3 flex-1">
+        <div className="flex flex-col gap-0.5">
+          <h3 className="font-semibold text-white/90 text-sm sm:text-base leading-tight">{game.title}</h3>
+          <p className="text-white/50 text-xs sm:text-sm leading-snug line-clamp-2">{game.tagline}</p>
         </div>
-        <div className="flex flex-wrap gap-1.5 mt-auto">
+        <div className="hidden sm:flex flex-wrap gap-1.5 mt-auto">
           {game.tags.map(tag => (
             <span key={tag} className="px-2 py-0.5 rounded-full bg-white/8 text-white/40 text-xs">
               {tag}
             </span>
           ))}
         </div>
-        <div className="pt-1">
+        <div className="mt-auto">
           {canPlay && (
             game.external ? (
               <a href={game.href!} target="_blank" rel="noopener noreferrer">
-                <Button size="sm" className="w-full bg-white text-[#0f0f13] hover:bg-white/90 font-semibold">
+                <Button size="sm" className="w-full bg-white text-[#0f0f13] hover:bg-white/90 font-semibold text-xs sm:text-sm h-8 sm:h-9">
                   Играть
                 </Button>
               </a>
             ) : (
               <Link href={game.href!}>
-                <Button size="sm" className="w-full bg-white text-[#0f0f13] hover:bg-white/90 font-semibold">
+                <Button size="sm" className="w-full bg-white text-[#0f0f13] hover:bg-white/90 font-semibold text-xs sm:text-sm h-8 sm:h-9">
                   Играть
                 </Button>
               </Link>
@@ -354,13 +355,13 @@ function GameCard({ game, userId }: { game: Game; userId?: string }) {
           )}
           {needsAuth && (
             <Link href={`/api/auth/vk?mode=login&returnUrl=${game.href}`}>
-              <Button size="sm" variant="outline" className="w-full border-white/20 text-white/70 hover:text-white">
+              <Button size="sm" variant="outline" className="w-full border-white/20 text-white/70 hover:text-white text-xs sm:text-sm h-8 sm:h-9">
                 Войти и играть
               </Button>
             </Link>
           )}
           {comingSoon && (
-            <Button size="sm" disabled className="w-full opacity-40">Скоро</Button>
+            <Button size="sm" disabled className="w-full opacity-40 text-xs sm:text-sm h-8 sm:h-9">Скоро</Button>
           )}
         </div>
       </div>

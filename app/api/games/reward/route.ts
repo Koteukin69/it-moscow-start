@@ -5,8 +5,17 @@ const ALLOWED_GAMES = ["fly", "2048"] as const;
 type GameId = (typeof ALLOWED_GAMES)[number];
 
 function calcCoins(game: GameId, score: number): number {
-  if (game === "fly") return Math.min(Math.floor(score / 2), 30);
+  if (game === "fly") {
+    if (score >= 50) return 30;
+    if (score >= 30) return 20;
+    if (score >= 20) return 10;
+    if (score >= 10) return 5;
+    if (score >= 5) return 2;
+    return 0;
+  }
   if (game === "2048") {
+    if (score >= 8192) return 100;
+    if (score >= 4096) return 50;
     if (score >= 2048) return 30;
     if (score >= 1024) return 15;
     if (score >= 512) return 7;

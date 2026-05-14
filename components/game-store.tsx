@@ -56,6 +56,7 @@ const GAMES: Game[] = [
     icon: <Zap size={36} className="text-[#7B9EFF]" />,
     rating: 4.8,
     players: "1.2к",
+    coverImage: "/games/runner.png",
   },
   {
     id: "fly",
@@ -69,6 +70,7 @@ const GAMES: Game[] = [
     icon: <Star size={36} className="text-blue-400" />,
     rating: 4.5,
     players: "новинка",
+    coverImage: "/games/fly.png",
   },
   {
     id: "2048",
@@ -82,6 +84,7 @@ const GAMES: Game[] = [
     icon: <Shield size={36} className="text-[#7B9EFF]" />,
     rating: 4.6,
     players: "новинка",
+    coverImage: "/games/2048.png",
   },
   {
     id: "cyber",
@@ -342,8 +345,14 @@ function GameCard({ game, userId }: { game: Game; userId?: string }) {
 
   return (
     <div className="group rounded-xl border border-white/8 bg-white/4 overflow-hidden flex flex-col hover:border-white/16 transition-colors">
-      <div className={`relative h-24 sm:h-36 bg-gradient-to-br ${game.gradient} flex items-center justify-center`}>
-        {game.icon}
+      <div className={`relative h-24 sm:h-36 bg-gradient-to-br ${game.gradient} flex items-center justify-center overflow-hidden`}>
+        {game.coverImage ? (
+          <img
+            src={game.coverImage}
+            alt={game.title}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : game.icon}
         {comingSoon && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
             <span className="px-2 py-0.5 rounded-full bg-white/10 border border-white/20 text-white/60 text-xs font-medium">

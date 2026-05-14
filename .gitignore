@@ -48,5 +48,6 @@ next-env.d.ts
 /.claude
 /uploads
 /orb-files
+/public/Game
 
 /lib/generated/prisma

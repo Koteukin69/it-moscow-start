@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { AlertTriangle, ArrowLeft, Gamepad2, Lock, Shield, Star, Users, Zap } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Gamepad2, Lock, Menu, Shield, Star, Users, X, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const GUEST_WARNING_DISMISSED_KEY = "itmoscow-store-guest-warning-dismissed";
@@ -106,6 +106,7 @@ export default function GameStore({ userId, userAvatar }: { userId?: string; use
   const isAuthenticated = !!userId;
   const hasAvatarUrl = !!userAvatar && /^https?:\/\//.test(userAvatar);
   const [warningOpen, setWarningOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) return;
@@ -128,15 +129,17 @@ export default function GameStore({ userId, userAvatar }: { userId?: string; use
               className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors text-sm"
             >
               <ArrowLeft size={16} />
-              Назад
+              <span className="hidden sm:inline">Назад</span>
             </Link>
-            <span className="text-white/20">|</span>
+            <span className="hidden sm:inline text-white/20">|</span>
             <div className="flex items-center gap-2">
               <Gamepad2 size={18} className="text-[#7B9EFF]" />
               <span className="font-semibold text-sm">Игры ИТ.Москва</span>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+
+          {/* Desktop nav */}
+          <div className="hidden sm:flex items-center gap-4">
             <Link href="/shop?from=/store" className="text-white/50 hover:text-white text-sm transition-colors">
               Магазин
             </Link>
@@ -147,18 +150,9 @@ export default function GameStore({ userId, userAvatar }: { userId?: string; use
                 title="Профиль"
               >
                 {hasAvatarUrl ? (
-                  <Image
-                    src={userAvatar!}
-                    width={36}
-                    height={36}
-                    alt="Профиль"
-                    className="w-full h-full object-cover"
-                    unoptimized
-                  />
+                  <Image src={userAvatar!} width={36} height={36} alt="Профиль" className="w-full h-full object-cover" unoptimized />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-[#7B9EFF] to-[#5b7be0] flex items-center justify-center text-sm font-bold text-white">
-                    ?
-                  </div>
+                  <div className="w-full h-full bg-gradient-to-br from-[#7B9EFF] to-[#5b7be0] flex items-center justify-center text-sm font-bold text-white">?</div>
                 )}
               </Link>
             ) : (
@@ -170,7 +164,53 @@ export default function GameStore({ userId, userAvatar }: { userId?: string; use
               </Link>
             )}
           </div>
+
+          {/* Mobile burger */}
+          <button
+            className="sm:hidden p-2 text-white/60 hover:text-white transition-colors"
+            onClick={() => setMenuOpen(o => !o)}
+            aria-label="Меню"
+          >
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
+
+        {/* Mobile dropdown */}
+        {menuOpen && (
+          <div className="sm:hidden border-t border-white/8 bg-[#0f0f13]/95 px-4 py-3 flex flex-col gap-3">
+            <Link
+              href="/shop?from=/store"
+              className="text-white/70 hover:text-white text-sm py-2 border-b border-white/8"
+              onClick={() => setMenuOpen(false)}
+            >
+              Магазин
+            </Link>
+            {isAuthenticated ? (
+              <Link
+                href="/profile"
+                className="flex items-center gap-3 py-2"
+                onClick={() => setMenuOpen(false)}
+              >
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10 flex-shrink-0">
+                  {hasAvatarUrl ? (
+                    <Image src={userAvatar!} width={32} height={32} alt="Профиль" className="w-full h-full object-cover" unoptimized />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-[#7B9EFF] to-[#5b7be0] flex items-center justify-center text-xs font-bold text-white">?</div>
+                  )}
+                </div>
+                <span className="text-white/70 text-sm">Профиль</span>
+              </Link>
+            ) : (
+              <Link
+                href="/api/auth/vk?mode=login&returnUrl=/store"
+                className="w-full text-center px-4 py-2.5 rounded-lg bg-[#7B9EFF] hover:bg-[#a0b8ff] text-[#0f0f13] text-sm font-bold transition-colors"
+                onClick={() => setMenuOpen(false)}
+              >
+                Войти
+              </Link>
+            )}
+          </div>
+        )}
       </header>
 
       {warningOpen && (

@@ -391,7 +391,7 @@ export default function FlyGame({ userId }: { userId?: string }) {
             for (let i = 0; i < 8; i++) {
               const ang = Math.random() * Math.PI * 2;
               particlesRef.current.push({
-                x: bird.x ?? BIRD_X,
+                x: BIRD_X,
                 y: bird.y,
                 vx: Math.cos(ang) * (1 + Math.random() * 2),
                 vy: Math.sin(ang) * (1 + Math.random() * 2),
